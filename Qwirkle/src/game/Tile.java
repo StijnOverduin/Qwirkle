@@ -13,5 +13,11 @@ public class Tile {
 	public String toString() {
 		return color + " " + shape;
 	}
-
+	
+	public Color getColor(Tile tile) {
+		return tile.color;
+	}
+	public Shape getShape(Tile tile) {
+		return tile.shape;
+	}
 }

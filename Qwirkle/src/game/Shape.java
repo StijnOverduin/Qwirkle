@@ -1,6 +1,6 @@
 package game;
 
 public enum Shape {
-	CIRKEL, RUIT, VIERKANT,KLAVER, KRUIS, STER, EMPTY
+	CIRKEL('o'), RUIT('d'), VIERKANT('s'),KLAVER('c'), KRUIS('x'), STER('*'), EMPTY
 
 }

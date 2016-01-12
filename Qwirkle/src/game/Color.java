@@ -1,6 +1,6 @@
 package game;
 
 public enum Color {
-	ROOD, ORANJE, BLAUW, GEEL, GROEN,PAARS, EMPTY
+	ROOD('R'), ORANJE('O'), BLAUW('B'), GEEL('Y'), GROEN('G'),PAARS('P'), EMPTY
 
 }
