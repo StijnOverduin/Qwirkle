@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class TUIview {
 
-	private Player player;
+	private LocalPlayer player;
 
 	public TUIview() {
 
@@ -40,11 +40,15 @@ public class TUIview {
 						Color color = Color.getColorFromCharacter(tile.charAt(0));
 						Shape shape = Shape.getShapeFromCharacter(tile.charAt(1));
 						Tile tile1 = new Tile(color, shape);
+						player.removeTileFromHand(tile1);
+						if (player.NumberOfTilesInHand() < 6) {
+							
+						}
 
 					}
 				}
-			case "NEW":
-			case "TURN":
+			default:
+				System.out.println("That's not a valid command");
 
 			}
 		}
