@@ -37,16 +37,16 @@ public class Server {
 	}
 	
 	public void removeTileFromJar(Tile tile) {
-		Color color = tile.getColor(tile);
-		Shape shape = tile.getShape(tile);
+		Color color = tile.getColor();
+		Shape shape = tile.getShape();
 		String removedTile = "" + color + shape;
 		jar.remove(removedTile);
 	}
 	
 	public void addTileToJar(Tile tile) {
 		if (networkPlayer.getHand().contains(tile)) {
-		Color color = tile.getColor(tile);
-		Shape shape = tile.getShape(tile);
+		Color color = tile.getColor();
+		Shape shape = tile.getShape();
 			if (jar.size() < 109) {
 				jar.add("" + color + shape);
 			}

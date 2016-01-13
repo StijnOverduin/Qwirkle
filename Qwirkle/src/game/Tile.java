@@ -14,10 +14,10 @@ public class Tile {
 		return color + " " + shape;
 	}
 	
-	public Color getColor(Tile tile) {
-		return tile.color;
+	public Color getColor() {
+		return color;
 	}
-	public Shape getShape(Tile tile) {
-		return tile.shape;
+	public Shape getShape() {
+		return shape;
 	}
 }

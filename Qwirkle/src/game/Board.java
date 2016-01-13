@@ -1,8 +1,14 @@
 package game;
 
+import java.awt.List;
+import java.util.ArrayList;
+
 public class Board {
 
 	public static final int DIM = 183;
+	public static final int BEGINVELD = 0;
+	public static final int EINDVELD = DIM - 1;
+	public static final int MIDDENVELD = EINDVELD / 2;
 	public Tile[][] board;
 
 	public Board() {
@@ -19,7 +25,7 @@ public class Board {
 	}
 
 	public boolean isEmpty(int i, int j) {
-		return (board[i][j]).toString().equals("EMPTY EMPTY");
+		return (getTile(i, j)).toString().equals("EMPTY EMPTY");
 	}
 
 	public void setTile(int i, int j, Tile tile) {
@@ -35,19 +41,78 @@ public class Board {
 	}
 
 	public boolean isValidMove(int i, int j, Tile tile) {
-		if (isEmpty(i, j) == false) {
+		if (i > EINDVELD || j > EINDVELD || i < BEGINVELD || j < BEGINVELD) {
 			return false;
-		} else if (i == 91 && j == 91) {
+		} else if (isEmpty(i, j) == false) {
+			return false;
+		} else if (i == MIDDENVELD && j == MIDDENVELD) {
 			return true;
 		}
-
-	public boolean compareTile(Tile tile1, Tile tile2) {
-		if (tile1.equals(tile2)) {
-			return false;
-		} else if (getColor(tile1).equals(getColor(tile2))) {
-			return false;
+		if (!isEmpty(i + 1, j) || !isEmpty(i - 1, j)) {
+			return checkRow(tile, i, j, false);
+		}
+		if (!isEmpty(i, j + 1) || !isEmpty(i, j - 1)) {
+			return checkRow(tile, i, j, true);
 		} else {
-			return true;
+			return false;
 		}
+	}
+
+	private boolean checkRow(Tile tile, int i, int j, boolean horizontalCheck) {
+        int dx = horizontalCheck ? 1 : 0; //als horizontal check, dan dx 1 dy 0, anders dx 0 dy 1.
+        int dy = dx == 1 ? 0 : 1;
+        int dupy = i;
+        int dupx = j;
+
+        ArrayList<Tile> set = new ArrayList<Tile>();
+        set.add(tile);
+        while(!isEmpty(i + dx, j + dy)) {
+            set.add(getTile(i + dx, j + dy));
+            i += dx;
+            j += dy;
+        }
+        while(!isEmpty(i + dx, j + dy)) {
+            set.add(getTile(i + dx, j + dy));
+            i += dx;
+            j += dy;
+        }
+        i = dupx;
+        j = dupy;
+        while(!isEmpty(i - dx, j - dy)) {
+            set.add(getTile(i - dx, j - dy));
+            i += dx;
+            j += dy;
+        }
+        while(!isEmpty(i - dx, j - dy)) {
+            set.add(getTile(i - dx, j - dy));
+            i += dx;
+            j += dy;
+        }
+
+        if(set.size() > 6)
+            return false;
+        boolean ans = true;
+        if(set.get(0).getColor().equals(set.get(1).getColor())) {
+            for (int a = 1; a < set.size(); a++) {
+                if (!set.get(0).getColor().equals(set.get(a).getColor()) || set.get(0).getShape().equals(set.get(a).getShape())) {
+                    ans = false;
+                }
+            }
+        }
+        else if (set.get(0).getShape().equals(set.get(1).getShape())){
+            for (int a = 0; a < set.size() - 1; a++) {
+                if (!set.get(0).getColor().equals(set.get(a).getColor()) || set.get(0).getShape().equals(set.get(a).getShape())) {
+                    ans = false;
+                }
+            }
+        }
+        else {
+            ans = false;
+        }
+        return ans;
+    }
+	
+	public boolean compareTile(Tile tile1, Tile tile2) {
+		return (tile1.getColor().equals(tile2.getColor()) ^ tile1.getShape().equals(tile2.getShape()));
 	}
 }
