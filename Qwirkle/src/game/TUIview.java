@@ -1,17 +1,25 @@
 package game;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class TUIview {
 
 	private LocalPlayer player;
 	private Board board;
+	
 
-	public TUIview(Board board) {
-		this.board = board;
+	public TUIview() {
+		
 	}
 
-	public void deterMineMove() {
+	public void determineMove() {
 		System.out.println("Type in your move please: ");
 		Scanner in = new Scanner(System.in);
 		String next = null;
@@ -31,6 +39,8 @@ public class TUIview {
 							if (in.hasNext()) {
 								int colom = Integer.parseInt(in.next());
 								player.makeMove(rij, colom, tile);
+								client.sentMessage("MOVE" + tile + " " + rij + " " + colom);
+								
 							}
 						}
 					}
