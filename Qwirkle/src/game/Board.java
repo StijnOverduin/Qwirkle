@@ -59,60 +59,58 @@ public class Board {
 	}
 
 	private boolean checkRow(Tile tile, int i, int j, boolean horizontalCheck) {
-        int dx = horizontalCheck ? 1 : 0; //als horizontal check, dan dx 1 dy 0, anders dx 0 dy 1.
-        int dy = dx == 1 ? 0 : 1;
-        int dupy = i;
-        int dupx = j;
+		int dx = horizontalCheck ? 1 : 0; // als horizontal check, dan dx 1 dy
+											// 0, anders dx 0 dy 1.
+		int dy = dx == 1 ? 0 : 1;
+		int dupy = i;
+		int dupx = j;
 
-        ArrayList<Tile> set = new ArrayList<Tile>();
-        set.add(tile);
-        while(!isEmpty(i + dx, j + dy)) {
-            set.add(getTile(i + dx, j + dy));
-            i += dx;
-            j += dy;
-        }
-        while(!isEmpty(i + dx, j + dy)) {
-            set.add(getTile(i + dx, j + dy));
-            i += dx;
-            j += dy;
-        }
-        i = dupx;
-        j = dupy;
-        while(!isEmpty(i - dx, j - dy)) {
-            set.add(getTile(i - dx, j - dy));
-            i += dx;
-            j += dy;
-        }
-        while(!isEmpty(i - dx, j - dy)) {
-            set.add(getTile(i - dx, j - dy));
-            i += dx;
-            j += dy;
-        }
+		ArrayList<Tile> set = new ArrayList<Tile>();
+		set.add(tile);
+		while (!isEmpty(i + dx, j + dy)) {
+			set.add(getTile(i + dx, j + dy));
+			i += dx;
+			j += dy;
+		}
+		while (!isEmpty(i + dx, j + dy)) {
+			set.add(getTile(i + dx, j + dy));
+			i += dx;
+			j += dy;
+		}
+		i = dupx;
+		j = dupy;
+		while (!isEmpty(i - dx, j - dy)) {
+			set.add(getTile(i - dx, j - dy));
+			i += dx;
+			j += dy;
+		}
+		while (!isEmpty(i - dx, j - dy)) {
+			set.add(getTile(i - dx, j - dy));
+			i += dx;
+			j += dy;
+		}
 
-        if(set.size() > 6)
-            return false;
-        boolean ans = true;
-        if(set.get(0).getColor().equals(set.get(1).getColor())) {
-            for (int a = 1; a < set.size(); a++) {
-                if (!set.get(0).getColor().equals(set.get(a).getColor()) || set.get(0).getShape().equals(set.get(a).getShape())) {
-                    ans = false;
-                }
-            }
-        }
-        else if (set.get(0).getShape().equals(set.get(1).getShape())){
-            for (int a = 0; a < set.size() - 1; a++) {
-                if (!set.get(0).getColor().equals(set.get(a).getColor()) || set.get(0).getShape().equals(set.get(a).getShape())) {
-                    ans = false;
-                }
-            }
-        }
-        else {
-            ans = false;
-        }
-        return ans;
-    }
-	
-	public boolean compareTile(Tile tile1, Tile tile2) {
-		return (tile1.getColor().equals(tile2.getColor()) ^ tile1.getShape().equals(tile2.getShape()));
+		if (set.size() > 6)
+			return false;
+		boolean ans = true;
+		if (set.get(0).getColor().equals(set.get(1).getColor())) {
+			for (int a = 1; a < set.size(); a++) {
+				if (!set.get(0).getColor().equals(set.get(a).getColor())
+						|| set.get(0).getShape().equals(set.get(a).getShape())) {
+					ans = false;
+				}
+			}
+		} else if (set.get(0).getShape().equals(set.get(1).getShape())) {
+			for (int a = 0; a < set.size() - 1; a++) {
+				if (!set.get(0).getColor().equals(set.get(a).getColor())
+						|| set.get(0).getShape().equals(set.get(a).getShape())) {
+					ans = false;
+				}
+			}
+		} else {
+			ans = false;
+		}
+		return ans;
 	}
+
 }
