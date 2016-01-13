@@ -13,10 +13,11 @@ public class TUIview {
 
 	private LocalPlayer player;
 	private Board board;
+	private Client client;
 	
 
-	public TUIview() {
-		
+	public TUIview(Client client) {
+		this.client = client;
 	}
 
 	public void determineMove() {
@@ -39,7 +40,7 @@ public class TUIview {
 							if (in.hasNext()) {
 								int colom = Integer.parseInt(in.next());
 								player.makeMove(rij, colom, tile);
-								client.sentMessage("MOVE" + tile + " " + rij + " " + colom);
+								client.sendMessage("MOVE" + tile + " " + rij + " " + colom);
 								
 							}
 						}
@@ -59,6 +60,11 @@ public class TUIview {
 
 					}
 				} break;
+			case "HELLO":
+				if (in.hasNext()) {
+					String playerName = in.next();
+					client.sendMessage("HELLO " + playerName);
+				}
 			default:
 				System.out.println("That's not a valid command");
 
