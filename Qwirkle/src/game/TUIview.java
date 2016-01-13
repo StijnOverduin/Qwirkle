@@ -5,12 +5,14 @@ import java.util.Scanner;
 public class TUIview {
 
 	private LocalPlayer player;
+	private Board board;
 
-	public TUIview() {
-
+	public TUIview(Board board) {
+		this.board = board;
 	}
 
 	public void deterMineMove() {
+		System.out.println("Type in your move please: ");
 		Scanner in = new Scanner(System.in);
 		String next = null;
 		if (in.hasNextLine()) {
@@ -32,7 +34,7 @@ public class TUIview {
 							}
 						}
 					}
-				}
+				} break;
 			case "SWAP":
 				for (int i = 0; i < 6; i++) {
 					if (in.hasNext()) {
@@ -46,11 +48,14 @@ public class TUIview {
 						}
 
 					}
-				}
+				} break;
 			default:
 				System.out.println("That's not a valid command");
 
 			}
 		}
+		in.close();
 	}
+	
+	
 }
