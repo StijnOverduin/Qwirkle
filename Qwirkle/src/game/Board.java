@@ -47,14 +47,15 @@ public class Board {
 			return false;
 		} else if (i == MIDDENVELD && j == MIDDENVELD) {
 			return true;
-		}
-		if (!isEmpty(i + 1, j) || !isEmpty(i - 1, j)) {
-			return checkRow(tile, i, j, false);
-		}
-		if (!isEmpty(i, j + 1) || !isEmpty(i, j - 1)) {
-			return checkRow(tile, i, j, true);
 		} else {
-			return false;
+		boolean ans = false;
+			if (!isEmpty(i + 1, j) || !isEmpty(i - 1, j)) {
+			ans = checkRow(tile, i, j, false);
+			}
+			if (!isEmpty(i, j + 1) || !isEmpty(i, j - 1)) {
+			ans = checkRow(tile, i, j, true);
+			}
+			return ans;
 		}
 	}
 
