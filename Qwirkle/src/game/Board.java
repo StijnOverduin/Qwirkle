@@ -1,6 +1,5 @@
 package game;
 
-import java.awt.List;
 import java.util.ArrayList;
 
 public class Board {
@@ -13,23 +12,23 @@ public class Board {
 
 	public Board() {
 		board = new Tile[DIM][DIM];
-		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board.length; j++) {
-				board[i][j] = new Tile(Color.EMPTY, Shape.EMPTY);
+		for (int row = 0; row < board.length; row++) {
+			for (int col = 0; col < board.length; col++) {
+				board[row][col] = new Tile(Color.EMPTY, Shape.EMPTY);
 			}
 		}
 	}
 
-	public Tile getTile(int i, int j) {
-		return board[i][j];
+	public Tile getTile(int row, int col) {
+		return board[row][col];
 	}
 
-	public boolean isEmpty(int i, int j) {
-		return (getTile(i, j)).toString().equals("EMPTY EMPTY");
+	public boolean isEmpty(int row, int col) {
+		return (getTile(row, col)).toString().equals("EMPTY EMPTY");
 	}
 
-	public void setTile(int i, int j, Tile tile) {
-		board[i][j] = tile;
+	public void setTile(int row, int col, Tile tile) {
+		board[row][col] = tile;
 	}
 
 	public static void main(String[] args) {
@@ -40,55 +39,56 @@ public class Board {
 		System.out.println(board.getTile(2, 4));
 	}
 
-	public boolean isValidMove(int i, int j, Tile tile) {
-		if (i > EINDVELD || j > EINDVELD || i < BEGINVELD || j < BEGINVELD) {
+	public boolean isValidMove(int row, int col, Tile tile) {
+		if (row > EINDVELD || col > EINDVELD || row < BEGINVELD || col < BEGINVELD) {
 			return false;
-		} else if (isEmpty(i, j) == false) {
+		} else if (isEmpty(row, col) == false) {
 			return false;
-		} else if (i == MIDDENVELD && j == MIDDENVELD) {
+		} else if (row == MIDDENVELD && col == MIDDENVELD) {
 			return true;
 		} else {
-		boolean ans = false;
-			if (!isEmpty(i + 1, j) || !isEmpty(i - 1, j)) {
-			ans = checkRow(tile, i, j, false);
+		boolean ans1 = true;
+		boolean ans2 = true;
+			if (!isEmpty(row + 1, col) || !isEmpty(row - 1, col)) {
+			ans1 = checkRow(tile, row, col, false);
 			}
-			if (!isEmpty(i, j + 1) || !isEmpty(i, j - 1)) {
-			ans = checkRow(tile, i, j, true);
+			if (!isEmpty(row, col + 1) || !isEmpty(row, col - 1)) {
+			ans2 = checkRow(tile, row, col, true);
 			}
-			return ans;
+			return (ans1 && ans2);
 		}
 	}
 
-	private boolean checkRow(Tile tile, int i, int j, boolean horizontalCheck) {
-		int dx = horizontalCheck ? 1 : 0; // als horizontal check, dan dx 1 dy
+	private boolean checkRow(Tile tile, int row, int col, boolean horizontalCheck) {
+		int dx = horizontalCheck ? 0 : 1; // als horizontal check, dan dx 1 dy
 											// 0, anders dx 0 dy 1.
 		int dy = dx == 1 ? 0 : 1;
-		int dupy = i;
-		int dupx = j;
+		int dupy = row;
+		int dupx = col;
 
 		ArrayList<Tile> set = new ArrayList<Tile>();
 		set.add(tile);
-		while (!isEmpty(i + dx, j + dy)) {
-			set.add(getTile(i + dx, j + dy));
-			i += dx;
-			j += dy;
+		while (!isEmpty(row + dx, col + dy)) {
+			set.add(getTile(row + dx, col + dy));
+			row += dx;
+			col += dy;
 		}
-		while (!isEmpty(i + dx, j + dy)) {
-			set.add(getTile(i + dx, j + dy));
-			i += dx;
-			j += dy;
+		while (!isEmpty(row + dx, col + dy)) {
+			set.add(getTile(row + dx, col + dy));
+			row += dx;
+			col += dy;
 		}
-		i = dupx;
-		j = dupy;
-		while (!isEmpty(i - dx, j - dy)) {
-			set.add(getTile(i - dx, j - dy));
-			i += dx;
-			j += dy;
+		row = dupx;
+		col = dupy;
+		while (!isEmpty(row - dx, col - dy)) {
+			set.add(getTile(row - dx, col - dy));
+			row += dx;
+			col += dy;
 		}
-		while (!isEmpty(i - dx, j - dy)) {
-			set.add(getTile(i - dx, j - dy));
-			i += dx;
-			j += dy;
+		while (!isEmpty(row - dx, col - dy)) {
+			set.add(getTile(row - dx, col - dy));
+			row += dx;
+			col += dy;
 		}
 
 		if (set.size() > 6)
