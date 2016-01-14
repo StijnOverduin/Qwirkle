@@ -13,17 +13,17 @@ import java.util.Scanner;
 		private Server server;
 		private BufferedReader in;
 		private BufferedWriter out;
-		private String clientName;
+		private int clientNumber;
 
 		/**
 		 * Constructs a ClientHandler object Initialises both Data streams.
 		 */
 		// @ requires serverArg != null && sockArg != null;
-		public ClientHandler(Server serverArg, Socket sockArg) throws IOException {
+		public ClientHandler(Server serverArg, Socket sockArg, int clientNumber) throws IOException {
 			server = serverArg;
 			in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
-			
+			this.clientNumber = clientNumber;
 		}
 
 		/**
@@ -37,7 +37,7 @@ import java.util.Scanner;
 			try {
 				while (true) {
 	            String input = in.readLine();
-	            server.readInput(input);
+	            server.readInput(input, this);
 				}
 	                
 	        } catch (IOException e) {
@@ -61,15 +61,19 @@ import java.util.Scanner;
 				e.printStackTrace();
 			}
 		}
+		
+		public int getClientNumber() {
+			return clientNumber;
+		}
 
 		/**
 		 * This ClientHandler signs off from the Server and subsequently sends a
 		 * last broadcast to the Server to inform that the Client is no longer
 		 * participating in the chat.
 		 */
-		private void shutdown() {
+		public void shutdown() {
 			server.removeHandler(this);
-			server.broadcast("[" + clientName + " has left]");
+			server.broadcast("[" + clientNumber + " has left]");
 		}
 	}
 

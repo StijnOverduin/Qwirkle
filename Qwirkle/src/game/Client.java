@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class Client extends Thread {
 
@@ -45,6 +44,7 @@ public class Client extends Thread {
 			} while (true);
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.out.println("ERROR: couldn't construct a client object!");
 			System.exit(0);
 		}
@@ -55,6 +55,7 @@ public class Client extends Thread {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private Player player;
+	private Board board;
 
 	public Client(InetAddress host, int port) throws IOException {
 		sock = new Socket(host, port);
@@ -71,25 +72,24 @@ public class Client extends Thread {
 				String[] split = line.split(" ");
 				switch (split[0]) {
 				case "WELCOME":
+					board = new Board();
 					String playerName = split[1];
-					String playerNumber = split[2];
-					// player = new Player( playerName, playerNumber); (mis het
-					// board nog, misschien niet hier new player maken?)
+					int playerNumber = Integer.parseInt(split[2]);
+					player = new Player(board, playerName, playerNumber);
+					System.out.println(line);
 					break;
 				case "NAMES":
 					System.out.println(line);
 					break;
 				case "NEXT":
 					String number = split[1];
-					if (number.equals(player.getName())) {
+					if (number.equals(player.getPlayerNumber())) {
 						System.out.println("It's your turn!");
-						// start determineMove in TUI
-
 					}
 					break;
 				case "NEW":
 					if (!(split[1].equals("empty"))) {
-						for (int i = 1; i < 7; i++) {
+						for (int i = 1; i < split.length - 1; i++) {
 							Color color = Color.getColorFromCharacter(split[i].charAt(0));
 							Shape shape = Shape.getShapeFromCharacter(split[i].charAt(1));
 							Tile tile = new Tile(color, shape);
@@ -100,32 +100,49 @@ public class Client extends Thread {
 					}
 					break;
 				case "TURN":
-					if (!(split[1].equals("empty"))) {
-						for (int i = 1; i < 7; i++) {
-							Color color = Color.getColorFromCharacter(split[i].charAt(0));
-							Shape shape = Shape.getShapeFromCharacter(split[i].charAt(1));
-							Tile tile = new Tile(color, shape);
-							// Zet de tegels op het bord
+					int q = 1;
+					int rij = 0;
+					int colom = 0;
+					Tile tile;
+					while (q < split.length - 1) {
+						if (true) {
+							String line1 = split[q];
+							Color color = Color.getColorFromCharacter(line1.charAt(0));
+							Shape shape = Shape.getShapeFromCharacter(line1.charAt(1));
+							tile = new Tile(color, shape);
+							q++;
+	
+							if (true) {
+								rij = Integer.parseInt(split[q]);
+								q++;
+								if (true) {
+									colom = Integer.parseInt(split[q]);
+									
+									q++;
+								}
+							}
 						}
+						player.makeMove(rij, colom, tile);
+						
 					}
+					
 					break;
 				case "KICK":
 					System.out.println(line);
-					// server moet tiles van de speler terug in de pot stoppen.
+					// TO DO: Tiles van de gekickte player terug in onze "virtuele" pot doen.
 					break;
 				case "WINNER":
 					System.out.println(line);
-					// misschien nog wat winner stuf dat nog geimplement moet
-					// worden
 					break;
 				default:
 					System.out.println("");
 				}
 
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
 		}
+
 	}
 
 	/** send a message to the ClientHandler. */
@@ -136,46 +153,21 @@ public class Client extends Thread {
 			if (true) {
 				switch (split[0]) {
 				case "MOVE":
-					int q = 1;
-					while (q < split.length - 1) {
-						if (true) {
-							String line = split[q];
-							Color color = Color.getColorFromCharacter(line.charAt(0));
-							Shape shape = Shape.getShapeFromCharacter(line.charAt(1));
-							Tile tile = new Tile(color, shape);
-							q++;
-	
-							if (true) {
-								int rij = Integer.parseInt(split[q]);
-								q++;
-								if (true) {
-									int colom = Integer.parseInt(split[q]);
-									// player.makeMove(rij, colom, tile);
-									q++;
-								}
-							}
-						}
-					}
 					out.write(message);
 					out.newLine();
 					out.flush();
 					break;
 				case "SWAP":
 					int s = 1;
-					for (int i = 0; i < 6; i++) {
+					for (int i = 0; i < split.length - 1; i++) {
 						if (split[s] != null) {
 							String tile = split[s];
 							Color color = Color.getColorFromCharacter(tile.charAt(0));
 							Shape shape = Shape.getShapeFromCharacter(tile.charAt(1));
 							Tile tile1 = new Tile(color, shape);
 							s++;
-							/*
-							 * player.removeTileFromHand(tile1); if
-							 * (player.NumberOfTilesInHand() < 6) {
-							 * 
-							 * }
-							 */
-	
+							player.removeTileFromHand(tile1); 
+							 
 						}
 					}
 					out.write(message);
@@ -184,7 +176,6 @@ public class Client extends Thread {
 					break;
 				case "HELLO":
 					if (split[1] != null) {
-						String playerName = split[1];
 						out.write(message);
 						out.newLine();
 						out.flush();
@@ -192,8 +183,8 @@ public class Client extends Thread {
 					break;
 				default:
 					System.out.println("That's not a valid command");
-				} 
-	
+				}
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

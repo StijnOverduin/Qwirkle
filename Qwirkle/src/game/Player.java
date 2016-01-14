@@ -2,7 +2,7 @@ package game;
 
 import java.util.ArrayList;
 
-public abstract class Player {
+public class Player {
 
 	protected int score;
 	protected ArrayList<Tile> hand;
@@ -14,14 +14,11 @@ public abstract class Player {
 		this.board = board;
 		this.name = name;
 		hand = new ArrayList<Tile>();
-		this.score = 0;
 		this.playerNumber = playerNumber;
 	}
 
 	public void makeMove(int i, int j, Tile tile) {
-		if (board.isValidMove(i, j, tile)) {
-			board.setTile(i, j, tile);
-		}
+		board.setTile(i, j, tile);
 	}
 
 	public String getName() {
@@ -38,10 +35,6 @@ public abstract class Player {
 
 	public int NumberOfTilesInHand() {
 		return hand.size();
-	}
-
-	public int getScore() {
-		return score;
 	}
 	
 	public int getPlayerNumber() {
