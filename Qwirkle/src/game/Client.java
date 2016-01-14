@@ -131,69 +131,69 @@ public class Client extends Thread {
 	/** send a message to the ClientHandler. */
 	public void sendMessage(String msg) {
 		try {
-		String message = msg;
-		String[] split = message.split(" ");
-		if (true) {
-			switch (split[0]) {
-			case "MOVE":
-				int q = 1;
-				for (int i = 1; i < 7; i++) {
-					if (true) {
-						String line = split[1];
-						Color color = Color.getColorFromCharacter(line.charAt(0));
-						Shape shape = Shape.getShapeFromCharacter(line.charAt(1));
-						Tile tile = new Tile(color, shape);
-						q++;
-
+			String message = msg;
+			String[] split = message.split(" ");
+			if (true) {
+				switch (split[0]) {
+				case "MOVE":
+					int q = 1;
+					while (q < split.length - 1) {
 						if (true) {
-							int rij = Integer.parseInt(split[q]);
+							String line = split[q];
+							Color color = Color.getColorFromCharacter(line.charAt(0));
+							Shape shape = Shape.getShapeFromCharacter(line.charAt(1));
+							Tile tile = new Tile(color, shape);
 							q++;
+	
 							if (true) {
-								int colom = Integer.parseInt(split[q]);
-								// player.makeMove(rij, colom, tile);
+								int rij = Integer.parseInt(split[q]);
 								q++;
+								if (true) {
+									int colom = Integer.parseInt(split[q]);
+									// player.makeMove(rij, colom, tile);
+									q++;
+								}
 							}
 						}
 					}
 					out.write(message);
 					out.newLine();
 					out.flush();
-				}
-				break;
-			case "SWAP":
-				int s = 1;
-				for (int i = 0; i < 6; i++) {
-					if (split[s] != null) {
-						String tile = split[s];
-						Color color = Color.getColorFromCharacter(tile.charAt(0));
-						Shape shape = Shape.getShapeFromCharacter(tile.charAt(1));
-						Tile tile1 = new Tile(color, shape);
-						s++;
-						/*
-						 * player.removeTileFromHand(tile1); if
-						 * (player.NumberOfTilesInHand() < 6) {
-						 * 
-						 * }
-						 */
-
+					break;
+				case "SWAP":
+					int s = 1;
+					for (int i = 0; i < 6; i++) {
+						if (split[s] != null) {
+							String tile = split[s];
+							Color color = Color.getColorFromCharacter(tile.charAt(0));
+							Shape shape = Shape.getShapeFromCharacter(tile.charAt(1));
+							Tile tile1 = new Tile(color, shape);
+							s++;
+							/*
+							 * player.removeTileFromHand(tile1); if
+							 * (player.NumberOfTilesInHand() < 6) {
+							 * 
+							 * }
+							 */
+	
+						}
 					}
-				}
-				out.write(message);
-				out.newLine();
-				out.flush();
-				break;
-			case "HELLO":
-				if (split[1] != null) {
-					String playerName = split[1];
 					out.write(message);
 					out.newLine();
 					out.flush();
-				}
-				break;
-			default:
-				System.out.println("That's not a valid command");
-			} 
-
+					break;
+				case "HELLO":
+					if (split[1] != null) {
+						String playerName = split[1];
+						out.write(message);
+						out.newLine();
+						out.flush();
+					}
+					break;
+				default:
+					System.out.println("That's not a valid command");
+				} 
+	
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
