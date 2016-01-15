@@ -3,8 +3,12 @@ package game;
 import java.util.ArrayList;
 
 public class Board {
-
-	public static final int DIM = 10;
+	
+	private int miny;
+	private int maxy;
+	private int minx;
+	private int maxx;
+	public static final int DIM = 183;
 	public static final int BEGINVELD = 0;
 	public static final int EINDVELD = DIM - 1;
 	public static final int MIDDENVELD = EINDVELD / 2;
@@ -15,8 +19,13 @@ public class Board {
 		for (int row = 0; row < board.length; row++) {
 			for (int col = 0; col < board.length; col++) {
 				board[row][col] = new Tile(Color.E, Shape.E);
+				
 			}
 		}
+		miny = 95;
+		maxy = 87;
+		minx = 87;
+		maxx = 95;
 	}
 
 	public Tile getTile(int row, int col) {
@@ -27,15 +36,24 @@ public class Board {
 		return (getTile(row, col)).toString().equals("EE");
 	}
 
+	//Geredeneerd vanuit het middelpunt 91, 91
+	//Een colom naar boven betekent dus 91, 92
+	//Een colom naar beneden betekent dus 91,90
+	//Een rij naar boven betekend 90, 91
+	//Een rij naar beneden betekend 92,91
 	public void setTile(int row, int col, Tile tile) {
 		board[row][col] = tile;
+		maxx = Math.max(col, maxx);
+		minx = Math.min(col, minx);
+		miny = Math.max(row, miny);
+		maxy = Math.min(row, maxy);
+		
 	}
 
 	public static void main(String[] args) {
 
 		Board board = new Board();
-		board.setTile(6, 6, new Tile(Color.R, Shape.d));
-		board.setTile(4, 2, new Tile (Color.R, Shape.d));
+		board.setTile(91, 91, new Tile(Color.R, Shape.d));
 	    System.out.println(board);
 	}
 
@@ -117,24 +135,28 @@ public class Board {
 	public String toString() {
         StringBuilder builder = new StringBuilder();
         String newLine = System.getProperty("line.separator");
-
+        
         builder.append(" ");
         builder.append(newLine);
-
-        for (int col = (board[0].length - 1); col >= 0; col--) {
-            for (int row = 0; row < board.length; row++) {
-                builder.append(" ");
-                if (board[row][col].toString().equals("EE")){
-                	builder.append("-");
-                } else {
-                	builder.append(board[row][col]);
-                } 
-                builder.append(" ");
-            }
-           
-            builder.append(newLine);
+        builder.append("   ");
+        for (int i = minx; i <= maxx; i++) {
+        	builder.append(i + " ");
+        }
+        for (int row = maxy; row <= miny; row++) {
+        	builder.append(newLine);
+        	builder.append(row + " ");
+        	for (int col = minx; col <= maxx; col++) {
+        		if (board[row][col].toString().equals("EE")) {
+        			builder.append("-- ");
+        			
+        		} else {
+        			builder.append(board[row][col].toString() + " ");
+        		}
+        	}
+        	
         }
 
+       
         return builder.toString();
     }
 
