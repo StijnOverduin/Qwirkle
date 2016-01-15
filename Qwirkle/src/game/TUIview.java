@@ -13,5 +13,8 @@ public class TUIview {
 		this.player = player;
 	}
 	
+	public void maakdisplayvanhethelebord(Board b) {
+		System.out.print(b.toString());
+	}
 	
 }

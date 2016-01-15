@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Board {
 
-	public static final int DIM = 183;
+	public static final int DIM = 10;
 	public static final int BEGINVELD = 0;
 	public static final int EINDVELD = DIM - 1;
 	public static final int MIDDENVELD = EINDVELD / 2;
@@ -14,7 +14,7 @@ public class Board {
 		board = new Tile[DIM][DIM];
 		for (int row = 0; row < board.length; row++) {
 			for (int col = 0; col < board.length; col++) {
-				board[row][col] = new Tile(Color.EMPTY, Shape.EMPTY);
+				board[row][col] = new Tile(Color.E, Shape.E);
 			}
 		}
 	}
@@ -24,7 +24,7 @@ public class Board {
 	}
 
 	public boolean isEmpty(int row, int col) {
-		return (getTile(row, col)).toString().equals("EMPTY EMPTY");
+		return (getTile(row, col)).toString().equals("EE");
 	}
 
 	public void setTile(int row, int col, Tile tile) {
@@ -34,9 +34,10 @@ public class Board {
 	public static void main(String[] args) {
 
 		Board board = new Board();
-		board.setTile(2, 4, new Tile(Color.ROOD, Shape.RUIT));
+		board.setTile(2, 4, new Tile(Color.R, Shape.d));
 		System.out.println(board.isEmpty(2, 4));
 		System.out.println(board.getTile(2, 4));
+	    System.out.println(board);
 	}
 
 	public boolean isValidMove(int row, int col, Tile tile) {
@@ -113,5 +114,40 @@ public class Board {
 		}
 		return ans;
 	}
+	
+	public String toString() {
+        StringBuilder builder = new StringBuilder();
+        String newLine = System.getProperty("line.separator");
+        String wall = "";
+
+        builder.append(" ");
+        for (int i = 0; i < board.length; i++) {
+            if (i < (board.length - 1)) {
+                builder.append("");
+            } else {
+                builder.append("");
+            }
+        }
+        builder.append(newLine);
+
+        for (int i = (board[0].length - 1); i >= 0; i--) {
+            for (int j = 0; j < board.length; j++) {
+                builder.append(wall);
+                builder.append(" ");
+                if (board[j][i].equals(new Tile(Color.E, Shape.E))){
+                	builder.append(" ");
+                } else {
+                	builder.append(board[j][i]);
+                }
+                
+                builder.append(" ");
+            }
+            builder.append(wall);
+            builder.append(newLine);
+        }
+
+        return builder.toString();
+    }
+
 
 }
