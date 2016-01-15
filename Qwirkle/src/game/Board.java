@@ -34,9 +34,8 @@ public class Board {
 	public static void main(String[] args) {
 
 		Board board = new Board();
-		board.setTile(2, 4, new Tile(Color.R, Shape.d));
-		System.out.println(board.isEmpty(2, 4));
-		System.out.println(board.getTile(2, 4));
+		board.setTile(6, 6, new Tile(Color.R, Shape.d));
+		board.setTile(4, 2, new Tile (Color.R, Shape.d));
 	    System.out.println(board);
 	}
 
@@ -118,31 +117,21 @@ public class Board {
 	public String toString() {
         StringBuilder builder = new StringBuilder();
         String newLine = System.getProperty("line.separator");
-        String wall = "";
 
         builder.append(" ");
-        for (int i = 0; i < board.length; i++) {
-            if (i < (board.length - 1)) {
-                builder.append("");
-            } else {
-                builder.append("");
-            }
-        }
         builder.append(newLine);
 
         for (int i = (board[0].length - 1); i >= 0; i--) {
             for (int j = 0; j < board.length; j++) {
-                builder.append(wall);
                 builder.append(" ");
-                if (board[j][i].equals(new Tile(Color.E, Shape.E))){
-                	builder.append(" ");
+                if (board[j][i].toString().equals("EE")){
+                	builder.append("-");
                 } else {
                 	builder.append(board[j][i]);
-                }
-                
+                } 
                 builder.append(" ");
             }
-            builder.append(wall);
+           
             builder.append(newLine);
         }
 
