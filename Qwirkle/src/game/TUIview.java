@@ -13,8 +13,12 @@ public class TUIview {
 		this.player = player;
 	}
 	
-	public void maakdisplayvanhethelebord(Board b) {
-		System.out.print(b.toString());
+	public void displayBoard(Board board) {
+		System.out.print(board.toString());
+	}
+	
+	public void displayHand(Player player) {
+		System.out.println(player.getHand());
 	}
 	
 }

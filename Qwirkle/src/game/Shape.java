@@ -1,7 +1,7 @@
 package game;
 
 public enum Shape {
-	CIRKEL('o'), d('d'), VIERKANT('s'),KLAVER('c'), KRUIS('x'), STER('*'), E('e');
+	o('o'), d('d'), s('s'),c('c'), x('x'), S('*'), E('e');
 
 	char id;
 	
@@ -12,17 +12,17 @@ public enum Shape {
 	public static Shape getShapeFromCharacter(char charac) {
 		switch(charac) {
 		case 'o':
-			return Shape.CIRKEL;
+			return Shape.o;
 		case 'd':
 			return Shape.d;
 		case's':
-			return Shape.VIERKANT;
+			return Shape.s;
 		case'c':
-			return Shape.KLAVER;
+			return Shape.c;
 		case'x':
-			return Shape.KRUIS;
+			return Shape.x;
 		case'*':
-			return Shape.STER;
+			return Shape.S;
 			default:
 				return Shape.E;
 		}

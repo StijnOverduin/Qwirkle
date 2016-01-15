@@ -53,7 +53,6 @@ public class Board {
 	public static void main(String[] args) {
 
 		Board board = new Board();
-		board.setTile(91, 91, new Tile(Color.R, Shape.d));
 	    System.out.println(board);
 	}
 
