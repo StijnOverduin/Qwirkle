@@ -15,6 +15,7 @@ public class Server {
 	private int port;
 	private List<ClientHandler> threads;
 	public int playerNumber = -1;
+	public int lengteMove;
 
 	/** Constructs a new Server object. */
 	public Server(int portArg) {
@@ -55,8 +56,9 @@ public class Server {
 			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
 			break;
 
-		case "MOVE":
-			broadcast(client.getClientNumber() + " " + input);
+		case "MOVE":	
+			lengteMove = split.length;
+			broadcast("TURN " + client.getClientNumber() + " " + input);
 			break;
 			
 		case "SWAP":

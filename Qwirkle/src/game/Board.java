@@ -8,7 +8,7 @@ public class Board {
 	public static final int BEGINVELD = 0;
 	public static final int EINDVELD = DIM - 1;
 	public static final int MIDDENVELD = EINDVELD / 2;
-	public Tile[][] board;
+	private Tile[][] board;
 
 	public Board() {
 		board = new Tile[DIM][DIM];
@@ -94,17 +94,17 @@ public class Board {
 		if (set.size() > 6)
 			return false;
 		boolean ans = true;
-		if (set.get(0).getColor().equals(set.get(1).getColor())) {
+		if (set.get(0).getColor() == (set.get(1).getColor())) {
 			for (int a = 1; a < set.size(); a++) {
-				if (!set.get(0).getColor().equals(set.get(a).getColor())
-						|| set.get(0).getShape().equals(set.get(a).getShape())) {
+				if (set.get(0).getColor() != (set.get(a).getColor())
+						|| set.get(0).getShape() == (set.get(a).getShape())) {
 					ans = false;
 				}
 			}
-		} else if (set.get(0).getShape().equals(set.get(1).getShape())) {
+		} else if (set.get(0).getShape() == (set.get(1).getShape())) {
 			for (int a = 0; a < set.size() - 1; a++) {
-				if (!set.get(0).getColor().equals(set.get(a).getColor())
-						|| set.get(0).getShape().equals(set.get(a).getShape())) {
+				if (set.get(0).getColor() != (set.get(a).getColor())
+						|| set.get(0).getShape() == (set.get(a).getShape())) {
 					ans = false;
 				}
 			}
@@ -121,13 +121,13 @@ public class Board {
         builder.append(" ");
         builder.append(newLine);
 
-        for (int i = (board[0].length - 1); i >= 0; i--) {
-            for (int j = 0; j < board.length; j++) {
+        for (int col = (board[0].length - 1); col >= 0; col--) {
+            for (int row = 0; row < board.length; row++) {
                 builder.append(" ");
-                if (board[j][i].toString().equals("EE")){
+                if (board[row][col].toString().equals("EE")){
                 	builder.append("-");
                 } else {
-                	builder.append(board[j][i]);
+                	builder.append(board[row][col]);
                 } 
                 builder.append(" ");
             }
