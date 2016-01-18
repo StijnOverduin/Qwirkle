@@ -5,16 +5,18 @@ import java.util.ArrayList;
 public class Game {
 	
 	private Board board;
-	public ArrayList<Player> players;
-	public ArrayList<String> jar;
-	public Color[] color = Color.values();
-	public Shape[] shape = Shape.values();
+	private Player player;
+	private ArrayList<String> jar;
+	private Color[] color = Color.values();
+	private Shape[] shape = Shape.values();
+	
+	
 
 	public Game(Board board) {
-		players = new ArrayList<Player>();
 		this.board = board;
 		
 	}
+	
 	
 	/*
 	 * Dit is een beschrijving voor de pot met tegeltjes.
@@ -27,7 +29,7 @@ public class Game {
 				Fcolor = color[q];
 				for (int w = 0; w < shape.length; w++) {
 					Fshape = shape[w];
-					Tile tile = new Tile(Fcolor, Fshape);
+					String tile = "" + Fcolor + Fshape;
 					addTileToJar(tile);
 				}
 			}
@@ -35,35 +37,26 @@ public class Game {
 		}
 	}
 
-	public void removeTileFromJar(Tile tile) {
-		Color color = tile.getColor();
-		Shape shape = tile.getShape();
-		String removedTile = "" + color + shape;
-		jar.remove(removedTile);
+	public void removeTileFromJar(String tile) {
+		jar.remove(tile);
 	}
 
-	public void addTileToJar(Tile tile) {
-		// if (networkPlayer.getHand().contains(tile)) {
-		Color color = tile.getColor();
-		Shape shape = tile.getShape();
-		if (jar.size() < 109) {
-			jar.add("" + color + shape);
+	public void addTileToJar(String tile) {
+		if (player.getHand().contains(tile) && jar.size() < 109) {
+			jar.add(tile);
 		}
 	}
-	// }
+
 
 	public int tilesInJar() {
 		return jar.size();
 	}
 
-	public Tile giveRandomTile() {
+	public String giveRandomTile() {
 		if (jar.size() != 0) {
 			int random = (int) Math.round(Math.random() * jar.size());
 			String newTile = jar.get(random);
-			Color color = Color.getColorFromCharacter(newTile.charAt(0));
-			Shape shape = Shape.getShapeFromCharacter(newTile.charAt(1));
-			Tile tile = new Tile(color, shape);
-			return tile;
+			return newTile;
 		} else {
 			return null;
 		}
