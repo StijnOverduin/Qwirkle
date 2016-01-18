@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class Game {
 	
 	private Board board;
-	private Player player;
 	private ArrayList<String> jar;
 	private Color[] color = Color.values();
 	private Shape[] shape = Shape.values();
@@ -14,6 +13,8 @@ public class Game {
 
 	public Game(Board board) {
 		this.board = board;
+		fillJar();
+		
 		
 	}
 	
@@ -42,9 +43,7 @@ public class Game {
 	}
 
 	public void addTileToJar(String tile) {
-		if (player.getHand().contains(tile) && jar.size() < 109) {
-			jar.add(tile);
-		}
+		jar.add(tile);
 	}
 
 

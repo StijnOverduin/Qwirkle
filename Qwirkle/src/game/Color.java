@@ -1,7 +1,7 @@
 package game;
 
 public enum Color {
-	R('R'), O('O'), B('B'), Y('Y'), G('G'),P('P'), E('e');
+	ROOD('R'), ORANJE('O'), BLAUW('B'), GEEL('Y'), GROEN('G'), PAARS('P'), EMPTY('e');
 
 	char id;
 	
@@ -12,19 +12,23 @@ public enum Color {
 	public static Color getColorFromCharacter(char charac) {
 		switch(charac) {
 		case 'R':
-			return Color.R;
+			return Color.ROOD;
 		case 'O':
-			return Color.O;
+			return Color.ORANJE;
 		case'B':
-			return Color.B;
+			return Color.BLAUW;
 		case'Y':
-			return Color.Y;
+			return Color.GEEL;
 		case'G':
-			return Color.G;
+			return Color.GROEN;
 		case'P':
-			return Color.P;
+			return Color.PAARS;
 			default:
-				return Color.E;
+				return Color.EMPTY;
 		}
+	}
+	
+	public char getChar() {
+		return id;
 	}
 }

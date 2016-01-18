@@ -1,31 +1,35 @@
 package game;
 
 public enum Shape {
-	o('o'), d('d'), s('s'),c('c'), x('x'), S('*'), E('e');
+	CIRKEL('o'), DIAMANT('d'), VIERKANT('s'), KLAVER('c'), KRUIS('x'), STER('*'), EMPTY('e');
 
 	char id;
-	
-	 Shape(char c) {
+
+	Shape(char c) {
 		id = c;
 	}
-	
+
 	public static Shape getShapeFromCharacter(char charac) {
-		switch(charac) {
+		switch (charac) {
 		case 'o':
-			return Shape.o;
+			return Shape.CIRKEL;
 		case 'd':
-			return Shape.d;
-		case's':
-			return Shape.s;
-		case'c':
-			return Shape.c;
-		case'x':
-			return Shape.x;
-		case'*':
-			return Shape.S;
-			default:
-				return Shape.E;
+			return Shape.DIAMANT;
+		case 's':
+			return Shape.VIERKANT;
+		case 'c':
+			return Shape.KLAVER;
+		case 'x':
+			return Shape.KRUIS;
+		case '*':
+			return Shape.STER;
+		default:
+			return Shape.EMPTY;
 		}
 	}
-
+	
+	public char getChar() {
+		return id;
 	}
+
+}
