@@ -8,12 +8,13 @@ import java.util.List;
 
 public class Server {
 
-	public NetworkPlayer networkPlayer;
+	public Player player;
 	private int port;
 	private List<ClientHandler> threads;
 	public int playerNumber = -1;
 	public int lengteMove;
 	private Game game;
+	private Board board;
 
 	/** Constructs a new Server object. */
 	public Server(int portArg) {
@@ -59,18 +60,18 @@ public class Server {
 				// TODO kick with reason not correct MOVE format
 			} else {
 				for (int i = 0; i < maalMoves; i++) {
-					if (!networkPlayer.getHand().contains(split[(1 + i * 3)])) {
+					if (!player.getHand().contains(split[(1 + i * 3)])) {
 						// TODO kick with reason tried to lay tile not in
 						// possession
 					}
 				}
 				for (int i = 0; i < maalMoves; i++) {
 
-					String j = split[2];
-					if (!split[(2 + i * 3)].equals(j)) {
+					String row = split[2];
+					if (!split[(2 + i * 3)].equals(row)) {
 						for (int a = 0; a < maalMoves; a++) {
-							String k = split[3];
-							if (!split[(2 + a * 3)].equals(k)) {
+							String col = split[3];
+							if (!split[(2 + a * 3)].equals(col)) {
 								// TODO kick with reason tiles not in straight
 								// line
 							}
@@ -80,31 +81,31 @@ public class Server {
 					}
 
 				}
-
-				// TODO lay tiles
-
+				broadcast("TURN " + client.getClientNumber() + input.substring(5));
 			}
 
-			broadcast("TURN " + client.getClientNumber() + " " + input);
+			
 			break;
 
 		case "SWAP":
 			int q = 1;
+			String tiles = "";
 			while (q < split.length - 1) {
 				if (true) {
 					String line1 = split[q];
-					Color color = Color.getColorFromCharacter(line1.charAt(0));
-					Shape shape = Shape.getShapeFromCharacter(line1.charAt(1));
-					Tile tile = new Tile(color, shape);
-					q++;
-					// if player has tile in hand
-					// remove tile from player hand
-					if (game.giveRandomTile() == null) {
-						client.shutdown();
+					if (player.getHand().contains(line1)) {
+						player.removeTileFromHand(line1);
+						q++;
+					} else {
+						//TODO kick with reason: tile not in hand
 					}
-					client.sendMessage("NEW " + game.giveRandomTile());
+					if (game.giveRandomTile() == null) {
+						//TODO kick with reason: swap terwijl pot empty
+					}
 				}
+				tiles.concat(" " + game.giveRandomTile());
 			}
+			client.sendMessage("NEW" + tiles);
 		}
 	}
 
