@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Scanner;
+//TODO playernumber niet index in de lijst
 public class Server {
 
 	public Player player;
@@ -15,11 +18,16 @@ public class Server {
 	public int lengteMove;
 	private Game game;
 	private Board board;
+	private Map<Player, Integer> players;
+	private ArrayList<String> jar;
+	private Color[] color = Color.values();
+	private Shape[] shape = Shape.values();
 
 	/** Constructs a new Server object. */
 	public Server(int portArg) {
 		threads = new ArrayList<ClientHandler>();
 		port = portArg;
+		Map<Player, Integer> players = new HashMap<Player, Integer>();
 	}
 
 	/**
@@ -51,6 +59,9 @@ public class Server {
 		switch (split[0]) {
 		case "HELLO":
 			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
+			player = new Player(board, split[1], client.getClientNumber());
+			Scanner ins = new Scanner(System.in);
+			startGame();
 			break;
 
 		case "MOVE":
@@ -81,10 +92,9 @@ public class Server {
 					}
 
 				}
-				broadcast("TURN " + client.getClientNumber() + input.substring(5));
+				broadcast("TURN " + client.getClientNumber() + " " + input.substring(5));
 			}
 
-			
 			break;
 
 		case "SWAP":
@@ -97,13 +107,13 @@ public class Server {
 						player.removeTileFromHand(line1);
 						q++;
 					} else {
-						//TODO kick with reason: tile not in hand
+						// TODO kick with reason: tile not in hand
 					}
-					if (game.giveRandomTile() == null) {
-						//TODO kick with reason: swap terwijl pot empty
+					if (giveRandomTile() == null) {
+						// TODO kick with reason: swap terwijl pot empty
 					}
 				}
-				tiles.concat(" " + game.giveRandomTile());
+				tiles.concat(" " + giveRandomTile());
 			}
 			client.sendMessage("NEW" + tiles);
 		}
@@ -164,6 +174,59 @@ public class Server {
 			return playerNumber;
 		} else {
 			return -1;
+		}
+	}
+
+	public void startGame() {
+		board = new Board();
+		jar = new ArrayList<String>();
+		fillJar();
+		
+		for (int i = 0; i < threads.size(); i++) {
+			threads.get(i).sendMessage("NAMES " + "Stijn" + " " + 0);
+			threads.get(i).sendMessage("NEW " + giveRandomTile() + " " + giveRandomTile() + " " + giveRandomTile() + " "
+					+ giveRandomTile() + " " + giveRandomTile() + " " + giveRandomTile());
+		}
+	}
+
+	/*
+	 * Dit is een beschrijving voor de pot met tegeltjes.
+	 */
+	public void fillJar() {
+		Shape Fshape = null;
+		Color Fcolor = null;
+		for (int i = 0; i < 3; i++) {
+			for (int q = 0; q < color.length; q++) {
+				Fcolor = color[q];
+				for (int w = 0; w < shape.length; w++) {
+					Fshape = shape[w];
+					String tile = "" + Fcolor.getChar() + Fshape.getChar();
+					addTileToJar(tile);
+				}
+			}
+
+		}
+	}
+
+	public void removeTileFromJar(String tile) {
+		jar.remove(tile);
+	}
+
+	public void addTileToJar(String tile) {
+		jar.add(tile);
+	}
+
+	public int tilesInJar() {
+		return jar.size();
+	}
+
+	public String giveRandomTile() {
+		if (jar.size() != 0) {
+			int random = (int) Math.round(Math.random() * jar.size());
+			String newTile = jar.get(random);
+			return newTile;
+		} else {
+			return null;
 		}
 	}
 
