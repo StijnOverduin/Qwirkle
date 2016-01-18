@@ -69,6 +69,7 @@ public class Client extends Thread {
 			try {
 
 				line = in.readLine();
+				System.out.println("Server -> Client " + line);
 				String[] split = line.split(" ");
 				switch (split[0]) {
 				case "WELCOME":
@@ -77,13 +78,14 @@ public class Client extends Thread {
 					int playerNumber = Integer.parseInt(split[2]);
 					player = new Player(board, playerName, playerNumber);
 					System.out.println(line);
+					System.out.println(board.toString());
 					break;
 				case "NAMES":
 					System.out.println(line);
 					break;
 				case "NEXT":
 					String number = split[1];
-					if (number.equals(player.getPlayerNumber())) {
+					if (Integer.parseInt(number) == player.getPlayerNumber()) {
 						System.out.println("It's your turn!");
 					}
 					break;
