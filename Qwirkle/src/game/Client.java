@@ -89,23 +89,26 @@ public class Client extends Thread {
 					break;
 				case "NEW":
 					if (!(split[1].equals("empty"))) {
-						for (int i = 1; i < split.length - 1; i++) {
+						for (int i = 1; i < split.length; i++) {
 							player.addTilesToHand(split[i]);
 						}
+						System.out.println(player.getHand());
 					} else {
 						System.out.println(line + "No more tiles in the jar");
 					}
 					break;
 				case "TURN":
-					int q = 1;
+					int q = 2;
 					int rij = 0;
 					int colom = 0;
+					Color color;
+					Shape shape;
 					Tile tile;
-					while (q < split.length - 1) {
+					while (q < split.length - 2) {
 						if (true) {
 							String line1 = split[q];
-							Color color = Color.getColorFromCharacter(line1.charAt(0));
-							Shape shape = Shape.getShapeFromCharacter(line1.charAt(1));
+							color = Color.getColorFromCharacter(line1.charAt(0));
+							shape = Shape.getShapeFromCharacter(line1.charAt(1));
 							tile = new Tile(color, shape);
 							q++;
 	
@@ -120,8 +123,11 @@ public class Client extends Thread {
 							}
 						}
 						player.makeMove(rij, colom, tile);
+						player.removeTileFromHand("" + color + shape);
 						
 					}
+					System.out.println(board.toString());
+					System.out.println(player.getHand());
 					
 					break;
 				case "KICK":
