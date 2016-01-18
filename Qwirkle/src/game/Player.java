@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Player {
 
 	protected int score;
-	protected ArrayList<Tile> hand;
+	protected ArrayList<String> hand;
 	protected Board board;
 	protected String name;
 	protected int playerNumber;
@@ -13,7 +13,7 @@ public class Player {
 	public Player(Board board, String name, int playerNumber) {
 		this.board = board;
 		this.name = name;
-		hand = new ArrayList<Tile>();
+		hand = new ArrayList<String>();
 		this.playerNumber = playerNumber;
 	}
 
@@ -25,11 +25,11 @@ public class Player {
 		return name;
 	}
 
-	public void addTilesToHand(Tile tile) {
+	public void addTilesToHand(String tile) {
 		hand.add(tile);
 	}
 
-	public void removeTileFromHand(Tile tile) {
+	public void removeTileFromHand(String tile) {
 		hand.remove(tile);
 	}
 
@@ -41,7 +41,7 @@ public class Player {
 		return playerNumber;
 	}
 	
-	public ArrayList<Tile> getHand() {
+	public ArrayList<String> getHand() {
 		return hand;
 	}
 	

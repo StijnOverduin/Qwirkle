@@ -56,11 +56,26 @@ public class Server {
 			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
 			break;
 
-		case "MOVE":	
+		case "MOVE":
 			lengteMove = split.length;
+			int maalMoves = (lengteMove / 3);
+			if ((lengteMove - 1) % 3 != 0) {
+				//TODO kick with reason not correct MOVE format
+				}
+			else { for (int i = 0; i < maalMoves; i++) {
+				if (!networkPlayer.getHand().contains(split[(1 + i * 3)])) {
+					//TODO kick with reason tried to lay tile not in possession
+				}
+			}
+			//TODO check if it's all in 1 row or col
+			//TODO lay tiles
+							
+			}
+				
+			
 			broadcast("TURN " + client.getClientNumber() + " " + input);
 			break;
-			
+	
 		case "SWAP":
 			int q = 1;
 			while (q < split.length - 1) {
@@ -129,7 +144,7 @@ public class Server {
 		server.run();
 
 	}
-	
+
 	public int getPlayerNumber() {
 		if (playerNumber < 4) {
 			playerNumber++;
@@ -180,15 +195,15 @@ public class Server {
 	}
 
 	public Tile giveRandomTile() {
-			if (jar.size() != 0) {
-				int random = (int) Math.round(Math.random() * jar.size());
-				String newTile = jar.get(random);
-				Color color = Color.getColorFromCharacter(newTile.charAt(0));
-				Shape shape = Shape.getShapeFromCharacter(newTile.charAt(1));
-				Tile tile = new Tile(color, shape);
-				return tile;
-			} else {
-				return null;
-			}
+		if (jar.size() != 0) {
+			int random = (int) Math.round(Math.random() * jar.size());
+			String newTile = jar.get(random);
+			Color color = Color.getColorFromCharacter(newTile.charAt(0));
+			Shape shape = Shape.getShapeFromCharacter(newTile.charAt(1));
+			Tile tile = new Tile(color, shape);
+			return tile;
+		} else {
+			return null;
+		}
 	}
 }

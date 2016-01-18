@@ -90,10 +90,7 @@ public class Client extends Thread {
 				case "NEW":
 					if (!(split[1].equals("empty"))) {
 						for (int i = 1; i < split.length - 1; i++) {
-							Color color = Color.getColorFromCharacter(split[i].charAt(0));
-							Shape shape = Shape.getShapeFromCharacter(split[i].charAt(1));
-							Tile tile = new Tile(color, shape);
-							player.addTilesToHand(tile);
+							player.addTilesToHand(split[i]);
 						}
 					} else {
 						System.out.println(line + "No more tiles in the jar");
@@ -162,11 +159,8 @@ public class Client extends Thread {
 					for (int i = 0; i < split.length - 1; i++) {
 						if (split[s] != null) {
 							String tile = split[s];
-							Color color = Color.getColorFromCharacter(tile.charAt(0));
-							Shape shape = Shape.getShapeFromCharacter(tile.charAt(1));
-							Tile tile1 = new Tile(color, shape);
 							s++;
-							player.removeTileFromHand(tile1); 
+							player.removeTileFromHand(tile); 
 							 
 						}
 					}
