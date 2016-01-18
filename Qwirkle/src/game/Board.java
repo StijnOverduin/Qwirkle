@@ -119,7 +119,7 @@ public class Board {
 				}
 			}
 		} else if (set.get(0).getShape() == (set.get(1).getShape())) {
-			for (int a = 0; a < set.size() - 1; a++) {
+			for (int a = 1; a < set.size(); a++) {
 				if (set.get(0).getColor() == (set.get(a).getColor())
 						|| set.get(0).getShape() != (set.get(a).getShape())) {
 					ans = false;
