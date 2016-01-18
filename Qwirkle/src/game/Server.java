@@ -13,12 +13,12 @@ public class Server {
 	private List<ClientHandler> threads;
 	public int playerNumber = -1;
 	public int lengteMove;
+	private Game game;
 
 	/** Constructs a new Server object. */
 	public Server(int portArg) {
 		threads = new ArrayList<ClientHandler>();
 		port = portArg;
-		jar = new ArrayList<String>();
 	}
 
 	/**
@@ -56,22 +56,38 @@ public class Server {
 			lengteMove = split.length;
 			int maalMoves = (lengteMove / 3);
 			if ((lengteMove - 1) % 3 != 0) {
-				//TODO kick with reason not correct MOVE format
+				// TODO kick with reason not correct MOVE format
+			} else {
+				for (int i = 0; i < maalMoves; i++) {
+					if (!networkPlayer.getHand().contains(split[(1 + i * 3)])) {
+						// TODO kick with reason tried to lay tile not in
+						// possession
+					}
 				}
-			else { for (int i = 0; i < maalMoves; i++) {
-				if (!networkPlayer.getHand().contains(split[(1 + i * 3)])) {
-					//TODO kick with reason tried to lay tile not in possession
+				for (int i = 0; i < maalMoves; i++) {
+
+					String j = split[2];
+					if (!split[(2 + i * 3)].equals(j)) {
+						for (int a = 0; a < maalMoves; a++) {
+							String k = split[3];
+							if (!split[(2 + a * 3)].equals(k)) {
+								// TODO kick with reason tiles not in straight
+								// line
+							}
+
+						}
+
+					}
+
 				}
+
+				// TODO lay tiles
+
 			}
-			//TODO check if it's all in 1 row or col
-			//TODO lay tiles
-							
-			}
-				
-			
+
 			broadcast("TURN " + client.getClientNumber() + " " + input);
 			break;
-	
+
 		case "SWAP":
 			int q = 1;
 			while (q < split.length - 1) {
@@ -81,16 +97,16 @@ public class Server {
 					Shape shape = Shape.getShapeFromCharacter(line1.charAt(1));
 					Tile tile = new Tile(color, shape);
 					q++;
-					//if player has tile in hand
+					// if player has tile in hand
 					// remove tile from player hand
-					if(giveRandomTile() == null) {
+					if (game.giveRandomTile() == null) {
 						client.shutdown();
 					}
-					client.sendMessage("NEW " + giveRandomTile());
-						}
-					}
+					client.sendMessage("NEW " + game.giveRandomTile());
 				}
 			}
+		}
+	}
 
 	/**
 	 * Sends a message using the collection of connected ClientHandlers to all
@@ -150,5 +166,4 @@ public class Server {
 		}
 	}
 
-	
 }
