@@ -95,6 +95,7 @@ public class Server {
 
 				}
 				board.deepCopy();
+				String newTiles = "NEW";
 				for (int i = 0; i < maalMoves; i++) {
 					Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
 					Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
@@ -105,8 +106,12 @@ public class Server {
 					} else {
 						// TODO kick with reason not valid move
 					}
+					newTiles = newTiles.concat(" " + giveRandomTile());
+					player.removeTileFromHand(split[(1 + i * 3)]);
+					
 				}
-
+				
+				client.sendMessage(newTiles);
 				broadcast("TURN " + client.getClientNumber() + " " + input.substring(5));
 			}
 			// TODO catch parseInt
@@ -211,9 +216,9 @@ public class Server {
 		Shape Fshape = null;
 		Color Fcolor = null;
 		for (int i = 0; i < 3; i++) {
-			for (int q = 0; q < color.length; q++) {
+			for (int q = 0; q < color.length - 1; q++) {
 				Fcolor = color[q];
-				for (int w = 0; w < shape.length; w++) {
+				for (int w = 0; w < shape.length - 1; w++) {
 					Fshape = shape[w];
 					String tile = "" + Fcolor.getChar() + Fshape.getChar();
 					addTileToJar(tile);
@@ -239,6 +244,7 @@ public class Server {
 		if (jar.size() != 0) {
 			int random = (int) Math.round(Math.random() * jar.size());
 			String newTile = jar.get(random);
+			jar.remove(newTile);
 			return newTile;
 		} else {
 			return null;
