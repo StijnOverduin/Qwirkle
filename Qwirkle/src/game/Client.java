@@ -125,7 +125,7 @@ public class Client extends Thread {
 							}
 						}
 						player.makeMove(rij, colom, tile);
-						player.removeTileFromHand("" + color + shape);
+						player.removeTileFromHand("" + color.getChar() + shape.getChar());
 						
 					}
 					System.out.println(board.toString());
