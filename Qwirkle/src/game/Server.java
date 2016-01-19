@@ -120,20 +120,17 @@ public class Server {
 		case "SWAP":
 			int q = 1;
 			String tiles = "";
-			while (q < split.length - 1) {
-				if (true) {
+			while (q < split.length) {
 					String line1 = split[q];
 					if (player.getHand().contains(line1)) {
+						System.out.println(line1);
 						player.removeTileFromHand(line1);
-						q++;
 					} else {
 						// TODO kick with reason: tile not in hand
 					}
-					if (giveRandomTile() == null) {
 						// TODO kick with reason: swap terwijl pot empty
-					}
-				}
-				tiles.concat(" " + giveRandomTile());
+				tiles = tiles.concat(" " + giveRandomTile());
+				q++;
 			}
 			client.sendMessage("NEW" + tiles);
 		}
@@ -242,7 +239,7 @@ public class Server {
 
 	public String giveRandomTile() {
 		if (jar.size() != 0) {
-			int random = (int) Math.round(Math.random() * jar.size());
+			int random = (int) Math.round(Math.random() * (jar.size() - 1));
 			String newTile = jar.get(random);
 			jar.remove(newTile);
 			return newTile;
