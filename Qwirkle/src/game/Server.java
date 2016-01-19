@@ -18,7 +18,6 @@ public class Server {
 	private List<ClientHandler> threads;
 	public int playerNumber = -1;
 	public int lengteMove;
-	private Game game;
 	private Board board;
 	private Map<Player, Integer> players;
 	private ArrayList<String> jar;
@@ -62,8 +61,6 @@ public class Server {
 		case "HELLO":
 			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
 			player = new Player(board, split[1], client.getClientNumber());
-			Scanner ins = new Scanner(System.in);
-			startGame();
 			break;
 
 		case "MOVE":
@@ -76,6 +73,12 @@ public class Server {
 					if (!player.getHand().contains(split[(1 + i * 3)])) {
 						// TODO kick with reason tried to lay tile not in
 						// possession
+						client.sendMessage("Tile not in possesion");
+						for (int q = 0; q < player.getHand().size(); q++) {
+							player.removeTileFromHand(player.getHand().get(q));
+							jar.add(player.getHand().get(q));
+						}
+						client.kick();
 					}
 				}
 				for (int i = 0; i < maalMoves; i++) {

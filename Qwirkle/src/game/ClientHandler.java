@@ -42,7 +42,7 @@ import java.util.Scanner;
 	                
 	        } catch (IOException e) {
 	        	e.printStackTrace();
-	            shutdown();
+	            kick();
 	        }
 		}
 
@@ -71,9 +71,8 @@ import java.util.Scanner;
 		 * last broadcast to the Server to inform that the Client is no longer
 		 * participating in the chat.
 		 */
-		public void shutdown() {
+		public void kick() {
 			server.removeHandler(this);
-			server.broadcast("[" + clientNumber + " has left]");
 		}
 	}
 
