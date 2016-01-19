@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
 //TODO playernumber niet index in de lijst
+//TODO player scores bijhouden in Game
 public class Server {
 
 	public Player player;
@@ -92,9 +94,22 @@ public class Server {
 					}
 
 				}
+				board.deepCopy();
+				for (int i = 0; i < maalMoves; i++) {
+					Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
+					Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
+					if (board.isValidMove(Integer.parseInt(split[(2 + i * 3)]), Integer.parseInt(split[(3 + i * 3)]),
+							new Tile(color, shape))) {
+						board.deepCopy().setTile(Integer.parseInt(split[(2 + i * 3)]),
+								Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
+					} else {
+						// TODO kick with reason not valid move
+					}
+				}
+
 				broadcast("TURN " + client.getClientNumber() + " " + input.substring(5));
 			}
-
+			// TODO catch parseInt
 			break;
 
 		case "SWAP":
@@ -181,7 +196,7 @@ public class Server {
 		board = new Board();
 		jar = new ArrayList<String>();
 		fillJar();
-		
+
 		for (int i = 0; i < threads.size(); i++) {
 			threads.get(i).sendMessage("NAMES " + "Stijn" + " " + 0);
 			threads.get(i).sendMessage("NEW " + giveRandomTile() + " " + giveRandomTile() + " " + giveRandomTile() + " "
