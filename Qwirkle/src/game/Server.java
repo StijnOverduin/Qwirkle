@@ -13,22 +13,17 @@ import java.util.Scanner;
 //TODO player scores bijhouden in Game
 public class Server {
 
-	public Player player;
+	private Game game;
+	private Player player;
 	private int port;
 	private List<ClientHandler> threads;
-	public int playerNumber = -1;
-	public int lengteMove;
+	private int lengteMove;
 	private Board board;
-	private Map<Player, Integer> players;
-	private ArrayList<String> jar;
-	private Color[] color = Color.values();
-	private Shape[] shape = Shape.values();
-
+	
 	/** Constructs a new Server object. */
 	public Server(int portArg) {
 		threads = new ArrayList<ClientHandler>();
 		port = portArg;
-		Map<Player, Integer> players = new HashMap<Player, Integer>();
 	}
 
 	/**
@@ -73,11 +68,8 @@ public class Server {
 					if (!player.getHand().contains(split[(1 + i * 3)])) {
 						// TODO kick with reason tried to lay tile not in
 						// possession
-						client.sendMessage("Tile not in possesion");
-						for (int q = 0; q < player.getHand().size(); q++) {
-							player.removeTileFromHand(player.getHand().get(q));
-							jar.add(player.getHand().get(q));
-						}
+						client.sendMessage("Tile " + split[(1 + i * 3)] + " not in possesion");
+						tilesBackToStack(player);
 						client.kick();
 					}
 				}
@@ -109,7 +101,7 @@ public class Server {
 					} else {
 						// TODO kick with reason not valid move
 					}
-					newTiles = newTiles.concat(" " + giveRandomTile());
+					newTiles = newTiles.concat(" " + game.giveRandomTile());
 					player.removeTileFromHand(split[(1 + i * 3)]);
 					
 				}
@@ -132,10 +124,17 @@ public class Server {
 						// TODO kick with reason: tile not in hand
 					}
 						// TODO kick with reason: swap terwijl pot empty
-				tiles = tiles.concat(" " + giveRandomTile());
+				tiles = tiles.concat(" " + game.giveRandomTile());
 				q++;
 			}
 			client.sendMessage("NEW" + tiles);
+		}
+	}
+
+	private void tilesBackToStack(Player player) {
+		for (int q = 0; q < player.getHand().size(); q++) {
+			player.removeTileFromHand(player.getHand().get(q));
+			game.addTileToJar(player.getHand().get(q));
 		}
 	}
 
@@ -187,68 +186,25 @@ public class Server {
 		server.run();
 
 	}
-
+	
 	public int getPlayerNumber() {
-		if (playerNumber < 4) {
-			playerNumber++;
-			return playerNumber;
-		} else {
-			return -1;
-		}
+		return threads.size() % 4;
 	}
 
+
 	public void startGame() {
+		
 		board = new Board();
-		jar = new ArrayList<String>();
-		fillJar();
+		game = new Game(board);
+		game.fillJar();
 
 		for (int i = 0; i < threads.size(); i++) {
 			threads.get(i).sendMessage("NAMES " + "Stijn" + " " + 0);
-			threads.get(i).sendMessage("NEW " + giveRandomTile() + " " + giveRandomTile() + " " + giveRandomTile() + " "
-					+ giveRandomTile() + " " + giveRandomTile() + " " + giveRandomTile());
+			threads.get(i).sendMessage("NEW " + game.giveRandomTile() + " " + game.giveRandomTile() + " " + game.giveRandomTile() + " "
+					+ game.giveRandomTile() + " " + game.giveRandomTile() + " " + game.giveRandomTile());
 		}
 	}
 
-	/*
-	 * Dit is een beschrijving voor de pot met tegeltjes.
-	 */
-	public void fillJar() {
-		Shape Fshape = null;
-		Color Fcolor = null;
-		for (int i = 0; i < 3; i++) {
-			for (int q = 0; q < color.length - 1; q++) {
-				Fcolor = color[q];
-				for (int w = 0; w < shape.length - 1; w++) {
-					Fshape = shape[w];
-					String tile = "" + Fcolor.getChar() + Fshape.getChar();
-					addTileToJar(tile);
-				}
-			}
-
-		}
-	}
-
-	public void removeTileFromJar(String tile) {
-		jar.remove(tile);
-	}
-
-	public void addTileToJar(String tile) {
-		jar.add(tile);
-	}
-
-	public int tilesInJar() {
-		return jar.size();
-	}
-
-	public String giveRandomTile() {
-		if (jar.size() != 0) {
-			int random = (int) Math.round(Math.random() * (jar.size() - 1));
-			String newTile = jar.get(random);
-			jar.remove(newTile);
-			return newTile;
-		} else {
-			return null;
-		}
-	}
+	
 
 }

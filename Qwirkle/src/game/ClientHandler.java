@@ -72,7 +72,13 @@ import java.util.Scanner;
 		 * participating in the chat.
 		 */
 		public void kick() {
+			try {
 			server.removeHandler(this);
+			in.close();
+			out.close();
+			} catch (IOException e) {
+				System.out.println("Could not close client");
+			}
 		}
 	}
 
