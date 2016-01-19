@@ -68,7 +68,7 @@ public class Server {
 				// TODO kick with reason not correct MOVE format
 			} else {
 				for (int i = 0; i < maalMoves; i++) {
-					if (!playerWrapper.getPlayer().getHand().contains(split[(1 + i * 3)])) {
+					if (!(playerWrapper.getPlayer().getHand().contains(split[(1 + i * 3)]))) {
 						// TODO kick with reason tried to lay tile not in
 						// possession
 						client.sendMessage("Tile " + split[(1 + i * 3)] + " not in possesion");
@@ -92,14 +92,14 @@ public class Server {
 					}
 
 				}
-				board.deepCopy();
+				Board deepboard = board.deepCopy();
 				String newTiles = "NEW";
 				for (int i = 0; i < maalMoves; i++) {
 					Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
 					Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
-					if (board.isValidMove(Integer.parseInt(split[(2 + i * 3)]), Integer.parseInt(split[(3 + i * 3)]),
+					if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]), Integer.parseInt(split[(3 + i * 3)]),
 							new Tile(color, shape))) {
-						board.deepCopy().setTile(Integer.parseInt(split[(2 + i * 3)]),
+						deepboard.deepCopy().setTile(Integer.parseInt(split[(2 + i * 3)]),
 								Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
 					} else {
 						// TODO kick with reason not valid move
@@ -108,7 +108,7 @@ public class Server {
 					player.removeTileFromHand(split[(1 + i * 3)]);
 					
 				}
-				
+				board = deepboard;
 				client.sendMessage(newTiles);
 				broadcast("TURN " + client.getClientNumber() + " " + input.substring(5));
 			}

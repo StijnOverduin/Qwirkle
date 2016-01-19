@@ -22,7 +22,7 @@ public class Board {
 
 			}
 		}
-		miny = 95;
+		miny = 95; //TODO magic number
 		maxy = 87;
 		minx = 87;
 		maxx = 95;
