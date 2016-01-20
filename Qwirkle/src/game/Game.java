@@ -29,6 +29,7 @@ public class Game {
 	}
 
 	private void kickHandler(ClientHandler client, String message) {
+		if (threads.size() != 0) {
 		client.sendMessage(message);
 		tilesBackToStack(players.get(turn).getPlayer());
 		players.remove(players.get(turn));
@@ -39,6 +40,9 @@ public class Game {
 			client.kick();
 		} catch (IOException e) {
 			System.out.println("Couldn't close streams from client");
+		}
+		} else {
+			System.out.println("No more players to kick");
 		}
 	}
 
@@ -296,22 +300,6 @@ public class Game {
 		}
 	}
 
-	public void setBoard(Board board) {
-		this.board = board;
-	}
-
-	public Board getBoard() {
-		return board;
-	}
-
-	public List<PlayerWrapper> getPlayers() {
-		return players;
-	}
-
-	public void putPlayerWrapperInList(PlayerWrapper player) {
-		players.add(player);
-	}
-
 	public void removePlayerWrapperFromList(PlayerWrapper player) {
 		if (players.contains(player)) {
 			players.remove(player);
@@ -395,12 +383,6 @@ public class Game {
 		threads.add(handler);
 	}
 
-	/**
-	 * Remove a ClientHandler from the collection of ClientHanlders.
-	 * 
-	 * @param handler
-	 *            ClientHandler that will be removed
-	 */
 	public void removeHandler(ClientHandler handler) {
 		for (int i = 0; i < threads.size(); i++) {
 			if (threads.get(i) == handler) {
