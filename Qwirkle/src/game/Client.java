@@ -56,6 +56,7 @@ public class Client extends Thread {
 	private BufferedWriter out;
 	private Player player;
 	private Board board;
+	private Boolean readIt = true;
 
 	public Client(InetAddress host, int port) throws IOException {
 		sock = new Socket(host, port);
@@ -64,7 +65,7 @@ public class Client extends Thread {
 	}
 
 	public void run() {
-		while (true) {
+		while (readIt) {
 			String line = "";
 			try {
 
@@ -134,7 +135,7 @@ public class Client extends Thread {
 					break;
 				case "KICK":
 					System.out.println(line);
-					// TO DO: Tiles van de gekickte player terug in onze "virtuele" pot doen.
+					readIt = false;
 					break;
 				case "WINNER":
 					System.out.println(line);
@@ -144,7 +145,8 @@ public class Client extends Thread {
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("You were kicked son!");
+				readIt = false;
 			}
 		}
 

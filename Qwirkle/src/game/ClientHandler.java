@@ -10,10 +10,8 @@ import java.util.Scanner;
 
 
 	public class ClientHandler extends Thread {
-		private Server server;
 		private BufferedReader in;
 		private BufferedWriter out;
-		private int clientNumber;
 		private Game game;
 
 		/**
@@ -41,7 +39,7 @@ import java.util.Scanner;
 				}
 	                
 	        } catch (IOException e) {
-	        	e.printStackTrace();
+	        	System.out.println("Client was kicked");
 	        }
 		}
 
@@ -60,16 +58,11 @@ import java.util.Scanner;
 				e.printStackTrace();
 			}
 		}
-		
-		public int getClientNumber() {
-			return clientNumber;
-		}
 
-		/**
-		 * This ClientHandler signs off from the Server and subsequently sends a
-		 * last broadcast to the Server to inform that the Client is no longer
-		 * participating in the chat.
-		 */
+		public void kick() throws IOException {
+			in.close();
+			out.close();
+		}
 		
 	}
 

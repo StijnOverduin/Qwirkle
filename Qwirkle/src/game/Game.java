@@ -1,5 +1,6 @@
 package game;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +31,25 @@ public class Game {
 	private void kickHandler(ClientHandler client, String message) {
 		client.sendMessage(message);
 		tilesBackToStack(players.get(turn).getPlayer());
-		broadcast("KICK " + client.getClientNumber() + " " + players.get(turn).getPlayer().NumberOfTilesInHand() + " "
+		players.remove(players.get(turn));
+		threads.remove(client);
+		broadcast("KICK " + players.get(turn).getPlayerNumber() + " " + players.get(turn).getPlayer().NumberOfTilesInHand() + " "
 				+ message);
+		try {
+			client.kick();
+		} catch (IOException e) {
+			System.out.println("Couldn't close streams from client");
+		}
 	}
 
 	public void updateTurn() {
-		numberOfPlayers = players.size();
-		turn = (turn + 1) % numberOfPlayers;
+		if (players.size() != 0) {
+			numberOfPlayers = players.size();
+			turn = (turn + 1) % numberOfPlayers;
+			broadcast("NEXT " + players.get(turn).getPlayerNumber());
+		} else {
+			System.out.println("No more players in the game");
+		}
 	}
 
 	public void readInput(String msg, ClientHandler client) {
@@ -44,9 +57,9 @@ public class Game {
 		String[] split = msg.split(" ");
 		switch (split[0]) {
 		case "HELLO":
-			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
-			Player player = new Player(board, split[1], client.getClientNumber());
-			PlayerWrapper playerWrapper = new PlayerWrapper(player, 0, client.getClientNumber());
+			client.sendMessage("WELCOME " + split[1] + " " + players.size());
+			Player player = new Player(board, split[1], players.size());
+			PlayerWrapper playerWrapper = new PlayerWrapper(player, 0, players.size());
 			players.add(playerWrapper);
 			if (players.size() == 4) {
 				startGame();
@@ -57,14 +70,15 @@ public class Game {
 			lengteMove = split.length;
 			int maalMoves = (lengteMove / 3);
 			if ((lengteMove - 1) % 3 != 0) {
-				// TODO kick with reason not correct MOVE format
+				kickHandler(client, "KICK " + players.get(turn).getPlayerNumber() + " " + players.get(turn).getPlayer().NumberOfTilesInHand() + " You were kicked, maybe you forgot a tile or a coord?");
+				updateTurn();
+				break;
 			} else {
 				for (int i = 0; i < maalMoves; i++) {
 					if (!(players.get(turn).getPlayer().getHand().contains(split[(1 + i * 3)]))) {
-						// TODO kick with reason tried to lay tile not in
-						// possession
-						client.sendMessage("Tile " + split[(1 + i * 3)] + " not in possession");
-						tilesBackToStack(players.get(turn).getPlayer());
+						kickHandler(client, "Tile " + split[(1 + i * 3)] + " not in possession");
+						updateTurn();
+						break;
 					}
 				}
 				for (int i = 0; i < maalMoves; i++) {
@@ -74,8 +88,10 @@ public class Game {
 						for (int a = 0; a < maalMoves; a++) {
 							String col = split[3];
 							if (!split[(2 + a * 3)].equals(col)) {
-								// TODO kick with reason tiles not in straight
-								// line
+								kickHandler(client, "You were kicked, tiles are not in a straight line");
+								updateTurn();
+								break;
+
 							}
 
 						}
@@ -84,9 +100,9 @@ public class Game {
 
 				}
 				Board deepboard = board.deepCopy();
-				
+
 				String newTiles = "NEW";
-				if (lengteMove > 1) {
+				if (maalMoves > 1) {
 					this.horizontalTrue = (split[2] == split[5]);
 					this.addToScore = 0;
 					for (int i = 0; i < maalMoves; i++) {
@@ -96,29 +112,43 @@ public class Game {
 								Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
 							deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
 									Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
-							
+
 							newTiles = newTiles.concat(" " + giveRandomTile());
 							players.get(turn).getPlayer().removeTileFromHand(split[(1 + i * 3)]);
-							//TODO catch parseint excep
+							// TODO catch parseint excep
 							players.get(turn).setScore(calcScoreCrossedTiles(split, i) + players.get(turn).getScore());
 
 						} else {
-							// TODO kick with reason not valid move
+							kickHandler(client, "Not a valid move");
+							updateTurn();
+							break;
 						}
-				} 
+					}
 					players.get(turn).setScore(calcScoreAddedTiles(split) + players.get(turn).getScore());
-					
-				 
-					
-				}	else if (lengteMove == 1) {
-					players.get(turn).setScore(calcScoreHorAndVer(split) + players.get(turn).getScore());
-					
+
+				} else if (maalMoves == 1) {
+					Color color = Color.getColorFromCharacter(split[1].charAt(0));
+					Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
+					if (deepboard.isValidMove(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
+							new Tile(color, shape))) {
+						deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
+								new Tile(color, shape));
+
+						newTiles = newTiles.concat(" " + giveRandomTile());
+						players.get(turn).setScore(calcScoreHorAndVer(split) + players.get(turn).getScore());
+					} else {
+						kickHandler(client, "Not a valid move");
+						updateTurn();
+						break;
+					}
+
 				}
-				
+
 				board = deepboard;
 				client.sendMessage(newTiles);
-				broadcast("TURN " + client.getClientNumber() + " " + input.substring(5));
+				broadcast("TURN " + players.get(turn).getPlayerNumber() + " " + input.substring(5));
 			}
+			updateTurn();
 			break;
 
 		case "SWAP":
@@ -134,123 +164,128 @@ public class Game {
 						kickHandler(client, "Tile " + line1 + " was not in your hand");
 						break;
 					}
-					// TODO kick with reason: swap terwijl pot empty
 					tiles = tiles.concat(" " + giveRandomTile());
 					q++;
 				} else {
 					kickHandler(client, "Tried to swap while jar was empty");
+					updateTurn();
 					break;
 				}
 				client.sendMessage("NEW" + tiles);
 				updateTurn();
-				broadcast("NEXT " + players.get(turn).getPlayerNumber());
 			}
 		}
 	}
-		
-		public int calcScoreCrossedTiles(String[] split, int i) {
-			int dx = horizontalTrue ? 1 : 0; //als het een horizontale rij is dan gaat hij verticaal checken elke keer
-			int dy = dx == 1 ? 0 : 1;
-			int row = Integer.parseInt(split[2 + 3 * i]);
-			int col = Integer.parseInt(split[3 + 3 * i]);
-			int dupy = row;
-			int dupx = col;
-			
-			this.heeftTilesErnaast = false;
-			int lengteLijn = 0;
-			while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-				lengteLijn++;
-				row += dx;
-				col += dy;
-				this.heeftTilesErnaast = true;
-			}
-			row = dupx;
-			col = dupy;
-			while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-				lengteLijn++;
-				row -= dx;
-				col -= dy;
-				this.heeftTilesErnaast = true;
-			}
-			this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1: addToScore + lengteLijn;
-			return addToScore;
+
+	public int calcScoreCrossedTiles(String[] split, int i) {
+		int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
+											// gaat hij verticaal checken elke
+											// keer
+		int dy = dx == 1 ? 0 : 1;
+		int row = Integer.parseInt(split[2 + 3 * i]);
+		int col = Integer.parseInt(split[3 + 3 * i]);
+		int dupy = row;
+		int dupx = col;
+
+		this.heeftTilesErnaast = false;
+		int lengteLijn = 0;
+		while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+			lengteLijn++;
+			row += dx;
+			col += dy;
+			this.heeftTilesErnaast = true;
+		}
+		row = dupx;
+		col = dupy;
+		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+			lengteLijn++;
+			row -= dx;
+			col -= dy;
+			this.heeftTilesErnaast = true;
+		}
+		this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
+		return addToScore;
+	}
+
+	public int calcScoreAddedTiles(String[] split) {
+		int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
+											// gaat hij verticaal checken elke
+											// keer
+		int dy = dx == 1 ? 0 : 1;
+		int row = Integer.parseInt(split[2]);
+		int col = Integer.parseInt(split[3]);
+		int dupy = row;
+		int dupx = col;
+
+		int lengteLijn = 0;
+		while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+			lengteLijn++;
+			row += dx;
+			col += dy;
+		}
+		row = dupx;
+		col = dupy;
+		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+			lengteLijn++;
+			row -= dx;
+			col -= dy;
+		}
+		this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
+		return addToScore;
+	}
+
+	public int calcScoreHorAndVer(String[] split) {
+		int dx = 1;
+		int dy = 0;
+		int row = Integer.parseInt(split[2]);
+		int col = Integer.parseInt(split[3]);
+		int dupy = row;
+		int dupx = col;
+
+		int lengteLijn = 0;
+		while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+			lengteLijn++;
+			row += dx;
+			col += dy;
+		}
+		row = dupx;
+		col = dupy;
+		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+			lengteLijn++;
+			row -= dx;
+			col -= dy;
+		}
+		dx = 0;
+		dy = 1;
+		row = Integer.parseInt(split[2]);
+		col = Integer.parseInt(split[3]);
+		dupy = row;
+		dupx = col;
+
+		while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+			lengteLijn++;
+			row += dx;
+			col += dy;
+		}
+		row = dupx;
+		col = dupy;
+		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+			lengteLijn++;
+			row -= dx;
+			col -= dy;
 		}
 
-		public int calcScoreAddedTiles(String[] split) {
-			int dx = horizontalTrue ? 0 : 1; //als het een horizontale rij is dan gaat hij verticaal checken elke keer
-			int dy = dx == 1 ? 0 : 1;
-			int row = Integer.parseInt(split[2]);
-			int col = Integer.parseInt(split[3]);
-			int dupy = row;
-			int dupx = col;
-			
-
-			int lengteLijn = 0;
-			while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-				lengteLijn++;
-				row += dx;
-				col += dy;
-			}
-			row = dupx;
-			col = dupy;
-			while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-				lengteLijn++;
-				row -= dx;
-				col -= dy;
-			}
-			this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1: addToScore + lengteLijn;
-			return addToScore;
-		}
-
-		public int calcScoreHorAndVer(String[] split) {
-			int dx = 1; 
-			int dy = 0;
-			int row = Integer.parseInt(split[2]);
-			int col = Integer.parseInt(split[3]);
-			int dupy = row;
-			int dupx = col;
-			
-
-			int lengteLijn = 0;
-			while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-				lengteLijn++;
-				row += dx;
-				col += dy;
-			}
-			row = dupx;
-			col = dupy;
-			while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-				lengteLijn++;
-				row -= dx;
-				col -= dy;
-			}
-				dx = 0; 
-				dy = 1;
-				row = Integer.parseInt(split[2]);
-				col = Integer.parseInt(split[3]);
-				dupy = row;
-				dupx = col;
-				
-				while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-					lengteLijn++;
-					row += dx;
-					col += dy;
-				}
-				row = dupx;
-				col = dupy;
-				while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-					lengteLijn++;
-					row -= dx;
-					col -= dy;
-				}
-
-			addToScore = lengteLijn;
-			return addToScore;
-		}
+		addToScore = lengteLijn;
+		return addToScore;
+	}
 
 	public void broadcast(String msg) {
-		for (int i = 0; i < players.size(); i++) {
-			threads.get(i).sendMessage(msg);
+		if (threads.size() != 0) {
+			for (int i = 0; i < threads.size(); i++) {
+				threads.get(i).sendMessage(msg);
+			}
+		} else {
+			System.out.println("No more players in this game to broadcast to");
 		}
 	}
 

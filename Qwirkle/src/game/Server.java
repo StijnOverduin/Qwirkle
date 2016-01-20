@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-//TODO playernumber niet index in de lijst
-//TODO player scores bijhouden in Game
 public class Server {
 
 	private int port;
