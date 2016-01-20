@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Player {
 
-	protected int score;
-	protected ArrayList<String> hand;
-	protected Board board;
-	protected String name;
-	protected int playerNumber;
+	private int score;
+	private ArrayList<String> hand;
+	private Board board;
+	private String name;
+	private int playerNumber;
 
 	public Player(Board board, String name, int playerNumber) {
 		this.board = board;

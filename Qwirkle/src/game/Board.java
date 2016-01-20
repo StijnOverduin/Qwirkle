@@ -90,22 +90,12 @@ public class Board {
 			row += dx;
 			col += dy;
 		}
-		while (!isEmpty(row + dx, col + dy)) {
-			set.add(getTile(row + dx, col + dy));
-			row += dx;
-			col += dy;
-		}
 		row = dupx;
 		col = dupy;
 		while (!isEmpty(row - dx, col - dy)) {
 			set.add(getTile(row - dx, col - dy));
-			row += dx;
-			col += dy;
-		}
-		while (!isEmpty(row - dx, col - dy)) {
-			set.add(getTile(row - dx, col - dy));
-			row += dx;
-			col += dy;
+			row -= dx;
+			col -= dy;
 		}
 
 		if (set.size() > 6)

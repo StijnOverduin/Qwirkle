@@ -14,16 +14,16 @@ import java.util.Scanner;
 		private BufferedReader in;
 		private BufferedWriter out;
 		private int clientNumber;
+		private Game game;
 
 		/**
 		 * Constructs a ClientHandler object Initialises both Data streams.
 		 */
 		// @ requires serverArg != null && sockArg != null;
-		public ClientHandler(Server serverArg, Socket sockArg, int clientNumber) throws IOException {
-			server = serverArg;
+		public ClientHandler(Socket sockArg, Game game) throws IOException {
 			in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
-			this.clientNumber = clientNumber;
+			this.game = game;
 		}
 
 		/**
@@ -37,12 +37,11 @@ import java.util.Scanner;
 			try {
 				while (true) {
 	            String input = in.readLine();
-	            server.readInput(input, this);
+	            game.readInput(input, this);
 				}
 	                
 	        } catch (IOException e) {
 	        	e.printStackTrace();
-	            kick();
 	        }
 		}
 
@@ -71,14 +70,6 @@ import java.util.Scanner;
 		 * last broadcast to the Server to inform that the Client is no longer
 		 * participating in the chat.
 		 */
-		public void kick() {
-			try {
-			server.removeHandler(this);
-			in.close();
-			out.close();
-			} catch (IOException e) {
-				System.out.println("Could not close client");
-			}
-		}
+		
 	}
 
