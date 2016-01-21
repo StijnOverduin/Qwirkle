@@ -14,7 +14,7 @@ public class Board {
 	public static final int MIDDENVELD = EINDVELD / 2;
 	private Tile[][] board;
 	private boolean isFirstMove = true;
-	
+
 	public Board() {
 		board = new Tile[DIM][DIM];
 		for (int row = 0; row < board.length; row++) {
@@ -23,7 +23,7 @@ public class Board {
 
 			}
 		}
-		miny = 95; //TODO magic number
+		miny = 95; // TODO magic number
 		maxy = 87;
 		minx = 87;
 		maxx = 95;
@@ -65,6 +65,8 @@ public class Board {
 		} else if (isFirstMove == true) {
 			isFirstMove = false;
 			return (row == MIDDENVELD && col == MIDDENVELD);
+		} else if (isEmpty(row + 1, col) && isEmpty(row - 1, col) && isEmpty(row, col + 1) && isEmpty(row, col - 1)) {
+			return false;
 		} else {
 			boolean ans = true;
 			if (!isEmpty(row + 1, col) || !isEmpty(row - 1, col)) {
