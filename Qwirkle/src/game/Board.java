@@ -2,6 +2,10 @@ package game;
 
 import java.util.ArrayList;
 
+import game.tiles.Color;
+import game.tiles.Shape;
+import game.tiles.Tile;
+
 public class Board {
 
 	private int miny;
@@ -13,9 +17,10 @@ public class Board {
 	public static final int EINDVELD = DIM - 1;
 	public static final int MIDDENVELD = EINDVELD / 2;
 	private Tile[][] board;
-	private boolean isFirstMove = true;
+	private boolean isFirstMove;
 
 	public Board() {
+		isFirstMove = true;
 		board = new Tile[DIM][DIM];
 		for (int row = 0; row < board.length; row++) {
 			for (int col = 0; col < board.length; col++) {
@@ -35,6 +40,22 @@ public class Board {
 
 	public boolean isEmpty(int row, int col) {
 		return (getTile(row, col)).toString().equals("ee");
+	}
+	
+	public int getMaxx() {
+		return maxx;
+	}
+	
+	public int getMinx() {
+		return minx;
+	}
+	
+	public int getMaxy() {
+		return maxy;
+	}
+	
+	public int getMiny() {
+		return miny;
 	}
 
 	// Geredeneerd vanuit het middelpunt 91, 91

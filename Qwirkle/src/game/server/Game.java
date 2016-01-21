@@ -1,8 +1,16 @@
-package game;
+package game.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import game.Board;
+import game.PlayerWrapper;
+import game.player.HumanPlayer;
+import game.player.Player;
+import game.tiles.Color;
+import game.tiles.Shape;
+import game.tiles.Tile;
 
 public class Game {
 
@@ -13,7 +21,7 @@ public class Game {
 	private Board board;
 	private boolean active = false;
 	private int lengteMove;
-	private int turn = 0;
+	private int turn;
 	private int numberOfPlayers;
 	private List<ClientHandler> threads;
 	private boolean horizontalTrue;
@@ -62,7 +70,7 @@ public class Game {
 		switch (split[0]) {
 			case "HELLO":
 				client.sendMessage("WELCOME " + split[1] + " " + players.size());
-				Player player = new Player(board, split[1], players.size());
+				Player player = new HumanPlayer(board, split[1], players.size());
 				PlayerWrapper playerWrapper = new PlayerWrapper(player, 0, players.size());
 				players.add(playerWrapper);
 				if (players.size() == 4) {
@@ -140,8 +148,10 @@ public class Game {
 								new Tile(color, shape))) {
 							deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
 									new Tile(color, shape));
-				
-							newTiles = newTiles.concat(" " + giveRandomTile());
+							
+							String randomTile = giveRandomTile();
+							newTiles = newTiles.concat(" " + randomTile);
+							players.get(turn).getPlayer().addTilesToHand(randomTile);
 							players.get(turn).setScore(calcScoreHorAndVer(split) + players.get(turn).getScore());
 						} else {
 							kickHandler(client, "Not a valid move");
@@ -376,10 +386,11 @@ public class Game {
 			}
 			threads.get(t).sendMessage("NEW" + tiles);
 			String[] split = tiles.split(" ");
-			for (int w = 0; w < 6; w++) {
+			for (int w = 1; w < 7; w++) {
 				players.get(t).getPlayer().addTilesToHand(split[w]);
 			}
 		}
+		updateTurn();
 	}
 
 	public void addHandler(ClientHandler handler) {

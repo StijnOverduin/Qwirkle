@@ -1,33 +1,33 @@
-package game;
+package game.tiles;
 
 public enum Color {
 	ROOD('R'), ORANJE('O'), BLAUW('B'), GEEL('Y'), GROEN('G'), PAARS('P'), EMPTY('e');
 
 	char id;
-	
+
 	Color(char c) {
 		id = c;
 	}
-	
+
 	public static Color getColorFromCharacter(char charac) {
-		switch(charac) {
+		switch (charac) {
 		case 'R':
 			return Color.ROOD;
 		case 'O':
 			return Color.ORANJE;
-		case'B':
+		case 'B':
 			return Color.BLAUW;
-		case'Y':
+		case 'Y':
 			return Color.GEEL;
-		case'G':
+		case 'G':
 			return Color.GROEN;
-		case'P':
+		case 'P':
 			return Color.PAARS;
-			default:
-				return Color.EMPTY;
+		default:
+			return Color.EMPTY;
 		}
 	}
-	
+
 	public char getChar() {
 		return id;
 	}

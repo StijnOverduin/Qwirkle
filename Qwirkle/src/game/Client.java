@@ -9,6 +9,13 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import game.player.HumanPlayer;
+import game.player.Naive;
+import game.player.Player;
+import game.tiles.Color;
+import game.tiles.Shape;
+import game.tiles.Tile;
+
 public class Client extends Thread {
 
 	public static void main(String[] args) {
@@ -81,7 +88,11 @@ public class Client extends Thread {
 						board = new Board();
 						String playerName = split[1];
 						int playerNumber = Integer.parseInt(split[2]);
-						player = new Player(board, playerName, playerNumber);
+						if (playerName.equals("Naive")) {
+							player = new Naive(board, playerName, playerNumber);
+						} else {
+							player = new HumanPlayer(board, playerName, playerNumber);
+						}
 						System.out.println(line);
 						System.out.println(board.toString());
 						break;
@@ -92,6 +103,11 @@ public class Client extends Thread {
 						String number = split[1];
 						if (Integer.parseInt(number) == player.getPlayerNumber()) {
 							System.out.println("It's your turn!");
+							if (player instanceof Naive) {
+								out.write(player.determineMove());
+								out.newLine();
+								out.flush();
+							}
 						}
 						break;
 					case "NEW":
@@ -112,25 +128,21 @@ public class Client extends Thread {
 						Shape shape;
 						Tile tile;
 						while (q < split.length - 2) {
-							if (true) {
-								String line1 = split[q];
-								color = Color.getColorFromCharacter(line1.charAt(0));
-								shape = Shape.getShapeFromCharacter(line1.charAt(1));
-								tile = new Tile(color, shape);
-								q++;
 	
-								if (true) {
-									rij = Integer.parseInt(split[q]);
-									q++;
-									if (true) {
-										colom = Integer.parseInt(split[q]);
+							String line1 = split[q];
+							color = Color.getColorFromCharacter(line1.charAt(0));
+							shape = Shape.getShapeFromCharacter(line1.charAt(1));
+							tile = new Tile(color, shape);
+							q++;
 	
-										q++;
-									}
-								}
-							}
+							rij = Integer.parseInt(split[q]);
+							q++;
+	
+							colom = Integer.parseInt(split[q]);
+	
+							q++;
+	
 							player.makeMove(rij, colom, tile);
-							player.removeTileFromHand("" + color.getChar() + shape.getChar());
 	
 						}
 						System.out.println(board.toString());
@@ -161,106 +173,99 @@ public class Client extends Thread {
 		try {
 			String message = msg;
 			String[] split = message.split(" ");
-			if (true) {
-				switch (split[0]) {
-					case "MOVE":
-						lengteMove = split.length;
-						int maalMoves = (lengteMove / 3);
-						if ((lengteMove - 1) % 3 != 0) {
-							System.out.println("Not a valid move, try again");
-							break;
-						} else {
-							for (int i = 0; i < maalMoves; i++) {
-								if (!(player.getHand().contains(split[(1 + i * 3)]))) {
-									System.out.println("You don't have that tile");
-									break;
-								}
-							}
-							for (int i = 0; i < maalMoves; i++) {
-						
-								String row = split[2];
-								if (!split[(2 + i * 3)].equals(row)) {
-									for (int a = 0; a < maalMoves; a++) {
-										String col = split[3];
-										if (!split[(2 + a * 3)].equals(col)) {
-											System.out.println("That was not a valid move, try again");
-											break;
-						
-										}
-						
-									}
-						
-								}
-						
-							}
-							Board deepboard = board.deepCopy();
-						
-							String newTiles = "NEW";
-							if (maalMoves > 1) {
-								this.horizontalTrue = (split[2] == split[5]);
-								this.addToScore = 0;
-								for (int i = 0; i < maalMoves; i++) {
-									Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
-									Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
-									if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]),
-											Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
-										deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
-												Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
-										player.removeTileFromHand(split[(1 + i * 3)]);
-										// TODO catch parseint excep
-						
-									} else {
-										System.out.println("Not a valid move");
-										break;
-									}
-								}
-						
-							} else if (maalMoves == 1) {
-								Color color = Color.getColorFromCharacter(split[1].charAt(0));
-								Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
-								if (deepboard.isValidMove(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
-										new Tile(color, shape))) {
-									deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
-											new Tile(color, shape));
-						
-									
-								} else {
-									System.out.println("Not a valid Move");
-									break;
-								}
-						
+			switch (split[0]) {
+				case "MOVE":
+					lengteMove = split.length;
+					int maalMoves = (lengteMove / 3);
+					if ((lengteMove - 1) % 3 != 0) {
+						System.out.println("Not a valid move, try again 1");
+						break;
+					} else {
+						for (int i = 0; i < maalMoves; i++) {
+							if (!(player.getHand().contains(split[(1 + i * 3)]))) {
+								System.out.println("You don't have that tile 2");
+								break;
 							}
 						}
-						out.write(message);
-						out.newLine();
-						out.flush();
-						break;
-					case "SWAP":
-						int s = 1;
-						for (int i = 0; i < split.length - 1; i++) {
-							if (split[s] != null) {
-								String tile = split[s];
-								s++;
-								player.removeTileFromHand(tile);
+						for (int i = 0; i < maalMoves; i++) {
+	
+							String row = split[2];
+							if (!split[(2 + i * 3)].equals(row)) {
+								for (int a = 0; a < maalMoves; a++) {
+									String col = split[3];
+									if (!split[(2 + a * 3)].equals(col)) {
+										System.out.println("That was not a valid move, try again 3");
+										break;
+	
+									}
+	
+								}
 	
 							}
+	
 						}
+						Board deepboard = board.deepCopy();
+						if (maalMoves > 1) {
+							for (int i = 0; i < maalMoves; i++) {
+								Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
+								Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
+								if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]),
+										Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
+									deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
+											Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
+									player.removeTileFromHand(split[(1 + i * 3)]);
+									// TODO catch parseint excep
+	
+								} else {
+									System.out.println("Not a valid move 4");
+									break;
+								}
+							}
+	
+						} else if (maalMoves == 1) {
+							Color color = Color.getColorFromCharacter(split[1].charAt(0));
+							Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
+							if (deepboard.isValidMove(Integer.parseInt(split[2]), Integer.parseInt(split[3]),new Tile(color, shape))) {
+								deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
+										new Tile(color, shape));
+								player.removeTileFromHand("" + color.getChar() + shape.getChar());
+	
+							} else {
+								System.out.println("Not a valid Move 5");
+								break;
+							}
+	
+						}
+					}
+					out.write(message);
+					out.newLine();
+					out.flush();
+					break;
+				case "SWAP":
+					int s = 1;
+					for (int i = 0; i < split.length - 1; i++) {
+						if (split[s] != null) {
+							String tile = split[s];
+							s++;
+							player.removeTileFromHand(tile);
+	
+						}
+					}
+					out.write(message);
+					out.newLine();
+					out.flush();
+					break;
+				case "HELLO":
+					if (split[1] != null) {
 						out.write(message);
 						out.newLine();
 						out.flush();
-						break;
-					case "HELLO":
-						if (split[1] != null) {
-							out.write(message);
-							out.newLine();
-							out.flush();
-						}
-						break;
-					default:
-						System.out.println("That's not a valid command");
-				}
-
+					}
+					break;
+				default:
+					System.out.println("That's not a valid command");
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
