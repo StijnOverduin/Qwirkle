@@ -57,6 +57,10 @@ public class Client extends Thread {
 	private Player player;
 	private Board board;
 	private Boolean readIt = true;
+	private int lengteMove;
+	private boolean horizontalTrue;
+	private int addToScore;
+	private boolean heeftTilesErnaast;
 
 	public Client(InetAddress host, int port) throws IOException {
 		sock = new Socket(host, port);
@@ -160,6 +164,73 @@ public class Client extends Thread {
 			if (true) {
 				switch (split[0]) {
 					case "MOVE":
+						lengteMove = split.length;
+						int maalMoves = (lengteMove / 3);
+						if ((lengteMove - 1) % 3 != 0) {
+							System.out.println("Not a valid move, try again");
+							break;
+						} else {
+							for (int i = 0; i < maalMoves; i++) {
+								if (!(player.getHand().contains(split[(1 + i * 3)]))) {
+									System.out.println("You don't have that tile");
+									break;
+								}
+							}
+							for (int i = 0; i < maalMoves; i++) {
+						
+								String row = split[2];
+								if (!split[(2 + i * 3)].equals(row)) {
+									for (int a = 0; a < maalMoves; a++) {
+										String col = split[3];
+										if (!split[(2 + a * 3)].equals(col)) {
+											System.out.println("That was not a valid move, try again");
+											break;
+						
+										}
+						
+									}
+						
+								}
+						
+							}
+							Board deepboard = board.deepCopy();
+						
+							String newTiles = "NEW";
+							if (maalMoves > 1) {
+								this.horizontalTrue = (split[2] == split[5]);
+								this.addToScore = 0;
+								for (int i = 0; i < maalMoves; i++) {
+									Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
+									Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
+									if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]),
+											Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
+										deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
+												Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
+										player.removeTileFromHand(split[(1 + i * 3)]);
+										// TODO catch parseint excep
+						
+									} else {
+										System.out.println("Not a valid move");
+										break;
+									}
+								}
+						
+							} else if (maalMoves == 1) {
+								Color color = Color.getColorFromCharacter(split[1].charAt(0));
+								Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
+								if (deepboard.isValidMove(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
+										new Tile(color, shape))) {
+									deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
+											new Tile(color, shape));
+						
+									
+								} else {
+									System.out.println("Not a valid Move");
+									break;
+								}
+						
+							}
+						}
 						out.write(message);
 						out.newLine();
 						out.flush();

@@ -47,5 +47,15 @@ public class BoardTest {
 		assertFalse(board.isValidMove(92, 92, new Tile(Color.BLAUW, Shape.CIRKEL)));
 		assertTrue(board.isValidMove(92, 92, new Tile(Color.BLAUW, Shape.STER)));
 	}
+	
+	@Test
+	public void testIsEmpty() {
+		assertTrue(board.isEmpty(91, 91));
+		assertTrue(board.isEmpty(92, 91));
+		assertTrue(board.isEmpty(182, 182));
+		
+		board.setTile(91, 91, new Tile(Color.BLAUW, Shape.CIRKEL));
+		assertFalse(board.isEmpty(91, 91));
+	}
 
 }

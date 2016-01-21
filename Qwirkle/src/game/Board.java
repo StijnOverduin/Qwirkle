@@ -93,8 +93,8 @@ public class Board {
 			row = row + dx;
 			col = col + dy;
 		}
-		row = dupx;
-		col = dupy;
+		dupx = row;
+		dupy = col;
 		while (!isEmpty(row - dx, col - dy)) {
 			set.add(getTile(row - dx, col - dy));
 			row = row + dx;
