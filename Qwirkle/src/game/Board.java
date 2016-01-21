@@ -90,15 +90,15 @@ public class Board {
 		set.add(tile);
 		while (!isEmpty(row + dx, col + dy)) {
 			set.add(getTile(row + dx, col + dy));
-			row += dx;
-			col += dy;
+			row = row + dx;
+			col = col + dy;
 		}
 		row = dupx;
 		col = dupy;
 		while (!isEmpty(row - dx, col - dy)) {
 			set.add(getTile(row - dx, col - dy));
-			row -= dx;
-			col -= dy;
+			row = row + dx;
+			col = col + dy;
 		}
 
 		if (set.size() > 6)
