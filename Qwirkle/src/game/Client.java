@@ -73,75 +73,75 @@ public class Client extends Thread {
 				System.out.println("Server -> Client " + line);
 				String[] split = line.split(" ");
 				switch (split[0]) {
-				case "WELCOME":
-					board = new Board();
-					String playerName = split[1];
-					int playerNumber = Integer.parseInt(split[2]);
-					player = new Player(board, playerName, playerNumber);
-					System.out.println(line);
-					System.out.println(board.toString());
-					break;
-				case "NAMES":
-					System.out.println(line);
-					break;
-				case "NEXT":
-					String number = split[1];
-					if (Integer.parseInt(number) == player.getPlayerNumber()) {
-						System.out.println("It's your turn!");
-					}
-					break;
-				case "NEW":
-					if (!(split[1].equals("empty"))) {
-						for (int i = 1; i < split.length; i++) {
-							player.addTilesToHand(split[i]);
+					case "WELCOME":
+						board = new Board();
+						String playerName = split[1];
+						int playerNumber = Integer.parseInt(split[2]);
+						player = new Player(board, playerName, playerNumber);
+						System.out.println(line);
+						System.out.println(board.toString());
+						break;
+					case "NAMES":
+						System.out.println(line);
+						break;
+					case "NEXT":
+						String number = split[1];
+						if (Integer.parseInt(number) == player.getPlayerNumber()) {
+							System.out.println("It's your turn!");
 						}
-						System.out.println(player.getHand());
-					} else {
-						System.out.println(line + "No more tiles in the jar");
-					}
-					break;
-				case "TURN":
-					int q = 2;
-					int rij = 0;
-					int colom = 0;
-					Color color;
-					Shape shape;
-					Tile tile;
-					while (q < split.length - 2) {
-						if (true) {
-							String line1 = split[q];
-							color = Color.getColorFromCharacter(line1.charAt(0));
-							shape = Shape.getShapeFromCharacter(line1.charAt(1));
-							tile = new Tile(color, shape);
-							q++;
-	
+						break;
+					case "NEW":
+						if (!(split[1].equals("empty"))) {
+							for (int i = 1; i < split.length; i++) {
+								player.addTilesToHand(split[i]);
+							}
+							System.out.println(player.getHand());
+						} else {
+							System.out.println(line + "No more tiles in the jar");
+						}
+						break;
+					case "TURN":
+						int q = 2;
+						int rij = 0;
+						int colom = 0;
+						Color color;
+						Shape shape;
+						Tile tile;
+						while (q < split.length - 2) {
 							if (true) {
-								rij = Integer.parseInt(split[q]);
+								String line1 = split[q];
+								color = Color.getColorFromCharacter(line1.charAt(0));
+								shape = Shape.getShapeFromCharacter(line1.charAt(1));
+								tile = new Tile(color, shape);
 								q++;
+	
 								if (true) {
-									colom = Integer.parseInt(split[q]);
-									
+									rij = Integer.parseInt(split[q]);
 									q++;
+									if (true) {
+										colom = Integer.parseInt(split[q]);
+	
+										q++;
+									}
 								}
 							}
+							player.makeMove(rij, colom, tile);
+							player.removeTileFromHand("" + color.getChar() + shape.getChar());
+	
 						}
-						player.makeMove(rij, colom, tile);
-						player.removeTileFromHand("" + color.getChar() + shape.getChar());
-						
-					}
-					System.out.println(board.toString());
-					System.out.println(player.getHand());
-					
-					break;
-				case "KICK":
-					System.out.println(line);
-					readIt = false;
-					break;
-				case "WINNER":
-					System.out.println(line);
-					break;
-				default:
-					System.out.println("");
+						System.out.println(board.toString());
+						System.out.println(player.getHand());
+	
+						break;
+					case "KICK":
+						System.out.println(line);
+						readIt = false;
+						break;
+					case "WINNER":
+						System.out.println(line);
+						break;
+					default:
+						System.out.println("");
 				}
 
 			} catch (IOException e) {
@@ -159,34 +159,34 @@ public class Client extends Thread {
 			String[] split = message.split(" ");
 			if (true) {
 				switch (split[0]) {
-				case "MOVE":
-					out.write(message);
-					out.newLine();
-					out.flush();
-					break;
-				case "SWAP":
-					int s = 1;
-					for (int i = 0; i < split.length - 1; i++) {
-						if (split[s] != null) {
-							String tile = split[s];
-							s++;
-							player.removeTileFromHand(tile); 
-							 
-						}
-					}
-					out.write(message);
-					out.newLine();
-					out.flush();
-					break;
-				case "HELLO":
-					if (split[1] != null) {
+					case "MOVE":
 						out.write(message);
 						out.newLine();
 						out.flush();
-					}
-					break;
-				default:
-					System.out.println("That's not a valid command");
+						break;
+					case "SWAP":
+						int s = 1;
+						for (int i = 0; i < split.length - 1; i++) {
+							if (split[s] != null) {
+								String tile = split[s];
+								s++;
+								player.removeTileFromHand(tile);
+	
+							}
+						}
+						out.write(message);
+						out.newLine();
+						out.flush();
+						break;
+					case "HELLO":
+						if (split[1] != null) {
+							out.write(message);
+							out.newLine();
+							out.flush();
+						}
+						break;
+					default:
+						System.out.println("That's not a valid command");
 				}
 
 			}

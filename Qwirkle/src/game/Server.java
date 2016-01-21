@@ -59,7 +59,6 @@ public class Server {
 	}
 
 	private void readTerminalInput() {
-		int q = 0;
 		while (true) {
 
 			Scanner input = new Scanner(System.in);
