@@ -93,7 +93,7 @@ public class Board {
 			if (!isEmpty(row + 1, col) || !isEmpty(row - 1, col)) {
 				ans = checkRow(tile, row, col, false);
 			}
-			if (ans && !isEmpty(row, col + 1) || !isEmpty(row, col - 1)) {
+			if (ans && (!isEmpty(row, col + 1) || !isEmpty(row, col - 1))) {
 				ans = checkRow(tile, row, col, true);
 			}
 			return ans;
@@ -171,6 +171,10 @@ public class Board {
 
 		return builder.toString();
 	}
+	
+	public void isFirstMoveBecomesFalse() {
+		isFirstMove = false;
+	}
 
 	public Board deepCopy() {
 		Board b = new Board();
@@ -178,6 +182,9 @@ public class Board {
 			for (int col = 0; col < board.length; col++) {
 				b.setTile(row, col, getTile(row, col));
 			}
+		}
+		if (!isEmpty(91, 91)) {
+			b.isFirstMoveBecomesFalse();
 		}
 		return b;
 	}

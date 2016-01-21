@@ -90,6 +90,7 @@ public class Game {
 					break;
 				} else {
 					for (int i = 0; i < maalMoves; i++) {
+						System.out.println(players.get(turn).getPlayer().getHand());
 						if (!(players.get(turn).getPlayer().getHand().contains(split[(1 + i * 3)]))) {
 							kickHandler(client, "Tile " + split[(1 + i * 3)] + " not in possession");
 							updateTurn();
@@ -127,9 +128,14 @@ public class Game {
 									Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
 								deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
 										Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
+								
 				
-								newTiles = newTiles.concat(" " + giveRandomTile());
+								
 								players.get(turn).getPlayer().removeTileFromHand(split[(1 + i * 3)]);
+								String randomTile = giveRandomTile();
+								newTiles = newTiles.concat(" " + randomTile);
+								players.get(turn).getPlayer().addTilesToHand(randomTile);;
+								
 								// TODO catch parseint excep
 								players.get(turn).setScore(calcScoreCrossedTiles(split, i) + players.get(turn).getScore());
 				
@@ -149,6 +155,7 @@ public class Game {
 							deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
 									new Tile(color, shape));
 							
+							players.get(turn).getPlayer().removeTileFromHand(split[1]);
 							String randomTile = giveRandomTile();
 							newTiles = newTiles.concat(" " + randomTile);
 							players.get(turn).getPlayer().addTilesToHand(randomTile);
@@ -175,13 +182,14 @@ public class Game {
 					if (tilesInJar() != 0) {
 						String line1 = split[q];
 						if (players.get(turn).getPlayer().getHand().contains(line1)) {
-							System.out.println(line1);
 							players.get(turn).getPlayer().removeTileFromHand(line1);
 						} else {
 							kickHandler(client, "Tile " + line1 + " was not in your hand");
 							break;
 						}
-						tiles = tiles.concat(" " + giveRandomTile());
+						String randomTile = giveRandomTile();
+						players.get(turn).getPlayer().addTilesToHand(randomTile);
+						tiles = tiles.concat(" " + randomTile);
 						q++;
 					} else {
 						kickHandler(client, "Tried to swap while jar was empty");
