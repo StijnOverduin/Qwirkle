@@ -30,17 +30,17 @@ public class Game {
 
 	private void kickHandler(ClientHandler client, String message) {
 		if (threads.size() != 0) {
-		client.sendMessage(message);
-		tilesBackToStack(players.get(turn).getPlayer());
-		players.remove(players.get(turn));
-		threads.remove(client);
-		broadcast("KICK " + players.get(turn).getPlayerNumber() + " " + players.get(turn).getPlayer().NumberOfTilesInHand() + " "
-				+ message);
-		try {
-			client.kick();
-		} catch (IOException e) {
-			System.out.println("Couldn't close streams from client");
-		}
+			client.sendMessage(message);
+			tilesBackToStack(players.get(turn).getPlayer());
+			players.remove(players.get(turn));
+			threads.remove(client);
+			broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
+					+ players.get(turn).getPlayer().NumberOfTilesInHand() + " " + message);
+			try {
+				client.kick();
+			} catch (IOException e) {
+				System.out.println("Couldn't close streams from client");
+			}
 		} else {
 			System.out.println("No more players to kick");
 		}
@@ -74,7 +74,10 @@ public class Game {
 			lengteMove = split.length;
 			int maalMoves = (lengteMove / 3);
 			if ((lengteMove - 1) % 3 != 0) {
-				kickHandler(client, "KICK " + players.get(turn).getPlayerNumber() + " " + players.get(turn).getPlayer().NumberOfTilesInHand() + " You were kicked, maybe you forgot a tile or a coord?");
+				kickHandler(client,
+						"KICK " + players.get(turn).getPlayerNumber() + " "
+								+ players.get(turn).getPlayer().NumberOfTilesInHand()
+								+ " You were kicked, maybe you forgot a tile or a coord?");
 				updateTurn();
 				break;
 			} else {
