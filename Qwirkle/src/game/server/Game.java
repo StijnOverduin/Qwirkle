@@ -1,9 +1,5 @@
 package game.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import game.Board;
 import game.PlayerWrapper;
 import game.player.HumanPlayer;
@@ -11,6 +7,12 @@ import game.player.Player;
 import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+
 
 public class Game {
 
@@ -76,7 +78,7 @@ public class Game {
   public void readInput(String msg, ClientHandler client) {
     String input = msg;
     String[] split = msg.split(" ");
-    switch (split[0]) {
+    switch (split[0]) { //TODO default case
       case "HELLO":
         client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
         Player player = new HumanPlayer(board, split[1], client.getClientNumber());
@@ -216,20 +218,23 @@ public class Game {
           kickHandler(client, "It was not your turn!");
           break;
         }
+      default:
+        System.out.println("Not valid input");
+        break;
     }
   }
 
-  public int calcScoreCrossedTiles(String[] split, int i) {
+  public int calcScoreCrossedTiles(String[] split, int index) {
     int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
     int dy = dx == 1 ? 0 : 1;
-    int row = Integer.parseInt(split[2 + 3 * i]);
-    int col = Integer.parseInt(split[3 + 3 * i]);
+    int row = Integer.parseInt(split[2 + 3 * index]);
+    int col = Integer.parseInt(split[3 + 3 * index]);
+    this.heeftTilesErnaast = false;
     int dupRow = row;
     int dupCol = col;
 
-    this.heeftTilesErnaast = false;
     int lengteLijn = 0;
     while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
       lengteLijn++;
@@ -256,8 +261,8 @@ public class Game {
     int dy = dx == 1 ? 0 : 1;
     int row = Integer.parseInt(split[2]);
     int col = Integer.parseInt(split[3]);
-    int dupy = row;
-    int dupx = col;
+    int dupRow = row;
+    int dupCol = col;
 
     int lengteLijn = 0;
     while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
@@ -265,8 +270,8 @@ public class Game {
       row += dx;
       col += dy;
     }
-    dupx = row;
-    dupy = col;
+    row = dupRow;
+    col = dupCol;
     while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
@@ -281,8 +286,8 @@ public class Game {
     int dy = 0;
     int row = Integer.parseInt(split[2]);
     int col = Integer.parseInt(split[3]);
-    int dupy = row;
-    int dupx = col;
+    int dupRow = row;
+    int dupCol = col;
 
     int lengteLijn = 0;
     while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
@@ -290,8 +295,8 @@ public class Game {
       row += dx;
       col += dy;
     }
-    row = dupx;
-    col = dupy;
+    row = dupRow;
+    col = dupCol;
     while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
@@ -301,16 +306,16 @@ public class Game {
     dy = 1;
     row = Integer.parseInt(split[2]);
     col = Integer.parseInt(split[3]);
-    dupy = row;
-    dupx = col;
+    row = dupRow;
+    col = dupCol;
 
     while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
       lengteLijn++;
       row += dx;
       col += dy;
     }
-    row = dupx;
-    col = dupy;
+    row = dupRow;
+    col = dupCol;
     while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;

@@ -1,10 +1,10 @@
 package game;
 
-import java.util.ArrayList;
-
 import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
+
+import java.util.ArrayList;
 
 public class Board {
 
@@ -127,18 +127,21 @@ public class Board {
       col = col + dy;
     }
 
-    if (set.size() > 6)
+    if (set.size() > 6) {
       return false;
+    }
     boolean ans = true;
     if (set.get(0).getColor() == (set.get(1).getColor())) {
       for (int a = 1; a < set.size(); a++) {
-        if (set.get(0).getColor() != (set.get(a).getColor()) || set.get(0).getShape() == (set.get(a).getShape())) {
+        if (set.get(0).getColor() != (set.get(a).getColor()) 
+            || set.get(0).getShape() == (set.get(a).getShape())) {
           ans = false;
         }
       }
     } else if (set.get(0).getShape() == (set.get(1).getShape())) {
       for (int a = 1; a < set.size(); a++) {
-        if (set.get(0).getColor() == (set.get(a).getColor()) || set.get(0).getShape() != (set.get(a).getShape())) {
+        if (set.get(0).getColor() == (set.get(a).getColor()) 
+            || set.get(0).getShape() != (set.get(a).getShape())) {
           ans = false;
         }
       }
@@ -148,6 +151,7 @@ public class Board {
     return ans;
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String newLine = System.getProperty("line.separator");

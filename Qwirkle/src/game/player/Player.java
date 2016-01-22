@@ -1,9 +1,11 @@
 package game.player;
 
-import java.util.ArrayList;
-
 import game.Board;
 import game.tiles.Tile;
+
+import java.util.ArrayList;
+
+
 
 public abstract class Player {
 

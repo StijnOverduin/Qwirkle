@@ -1,5 +1,12 @@
 package game;
 
+import game.player.HumanPlayer;
+import game.player.Naive;
+import game.player.Player;
+import game.tiles.Color;
+import game.tiles.Shape;
+import game.tiles.Tile;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,12 +16,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import game.player.HumanPlayer;
-import game.player.Naive;
-import game.player.Player;
-import game.tiles.Color;
-import game.tiles.Shape;
-import game.tiles.Tile;
+
 
 public class Client extends Thread {
 
@@ -83,90 +85,90 @@ public class Client extends Thread {
         System.out.println("Server -> Client " + line);
         String[] split = line.split(" ");
         switch (split[0]) {
-        case "WELCOME":
-          board = new Board();
-          String playerName = split[1];
-          int playerNumber = Integer.parseInt(split[2]);
-          if (playerName.equals("Naive")) {
-            player = new Naive(board, playerName, playerNumber);
-          } else {
-            player = new HumanPlayer(board, playerName, playerNumber);
-          }
-          System.out.println(line);
-          System.out.println(board.toString());
-          break;
-        case "NAMES":
-          System.out.println(line);
-          for (int i = 0; i < (split.length - 2) / 3; i++) {
-            virtualJar = virtualJar - 6;
-          }
-          break;
-        case "NEXT":
-          String number = split[1];
-          if (Integer.parseInt(number) == player.getPlayerNumber()) {
-            System.out.println("It's your turn!");
-            if (player instanceof Naive) {
-              out.write(player.determineMove());
-              out.newLine();
-              out.flush();
+          case "WELCOME":
+            board = new Board();
+            String playerName = split[1];
+            int playerNumber = Integer.parseInt(split[2]);
+            if (playerName.equals("Naive")) {
+              player = new Naive(board, playerName, playerNumber);
+            } else {
+              player = new HumanPlayer(board, playerName, playerNumber);
             }
-          }
-          break;
-        case "NEW":
-          if (!(split[1].equals("empty"))) {
-            for (int i = 1; i < split.length; i++) {
-              player.addTilesToHand(split[i]);
-              virtualJar = virtualJar - 1;
+            System.out.println(line);
+            System.out.println(board.toString());
+            break;
+          case "NAMES":
+            System.out.println(line);
+            for (int i = 0; i < (split.length - 2) / 3; i++) {
+              virtualJar = virtualJar - 6;
             }
+            break;
+          case "NEXT":
+            String number = split[1];
+            if (Integer.parseInt(number) == player.getPlayerNumber()) {
+              System.out.println("It's your turn!");
+              if (player instanceof Naive) {
+                out.write(player.determineMove());
+                out.newLine();
+                out.flush();
+              }
+            }
+            break;
+          case "NEW":
+            if (!(split[1].equals("empty"))) {
+              for (int i = 1; i < split.length; i++) {
+                player.addTilesToHand(split[i]);
+                virtualJar = virtualJar - 1;
+              }
+              System.out.println(player.getHand());
+            } else {
+              System.out.println(line + "No more tiles in the jar");
+            }
+            break;
+          case "TURN":
+            int qq = 2;
+            int rij = 0;
+            int colom = 0;
+            Color color;
+            Shape shape;
+            Tile tile;
+            while (qq < split.length - 2) {
+  
+              String line1 = split[qq];
+              color = Color.getColorFromCharacter(line1.charAt(0));
+              shape = Shape.getShapeFromCharacter(line1.charAt(1));
+              tile = new Tile(color, shape);
+              qq++;
+  
+              rij = Integer.parseInt(split[qq]);
+              qq++;
+  
+              colom = Integer.parseInt(split[qq]);
+              qq++;
+  
+              player.makeMove(rij, colom, tile);
+  
+            }
+            System.out.println(board.toString());
             System.out.println(player.getHand());
-          } else {
-            System.out.println(line + "No more tiles in the jar");
-          }
-          break;
-        case "TURN":
-          int q = 2;
-          int rij = 0;
-          int colom = 0;
-          Color color;
-          Shape shape;
-          Tile tile;
-          while (q < split.length - 2) {
-
-            String line1 = split[q];
-            color = Color.getColorFromCharacter(line1.charAt(0));
-            shape = Shape.getShapeFromCharacter(line1.charAt(1));
-            tile = new Tile(color, shape);
-            q++;
-
-            rij = Integer.parseInt(split[q]);
-            q++;
-
-            colom = Integer.parseInt(split[q]);
-            q++;
-
-            player.makeMove(rij, colom, tile);
-
-          }
-          System.out.println(board.toString());
-          System.out.println(player.getHand());
-
-          break;
-        case "KICK":
-          if (Integer.parseInt(split[1]) == player.getPlayerNumber()) {
-            System.out.println(line);
-            readIt = false;
+  
             break;
-          } else {
+          case "KICK":
+            if (Integer.parseInt(split[1]) == player.getPlayerNumber()) {
+              System.out.println(line);
+              readIt = false;
+              break;
+            } else {
+              System.out.println(line);
+              virtualJar = virtualJar + Integer.parseInt(split[2]);
+              System.out.println("Tiles in jar left: " + virtualJar);
+              break;
+            }
+          case "WINNER":
             System.out.println(line);
-            virtualJar = virtualJar + Integer.parseInt(split[2]);
-            System.out.println("Tiles in jar left: " + virtualJar);
             break;
-          }
-        case "WINNER":
-          System.out.println(line);
-          break;
-        default:
-          System.out.println("");
+          default:
+            System.out.println("");
         }
 
       } catch (IOException e) {
