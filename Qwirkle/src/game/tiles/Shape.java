@@ -1,4 +1,4 @@
-package game;
+package game.tiles;
 
 public enum Shape {
 	CIRKEL('o'), DIAMANT('d'), VIERKANT('s'), KLAVER('c'), KRUIS('x'), STER('*'), EMPTY('e');

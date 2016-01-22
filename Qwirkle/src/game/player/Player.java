@@ -1,14 +1,17 @@
-package game;
+package game.player;
 
 import java.util.ArrayList;
 
-public class Player {
+import game.Board;
+import game.tiles.Tile;
 
-	private int score;
-	private ArrayList<String> hand;
-	private Board board;
-	private String name;
-	private int playerNumber;
+public abstract class Player {
+
+	protected int score;
+	protected ArrayList<String> hand;
+	protected Board board;
+	protected String name;
+	protected int playerNumber;
 
 	public Player(Board board, String name, int playerNumber) {
 		this.board = board;
@@ -17,10 +20,11 @@ public class Player {
 		this.playerNumber = playerNumber;
 	}
 
-	public void makeMove(int i, int j, Tile tile) {
-		board.setTile(i, j, tile);
-	}
-
+	public abstract void makeMove(int i, int j, Tile tile);
+	
+	public abstract String determineMove();
+	
+	
 	public String getName() {
 		return name;
 	}

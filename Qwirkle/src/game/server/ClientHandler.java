@@ -1,4 +1,4 @@
-package game;
+package game.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

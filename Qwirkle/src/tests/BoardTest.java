@@ -8,9 +8,9 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 
 import game.Board;
-import game.Color;
-import game.Shape;
-import game.Tile;
+import game.tiles.Color;
+import game.tiles.Shape;
+import game.tiles.Tile;
 
 public class BoardTest {
 	private Board board;
