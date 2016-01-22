@@ -65,10 +65,10 @@ public class Board {
 	// Een rij naar beneden betekend 92,91
 	public void setTile(int row, int col, Tile tile) {
 		board[row][col] = tile;
-		maxx = Math.max(col, maxx);
-		minx = Math.min(col, minx);
-		miny = Math.max(row, miny);
-		maxy = Math.min(row, maxy);
+		maxx = Math.max(col + 1, maxx);
+		minx = Math.min(col - 1, minx);
+		miny = Math.max(row + 1, miny);
+		maxy = Math.min(row - 1, maxy);
 
 	}
 

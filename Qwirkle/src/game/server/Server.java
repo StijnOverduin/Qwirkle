@@ -39,7 +39,7 @@ public class Server {
 			}
 
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("No more players on the server");
 
 		}
 

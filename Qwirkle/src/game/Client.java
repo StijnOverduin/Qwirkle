@@ -65,14 +65,13 @@ public class Client extends Thread {
 	private Board board;
 	private Boolean readIt = true;
 	private int lengteMove;
-	private boolean horizontalTrue;
-	private int addToScore;
-	private boolean heeftTilesErnaast;
+	private int virtualJar;
 
 	public Client(InetAddress host, int port) throws IOException {
 		sock = new Socket(host, port);
 		in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+		virtualJar = 108;
 	}
 
 	public void run() {
@@ -98,6 +97,9 @@ public class Client extends Thread {
 						break;
 					case "NAMES":
 						System.out.println(line);
+						for (int i = 0; i < (split.length - 2)/3; i++) {
+							virtualJar = virtualJar - 6;
+						}
 						break;
 					case "NEXT":
 						String number = split[1];
@@ -114,6 +116,7 @@ public class Client extends Thread {
 						if (!(split[1].equals("empty"))) {
 							for (int i = 1; i < split.length; i++) {
 								player.addTilesToHand(split[i]);
+								virtualJar = virtualJar - 1;
 							}
 							System.out.println(player.getHand());
 						} else {
@@ -139,20 +142,27 @@ public class Client extends Thread {
 							q++;
 	
 							colom = Integer.parseInt(split[q]);
-	
 							q++;
 	
 							player.makeMove(rij, colom, tile);
+							
 	
 						}
 						System.out.println(board.toString());
 						System.out.println(player.getHand());
 	
 						break;
-					case "KICK":
-						System.out.println(line);
-						readIt = false;
-						break;
+					case "KICK": 
+						if (Integer.parseInt(split[1]) == player.getPlayerNumber()) {
+							System.out.println(line);
+							readIt = false;
+							break;
+						} else {
+							System.out.println(line);
+							virtualJar = virtualJar + Integer.parseInt(split[2]);
+							System.out.println("Tiles in jar left: " + virtualJar);
+							break;
+						}
 					case "WINNER":
 						System.out.println(line);
 						break;
@@ -166,6 +176,10 @@ public class Client extends Thread {
 			}
 		}
 
+	}
+	
+	public int getVirtualJar() {
+		return virtualJar;
 	}
 
 	/** send a message to the ClientHandler. */
@@ -193,7 +207,7 @@ public class Client extends Thread {
 							if (!split[(2 + i * 3)].equals(row)) {
 								for (int a = 0; a < maalMoves; a++) {
 									String col = split[3];
-									if (!split[(2 + a * 3)].equals(col)) {
+									if (!split[(3 + a * 3)].equals(col)) {
 										System.out.println("That was not a valid move, try again 3");
 										break;
 	
@@ -242,6 +256,7 @@ public class Client extends Thread {
 					out.flush();
 					break;
 				case "SWAP":
+					if (getVirtualJar() > (split.length - 1)) { 
 					int s = 1;
 					for (int i = 0; i < split.length - 1; i++) {
 						if (split[s] != null) {
@@ -255,6 +270,10 @@ public class Client extends Thread {
 					out.newLine();
 					out.flush();
 					break;
+					} else {
+						System.out.println("Jar has " + getVirtualJar() + " tiles left");
+						break;
+					}
 				case "HELLO":
 					if (split[1] != null) {
 						out.write(message);

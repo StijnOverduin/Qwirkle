@@ -31,7 +31,6 @@ public class Naive extends Player implements AI {
 			return move;
 
 		} else {
-
 			for (int i = 0; i < getHand().size(); i++) {
 				String currentTile = getHand().get(i);
 				for (int row = maxy; row <= miny; row++) {
@@ -42,6 +41,7 @@ public class Naive extends Player implements AI {
 							move = move.concat("MOVE " + color.getChar() 
 								+ shape.getChar() + " " + row + " " + col);
 							removeTileFromHand("" + color.getChar() + shape.getChar());
+							System.out.println(move);
 							return move;
 						}
 					}
@@ -49,6 +49,7 @@ public class Naive extends Player implements AI {
 			}
 			move = move.concat("SWAP " + getHand().get(0));
 			removeTileFromHand(getHand().get(0));
+			System.out.println(move);
 			return move;
 		}
 	}
