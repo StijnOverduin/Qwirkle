@@ -38,19 +38,28 @@ public class Game {
 
 	private void kickHandler(ClientHandler client, String message) {
 		if (threads.size() != 0) {
-			client.sendMessage(message);
+			broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
+					+ players.get(turn).getPlayer().NumberOfTilesInHand() + " " + message);
 			tilesBackToStack(players.get(turn).getPlayer());
 			players.remove(players.get(turn));
 			threads.remove(client);
-			broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
-					   + players.get(turn).getPlayer().NumberOfTilesInHand() + " " + message);
+			updateTurn();
 			try {
 				client.kick();
 			} catch (IOException e) {
 				System.out.println("Couldn't close streams from client");
 			}
 		} else {
-			System.out.println("No more players to kick");
+			client.sendMessage("KICK " + message);
+			tilesBackToStack(players.get(turn).getPlayer());
+			players.remove(players.get(turn));
+			threads.remove(client);
+			try {
+			client.kick();
+			} catch (IOException e) {
+				System.out.println("Last client was removed from threads");
+			}
+			System.out.println("Kicked the last Player");
 		}
 	}
 
@@ -68,55 +77,54 @@ public class Game {
 		String input = msg;
 		String[] split = msg.split(" ");
 		switch (split[0]) {
-			case "HELLO":
-				client.sendMessage("WELCOME " + split[1] + " " + players.size());
-				Player player = new HumanPlayer(board, split[1], players.size());
-				PlayerWrapper playerWrapper = new PlayerWrapper(player, 0, players.size());
-				players.add(playerWrapper);
-				if (players.size() == 4) {
-					startGame();
-				}
-				break;
-				
-			case "MOVE":
+		case "HELLO":
+			client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
+			Player player = new HumanPlayer(board, split[1], client.getClientNumber());
+			fillWrapper(client, player);
+			if (players.size() == 4) {
+				startGame();
+			}
+			break;
+
+		case "MOVE":
+			if (client.getClientNumber() == turn) {
+			System.out.println(turn);
 				lengteMove = split.length;
 				int maalMoves = (lengteMove / 3);
 				if ((lengteMove - 1) % 3 != 0) {
 					kickHandler(client,
-									"KICK " + players.get(turn).getPlayerNumber() + " "
+							"KICK " + players.get(turn).getPlayerNumber() + " "
 									+ players.get(turn).getPlayer().NumberOfTilesInHand()
 									+ " You were kicked, maybe you forgot a tile or a coord?");
-					updateTurn();
 					break;
 				} else {
+					System.out.println(turn);
+					System.out.println(players.get(turn).getPlayerNumber());
 					for (int i = 0; i < maalMoves; i++) {
-						System.out.println(players.get(turn).getPlayer().getHand());
 						if (!(players.get(turn).getPlayer().getHand().contains(split[(1 + i * 3)]))) {
 							kickHandler(client, "Tile " + split[(1 + i * 3)] + " not in possession");
-							updateTurn();
 							break;
 						}
 					}
 					for (int i = 0; i < maalMoves; i++) {
-				
+
 						String row = split[2];
 						if (!split[(2 + i * 3)].equals(row)) {
 							for (int a = 0; a < maalMoves; a++) {
 								String col = split[3];
-								if (!split[(2 + a * 3)].equals(col)) {
+								if (!split[(3 + a * 3)].equals(col)) {
 									kickHandler(client, "You were kicked, tiles are not in a straight line");
-									updateTurn();
 									break;
-				
+
 								}
-				
+
 							}
-				
+
 						}
-				
+
 					}
 					Board deepboard = board.deepCopy();
-				
+
 					String newTiles = "NEW";
 					if (maalMoves > 1) {
 						this.horizontalTrue = (split[2] == split[5]);
@@ -128,25 +136,23 @@ public class Game {
 									Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
 								deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]),
 										Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
-								
-				
-								
+
 								players.get(turn).getPlayer().removeTileFromHand(split[(1 + i * 3)]);
 								String randomTile = giveRandomTile();
 								newTiles = newTiles.concat(" " + randomTile);
-								players.get(turn).getPlayer().addTilesToHand(randomTile);;
-								
+								players.get(turn).getPlayer().addTilesToHand(randomTile);
+
 								// TODO catch parseint excep
-								players.get(turn).setScore(calcScoreCrossedTiles(split, i) + players.get(turn).getScore());
-				
+								players.get(turn)
+										.setScore(calcScoreCrossedTiles(split, i) + players.get(turn).getScore());
+
 							} else {
 								kickHandler(client, "Not a valid move");
-								updateTurn();
 								break;
 							}
 						}
 						players.get(turn).setScore(calcScoreAddedTiles(split) + players.get(turn).getScore());
-				
+
 					} else if (maalMoves == 1) {
 						Color color = Color.getColorFromCharacter(split[1].charAt(0));
 						Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
@@ -154,7 +160,7 @@ public class Game {
 								new Tile(color, shape))) {
 							deepboard.setTile(Integer.parseInt(split[2]), Integer.parseInt(split[3]),
 									new Tile(color, shape));
-							
+
 							players.get(turn).getPlayer().removeTileFromHand(split[1]);
 							String randomTile = giveRandomTile();
 							newTiles = newTiles.concat(" " + randomTile);
@@ -162,20 +168,25 @@ public class Game {
 							players.get(turn).setScore(calcScoreHorAndVer(split) + players.get(turn).getScore());
 						} else {
 							kickHandler(client, "Not a valid move");
-							updateTurn();
 							break;
 						}
-				
+
 					}
 
 					board = deepboard;
 					client.sendMessage(newTiles);
 					broadcast("TURN " + players.get(turn).getPlayerNumber() + " " + input.substring(5));
+					updateTurn();
 				}
-				updateTurn();
+				System.out.println(players.get(turn).getScore());
+				System.out.println(players.get(turn).getPlayer().getHand());
 				break;
-	
-			case "SWAP":
+			} else {
+				kickHandler(client, "It was not your turn!");
+				break;
+			}
+		case "SWAP":
+			if (client.getClientNumber() == turn) {
 				int q = 1;
 				String tiles = "";
 				while (q < split.length) {
@@ -193,12 +204,16 @@ public class Game {
 						q++;
 					} else {
 						kickHandler(client, "Tried to swap while jar was empty");
-						updateTurn();
 						break;
 					}
-					client.sendMessage("NEW" + tiles);
-					updateTurn();
 				}
+				client.sendMessage("NEW" + tiles);
+				broadcast("TURN empty");
+				updateTurn();
+			} else {
+				kickHandler(client, "It was not your turn!");
+				break;
+			}
 		}
 	}
 
@@ -220,8 +235,8 @@ public class Game {
 			col += dy;
 			this.heeftTilesErnaast = true;
 		}
-		row = dupx;
-		col = dupy;
+		dupx = row;
+		dupy = col;
 		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
 			lengteLijn++;
 			row -= dx;
@@ -248,8 +263,8 @@ public class Game {
 			row += dx;
 			col += dy;
 		}
-		row = dupx;
-		col = dupy;
+		dupx = row;
+		dupy = col;
 		while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
 			lengteLijn++;
 			row -= dx;
@@ -326,6 +341,12 @@ public class Game {
 			players.remove(player);
 		}
 	}
+	
+	public void fillWrapper(ClientHandler client, Player player) {
+		players.get(client.getClientNumber()).setPlayer(player);
+		players.get(client.getClientNumber()).setScore(0);
+		players.get(client.getClientNumber()).setPlayerNumber(client.getClientNumber());
+	}
 
 	/*
 	 * Dit is een beschrijving voor de pot met tegeltjes.
@@ -398,11 +419,15 @@ public class Game {
 				players.get(t).getPlayer().addTilesToHand(split[w]);
 			}
 		}
-		updateTurn();
+		turn = 0;
+		broadcast("NEXT " + players.get(turn).getPlayerNumber());
 	}
 
-	public void addHandler(ClientHandler handler) {
-		threads.add(handler);
+	public void addHandler(ClientHandler client) {
+		client.setClientNumber(threads.size());
+		threads.add(client);
+		PlayerWrapper playerWrapper = new PlayerWrapper();
+		players.add(playerWrapper);
 	}
 
 	public void removeHandler(ClientHandler handler) {

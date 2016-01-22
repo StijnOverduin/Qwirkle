@@ -11,6 +11,7 @@ public class ClientHandler extends Thread {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private Game game;
+	private int clientNumber;
 
 	/**
 	 * Constructs a ClientHandler object Initialises both Data streams.
@@ -20,6 +21,14 @@ public class ClientHandler extends Thread {
 		in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
 		this.game = game;
+	}
+	
+	public void setClientNumber(int n) {
+		clientNumber = n;
+	}
+	
+	public int getClientNumber() {
+		return clientNumber;
 	}
 
 	/**
@@ -53,7 +62,7 @@ public class ClientHandler extends Thread {
 			out.flush();
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Client stream is closed");
 		}
 	}
 

@@ -32,9 +32,7 @@ public class PlayerWrapper {
 		this.playerNumber = playerNumber;
 	}
 
-	public PlayerWrapper(Player player, int score, int playerNumber) {
-		setPlayer(player);
-		setScore(score);
-		setPlayerNumber(playerNumber);
+	public PlayerWrapper() {
+		
 	}
 }
