@@ -196,4 +196,7 @@ public class Board {
     return bb;
   }
 
+  public boolean getIsFirstMove() {
+    return isFirstMove;
+  }
 }
