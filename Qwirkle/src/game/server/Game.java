@@ -25,7 +25,6 @@ public class Game {
   private int numberOfPlayers;
   private List<ClientHandler> threads;
   private boolean horizontalTrue;
-  private int addToScore;
   private boolean heeftTilesErnaast;
 
   public Game() {
@@ -37,7 +36,7 @@ public class Game {
   }
 
   private void kickHandler(ClientHandler client, String message) {
-    if(players.get(turn).getPlayer().getHand().isEmpty()) {
+    if (players.get(turn).getPlayer().getHand().isEmpty()) {
       if (threads.size() > 1) {
         
         broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
@@ -63,7 +62,7 @@ public class Game {
         }
         System.out.println("Kicked the last Player");
       }
-  }
+    }
   }
 
   public void updateTurn() {
@@ -76,10 +75,10 @@ public class Game {
         endGame();
       }
     } else {
-        System.out.println("No more players in the game");
-      }
-      
+      System.out.println("No more players in the game");
     }
+      
+  }
 
   public void readInput(String msg, ClientHandler client) {
     String input = msg;
@@ -133,8 +132,7 @@ public class Game {
 
             String newTiles = "NEW";
             if (maalMoves > 1) {
-              this.horizontalTrue = (split[2] == split[5]);
-              this.addToScore = 0;                          
+              this.horizontalTrue = (split[2] == split[5]);                        
               for (int i = 0; i < maalMoves; i++) {
                 Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
                 Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
@@ -157,7 +155,7 @@ public class Game {
                   return;
                 }
               }
-              players.get(turn).setScore(calcScoreAddedTiles(split) + players.get(turn).getScore());
+              players.get(turn).setScore(calcScoreAddedTiles(split, deepboard) + players.get(turn).getScore());
 
             } else if (maalMoves == 1) {
               Color color = Color.getColorFromCharacter(split[1].charAt(0));
@@ -184,7 +182,7 @@ public class Game {
             if (newTiles.contains("empty")) {
               client.sendMessage("NEW empty");
             } else {
-            client.sendMessage(newTiles);
+              client.sendMessage(newTiles);
             }
             broadcast("TURN " + players.get(turn).getPlayerNumber() + " " + input.substring(5));
             System.out.println(players.get(turn).getScore());
@@ -231,6 +229,7 @@ public class Game {
   }
 
   public int calcScoreCrossedTiles(String[] split, int index) {
+    int addToScore = 0;
     int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
@@ -242,7 +241,7 @@ public class Game {
     int dupCol = col;
 
     int lengteLijn = 0;
-    while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+    while (!board.isEmpty(row + dx, col + dy)) {
       lengteLijn++;
       row += dx;
       col += dy;
@@ -250,18 +249,18 @@ public class Game {
     } 
     row = dupRow;
     col = dupCol;
-    while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+    while (!board.isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
       col -= dy;
       this.heeftTilesErnaast = true;
     }
-    this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
+    addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
     return addToScore;
   }
 
-  public int calcScoreAddedTiles(String[] split) {
-    addToScore = 0;
+  public int calcScoreAddedTiles(String[] split, Board deepboard) {
+    int addToScore = 0;
     int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
@@ -272,25 +271,25 @@ public class Game {
     int dupCol = col;
 
     int lengteLijn = 0;
-    while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+    while (!deepboard.isEmpty(row + dx, col + dy)) {
       lengteLijn++;
       row += dx;
       col += dy;
     }
     row = dupRow;
     col = dupCol;
-    while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+    while (!deepboard.isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
       col -= dy;
     }
-    
-    return (addToScore + lengteLijn + 1);
+    addToScore = lengteLijn == 5 ? lengteLijn + 7 : lengteLijn + 1;
+    return addToScore;
   }
 
   public int calcScoreHorAndVer(String[] split) {
     if (board.getIsFirstMove() == true) {
-      addToScore = 1;
+      return 1;
     } else {
       int dx = 1;
       int dy = 0;
@@ -300,41 +299,42 @@ public class Game {
       int dupCol = col;
   
       int lengteLijn = 0;
-      while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+      while (!board.isEmpty(row + dx, col + dy)) {
         lengteLijn++;
         row += dx;
         col += dy;
       }
       row = dupRow;
       col = dupCol;
-      while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+      while (!board.isEmpty(row - dx, col - dy)) {
         lengteLijn++;
         row -= dx;
         col -= dy;
       }
+      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn;
       dx = 0;
       dy = 1;
-      row = Integer.parseInt(split[2]);
-      col = Integer.parseInt(split[3]);
       row = dupRow;
       col = dupCol;
-  
-      while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+      int addToScore = lengteLijn;
+      lengteLijn = 0;
+      while (!board.isEmpty(row + dx, col + dy)) {
         lengteLijn++;
         row += dx;
         col += dy;
       }
       row = dupRow;
       col = dupCol;
-      while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+      while (!board.isEmpty(row - dx, col - dy)) {
         lengteLijn++;
         row -= dx;
         col -= dy;
       }
-  
-      addToScore = lengteLijn;
+      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn;
+      addToScore += lengteLijn;
+      return addToScore;
     }
-    return addToScore;
+   
   }
 
   public void broadcast(String msg) {
