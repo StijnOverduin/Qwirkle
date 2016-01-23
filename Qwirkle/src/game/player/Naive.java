@@ -22,38 +22,38 @@ public class Naive extends Player implements Ai {
     int minx = board.getMinx();
     int maxx = board.getMaxx();
     if (!getHand().isEmpty()) {
-    Color color1 = Color.getColorFromCharacter(getHand().get(0).charAt(0));
-    Shape shape1 = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
-
-    if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
-      move = move.concat("MOVE " + color1.getChar() + shape1.getChar() + " " + 91 + " " + 91);
-      removeTileFromHand(getHand().get(0));
-      return move;
-
-    } else {
-      for (int i = 0; i < getHand().size(); i++) {
-        String currentTile = getHand().get(i);
-        for (int row = maxy; row <= miny; row++) {
-          for (int col = minx; col <= maxx; col++) {
-            Color color = Color.getColorFromCharacter(currentTile.charAt(0));
-            Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
-            if (board.isValidMove(row, col, new Tile(color, shape))) {
-              move = move.concat("MOVE " + color.getChar() + shape.getChar() 
-              + " " + row + " " + col);
-              removeTileFromHand("" + color.getChar() + shape.getChar());
-              System.out.println(move);
-              return move;
+      Color color1 = Color.getColorFromCharacter(getHand().get(0).charAt(0));
+      Shape shape1 = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
+  
+      if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
+        move = move.concat("MOVE " + color1.getChar() + shape1.getChar() + " " + 91 + " " + 91);
+        removeTileFromHand(getHand().get(0));
+        return move;
+  
+      } else {
+        for (int i = 0; i < getHand().size(); i++) {
+          String currentTile = getHand().get(i);
+          for (int row = maxy; row <= miny; row++) {
+            for (int col = minx; col <= maxx; col++) {
+              Color color = Color.getColorFromCharacter(currentTile.charAt(0));
+              Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
+              if (board.isValidMove(row, col, new Tile(color, shape))) {
+                move = move.concat("MOVE " + color.getChar() + shape.getChar() 
+                + " " + row + " " + col);
+                removeTileFromHand("" + color.getChar() + shape.getChar());
+                System.out.println(move);
+                return move;
+              }
             }
           }
         }
+        move = move.concat("SWAP " + getHand().get(0));
+        removeTileFromHand(getHand().get(0));
+        return move;
       }
-      move = move.concat("SWAP " + getHand().get(0));
-      removeTileFromHand(getHand().get(0));
-      return move;
+    } else {
+      return "";
     }
-  } else {
-    return "";
-  }
   }
 
 }

@@ -26,6 +26,7 @@ public class Game {
   private List<ClientHandler> threads;
   private boolean horizontalTrue;
   private boolean heeftTilesErnaast;
+  private boolean volgendePlayer;
 
   public Game() {
     threads = new ArrayList<ClientHandler>();
@@ -65,31 +66,33 @@ public class Game {
     }
   }
 
-  public void updateTurn() {
-    if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
+    public void updateTurn() {
+      if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
       numberOfPlayers = players.size();
-      turn = (turn + 1) % numberOfPlayers;
+      turn = volgendePlayer ? turn : (turn + 1) % numberOfPlayers;
+      volgendePlayer = false;
       broadcast("NEXT " + players.get(turn).getPlayerNumber());
       
-      } else {
-          if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
-            broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
-            if (!checkAllPlayers()) {
-              endGame();
+        } else {
+            if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
+              broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
+              if (!checkAllPlayers()) {
+                endGame();
+              } else {
+                updateTurn();
+              }
             } else {
-              updateTurn();
+                System.out.println("No more players in the game");
             }
-          } else {
-              System.out.println("No more players in the game");
-          }
+        }
+        
       }
-      
-    }
   
   public boolean checkAllPlayers() {
     for (int i = 0; i < players.size(); i++) {
       if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
         turn = (turn + 1) % numberOfPlayers;
+        volgendePlayer = true;
         return true;
       }
     }

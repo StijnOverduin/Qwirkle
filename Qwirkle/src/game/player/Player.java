@@ -42,7 +42,7 @@ public abstract class Player {
     if (hand.size() == 0) {
       return 0;
     } else {
-    return hand.size();
+      return hand.size();
     }
   }
 

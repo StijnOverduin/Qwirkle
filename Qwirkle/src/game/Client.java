@@ -359,7 +359,7 @@ public class Client extends Thread {
         }
       }
       if (virtualJar != 0) {
-      move = move.concat("Try swapping a tile"); 
+        move = move.concat("Try swapping a tile"); 
       } else {
         move = move.concat("No options left");
       }
