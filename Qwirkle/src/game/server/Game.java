@@ -134,16 +134,14 @@ public class Game {
             String newTiles = "NEW";
             if (maalMoves > 1) {
               this.horizontalTrue = (split[2] == split[5]);
-              this.addToScore = 0;
+              this.addToScore = 0;                          
               for (int i = 0; i < maalMoves; i++) {
                 Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
                 Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
                 if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]), 
-                    Integer.parseInt(split[(3 + i * 3)]),
-                    new Tile(color, shape))) {
+                    Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
                   deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]), 
                       Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
-
                   players.get(turn).getPlayer().removeTileFromHand(split[(1 + i * 3)]);
                   String randomTile = giveRandomTile();
                   newTiles = newTiles.concat(" " + randomTile);
@@ -152,6 +150,7 @@ public class Game {
                   // TODO catch parseint excep
                   players.get(turn).setScore(calcScoreCrossedTiles(split, i) 
                       + players.get(turn).getScore());
+                  System.out.println(players.get(turn).getScore());
 
                 } else {
                   kickHandler(client, "Not a valid move");
@@ -262,6 +261,7 @@ public class Game {
   }
 
   public int calcScoreAddedTiles(String[] split) {
+    addToScore = 0;
     int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
@@ -284,52 +284,56 @@ public class Game {
       row -= dx;
       col -= dy;
     }
-    this.addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
-    return addToScore;
+    
+    return (addToScore + lengteLijn + 1);
   }
 
   public int calcScoreHorAndVer(String[] split) {
-    int dx = 1;
-    int dy = 0;
-    int row = Integer.parseInt(split[2]);
-    int col = Integer.parseInt(split[3]);
-    int dupRow = row;
-    int dupCol = col;
-
-    int lengteLijn = 0;
-    while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-      lengteLijn++;
-      row += dx;
-      col += dy;
+    if (board.getIsFirstMove() == true) {
+      addToScore = 1;
+    } else {
+      int dx = 1;
+      int dy = 0;
+      int row = Integer.parseInt(split[2]);
+      int col = Integer.parseInt(split[3]);
+      int dupRow = row;
+      int dupCol = col;
+  
+      int lengteLijn = 0;
+      while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+        lengteLijn++;
+        row += dx;
+        col += dy;
+      }
+      row = dupRow;
+      col = dupCol;
+      while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+        lengteLijn++;
+        row -= dx;
+        col -= dy;
+      }
+      dx = 0;
+      dy = 1;
+      row = Integer.parseInt(split[2]);
+      col = Integer.parseInt(split[3]);
+      row = dupRow;
+      col = dupCol;
+  
+      while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
+        lengteLijn++;
+        row += dx;
+        col += dy;
+      }
+      row = dupRow;
+      col = dupCol;
+      while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
+        lengteLijn++;
+        row -= dx;
+        col -= dy;
+      }
+  
+      addToScore = lengteLijn;
     }
-    row = dupRow;
-    col = dupCol;
-    while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-      lengteLijn++;
-      row -= dx;
-      col -= dy;
-    }
-    dx = 0;
-    dy = 1;
-    row = Integer.parseInt(split[2]);
-    col = Integer.parseInt(split[3]);
-    row = dupRow;
-    col = dupCol;
-
-    while (!board.deepCopy().isEmpty(row + dx, col + dy)) {
-      lengteLijn++;
-      row += dx;
-      col += dy;
-    }
-    row = dupRow;
-    col = dupCol;
-    while (!board.deepCopy().isEmpty(row - dx, col - dy)) {
-      lengteLijn++;
-      row -= dx;
-      col -= dy;
-    }
-
-    addToScore = lengteLijn;
     return addToScore;
   }
 
