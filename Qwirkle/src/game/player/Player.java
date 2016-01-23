@@ -39,7 +39,11 @@ public abstract class Player {
   }
 
   public int numberOfTilesInHand() {
+    if (hand.size() == 0) {
+      return 0;
+    } else {
     return hand.size();
+    }
   }
 
   public int getPlayerNumber() {
@@ -49,5 +53,7 @@ public abstract class Player {
   public ArrayList<String> getHand() {
     return hand;
   }
+  
+  
 
 }

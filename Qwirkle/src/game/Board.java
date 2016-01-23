@@ -61,6 +61,13 @@ public class Board {
   public int getMiny() {
     return miny;
   }
+  
+  public void setBoundries(Board board) {
+    miny = board.getMiny();
+    maxy = board.getMaxy();
+    minx = board.getMinx();
+    maxx = board.getMaxx();
+  }
 
   // Geredeneerd vanuit het middelpunt 91, 91
   // Een colom naar boven betekent dus 91, 92
@@ -123,8 +130,8 @@ public class Board {
     col = dupCol;
     while (!isEmpty(row - dx, col - dy)) {
       set.add(getTile(row - dx, col - dy));
-      row = row + dx;
-      col = col + dy;
+      row = row - dx;
+      col = col - dy;
     }
 
     if (set.size() > 6) {
@@ -133,16 +140,24 @@ public class Board {
     boolean ans = true;
     if (set.get(0).getColor() == (set.get(1).getColor())) {
       for (int a = 1; a < set.size(); a++) {
-        if (set.get(0).getColor() != (set.get(a).getColor()) 
-            || set.get(0).getShape() == (set.get(a).getShape())) {
-          ans = false;
+        for (int b = 0; b < set.size() - 1; b++) {
+          if (a != b) { 
+            if (set.get(b).getColor() != (set.get(a).getColor()) 
+                || set.get(b).getShape() == (set.get(a).getShape())) {
+              ans = false;
+            }
+          }
         }
       }
     } else if (set.get(0).getShape() == (set.get(1).getShape())) {
       for (int a = 1; a < set.size(); a++) {
-        if (set.get(0).getColor() == (set.get(a).getColor()) 
-            || set.get(0).getShape() != (set.get(a).getShape())) {
-          ans = false;
+        for (int b = 0; b < set.size() - 1; b++) {
+          if (a != b) {
+            if (set.get(0).getColor() == (set.get(a).getColor()) 
+                || set.get(0).getShape() != (set.get(a).getShape())) {
+              ans = false;
+            }
+          }
         }
       }
     } else {
@@ -190,6 +205,7 @@ public class Board {
         bb.setTile(row, col, getTile(row, col));
       }
     }
+    bb.setBoundries(this);
     if (!isEmpty(91, 91)) {
       bb.isFirstMoveBecomesFalse();
     }

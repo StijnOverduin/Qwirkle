@@ -83,6 +83,7 @@ public class Client extends Thread {
 
         line = in.readLine();
         System.out.println("Server -> Client " + line);
+        if (line != null) {
         String[] split = line.split(" ");
         switch (split[0]) {
           case "WELCOME":
@@ -122,7 +123,7 @@ public class Client extends Thread {
               }
               System.out.println(player.getHand());
             } else {
-              System.out.println(line + "No more tiles in the jar");
+              System.out.println(line + " No more tiles in the jar");
             }
             break;
           case "TURN":
@@ -156,8 +157,7 @@ public class Client extends Thread {
           case "KICK":
             if (Integer.parseInt(split[1]) == player.getPlayerNumber()) {
               System.out.println(line);
-              readIt = false;
-              break;
+              return;
             } else {
               System.out.println(line);
               virtualJar = virtualJar + Integer.parseInt(split[2]);
@@ -166,9 +166,15 @@ public class Client extends Thread {
             }
           case "WINNER":
             System.out.println(line);
+            board = new Board();
+            virtualJar = 108;
             break;
           default:
             System.out.println("");
+        }
+        } else {
+          System.out.println("You have been disconnected");
+          readIt = false;
         }
 
       } catch (IOException e) {
@@ -190,6 +196,8 @@ public class Client extends Thread {
       String[] split = message.split(" ");
       switch (split[0]) {
         case "MOVE":
+          Player deepplayer = new HumanPlayer(board, "LocalPlayer", 0);
+          deepplayer.getHand().addAll(player.getHand());
           lengteMove = split.length;
           int maalMoves = (lengteMove / 3);
           if ((lengteMove - 1) % 3 != 0) {
@@ -199,7 +207,7 @@ public class Client extends Thread {
             for (int i = 0; i < maalMoves; i++) {
               if (!(player.getHand().contains(split[(1 + i * 3)]))) {
                 System.out.println("You don't have that tile 2");
-                break;
+                return;
               }
             }
             for (int i = 0; i < maalMoves; i++) {
@@ -210,7 +218,7 @@ public class Client extends Thread {
                   String col = split[3];
                   if (!split[(3 + a * 3)].equals(col)) {
                     System.out.println("That was not a valid move, try again 3");
-                    break;
+                    return;
   
                   }
   
@@ -220,6 +228,7 @@ public class Client extends Thread {
   
             }
             Board deepboard = board.deepCopy();
+            
             if (maalMoves > 1) {
               for (int i = 0; i < maalMoves; i++) {
                 Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
@@ -230,12 +239,12 @@ public class Client extends Thread {
                   deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]), 
                       Integer.parseInt(split[(3 + i * 3)]),
                       new Tile(color, shape));
-                  player.removeTileFromHand(split[(1 + i * 3)]);
+                  deepplayer.removeTileFromHand(split[(1 + i * 3)]);
                   // TODO catch parseint excep
   
                 } else {
                   System.out.println("Not a valid move 4");
-                  break;
+                  return;
                 }
               }
   
@@ -246,21 +255,22 @@ public class Client extends Thread {
                   new Tile(color, shape))) {
                 deepboard.setTile(Integer.parseInt(split[2]), 
                     Integer.parseInt(split[3]), new Tile(color, shape));
-                player.removeTileFromHand("" + color.getChar() + shape.getChar());
+                deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
   
               } else {
                 System.out.println("Not a valid Move 5");
-                break;
+                return;
               }
   
             }
           }
+          player.getHand().addAll(deepplayer.getHand());
           out.write(message);
           out.newLine();
           out.flush();
           break;
         case "SWAP":
-          if (getVirtualJar() > (split.length - 1)) {
+          if (getVirtualJar() >= (split.length - 1)) {
             int swaptile = 1;
             for (int i = 0; i < split.length - 1; i++) {
               if (split[swaptile] != null) {
@@ -273,10 +283,10 @@ public class Client extends Thread {
             out.write(message);
             out.newLine();
             out.flush();
-            break;
+            return;
           } else {
-            System.out.println("Jar has " + getVirtualJar() + " tiles left");
-            break;
+
+            return;
           }
         case "HELLO":
           if (split[1] != null) {
@@ -284,6 +294,12 @@ public class Client extends Thread {
             out.newLine();
             out.flush();
           }
+          break;
+        case "JAR":
+          System.out.println("Jar has " + getVirtualJar() + " tiles left");
+          break;
+        case "HINT":
+          System.out.println(checkForMoves(player, board));
           break;
         default:
           System.out.println("That's not a valid command");
@@ -304,6 +320,50 @@ public class Client extends Thread {
       e.printStackTrace();
     }
     return (antw == null) ? "" : antw;
+  }
+  
+  public String checkForMoves(Player player, Board board) {
+    String move = "";
+    int miny = board.getMiny();
+    int maxy = board.getMaxy();
+    int minx = board.getMinx();
+    int maxx = board.getMaxx();
+    
+    Board b = board.deepCopy();
+    Player newPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    newPlayer.getHand().addAll(player.getHand());
+
+    Color color1 = Color.getColorFromCharacter(newPlayer.getHand().get(0).charAt(0));
+    Shape shape1 = Shape.getShapeFromCharacter(newPlayer.getHand().get(0).charAt(1));
+
+    if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
+      move = move.concat("Just place a tile on 91 91");
+      newPlayer.removeTileFromHand(newPlayer.getHand().get(0));
+      return move;
+
+    } else {
+      for (int i = 0; i < newPlayer.getHand().size(); i++) {
+        String currentTile = newPlayer.getHand().get(i);
+        for (int row = maxy; row <= miny; row++) {
+          for (int col = minx; col <= maxx; col++) {
+            Color color = Color.getColorFromCharacter(currentTile.charAt(0));
+            Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
+            if (b.isValidMove(row, col, new Tile(color, shape))) {
+              move = move.concat(color.getChar() + shape.getChar() 
+              + " " + row + " " + col + " You could place that tile");
+              newPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              return move;
+            }
+          }
+        }
+      }
+      if (virtualJar != 0) {
+      move = move.concat("Try swapping a tile"); 
+      } else {
+        move = move.concat("No options left");
+      }
+      return move;
+    }
   }
 
 }

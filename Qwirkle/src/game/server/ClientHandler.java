@@ -46,7 +46,9 @@ public class ClientHandler extends Thread {
       }
 
     } catch (IOException e) {
-      System.out.println("Client was kicked");
+      game.removeHandler(this);
+      System.out.println("Client " + getClientNumber() + " disconnected");
+      
     }
   }
 

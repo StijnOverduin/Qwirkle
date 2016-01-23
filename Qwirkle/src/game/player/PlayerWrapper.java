@@ -1,12 +1,11 @@
-package game;
-
-import game.player.Player;
+package game.player;
 
 public class PlayerWrapper {
 
   private Player player;
   private int score;
   private int playerNumber;
+  private boolean inGame;
 
   public Player getPlayer() {
     return player;
@@ -34,5 +33,17 @@ public class PlayerWrapper {
 
   public PlayerWrapper() {
 
+  }
+  
+  public void setInGameTrue() {
+    inGame = true;
+  }
+  
+  public void setInGameFalse() {
+    inGame = false;
+  }
+  
+  public boolean getInGame() {
+    return inGame;
   }
 }

@@ -1,9 +1,9 @@
 package game.server;
 
 import game.Board;
-import game.PlayerWrapper;
 import game.player.HumanPlayer;
 import game.player.Player;
+import game.player.PlayerWrapper;
 import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
@@ -11,8 +11,6 @@ import game.tiles.Tile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 public class Game {
 
@@ -39,41 +37,49 @@ public class Game {
   }
 
   private void kickHandler(ClientHandler client, String message) {
-    if (threads.size() != 0) {
-      broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
-          + players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
-      tilesBackToStack(players.get(turn).getPlayer());
-      players.remove(players.get(turn));
-      threads.remove(client);
-      updateTurn();
-      try {
-        client.kick();
-      } catch (IOException e) {
-        System.out.println("Couldn't close streams from client");
+    if(players.get(turn).getPlayer().getHand().isEmpty()) {
+      if (threads.size() > 1) {
+        
+        broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
+            + players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
+        tilesBackToStack(players.get(turn).getPlayer());
+        players.remove(players.get(turn));
+        threads.remove(client);
+        updateTurn();
+        try {
+          client.kick();
+        } catch (IOException e) {
+          System.out.println("Couldn't close streams from client");
+        }
+      } else {
+        client.sendMessage("KICK " + message);
+        tilesBackToStack(players.get(turn).getPlayer());
+        players.remove(players.get(turn));
+        threads.remove(client);
+        try {
+          client.kick();
+        } catch (IOException e) {
+          System.out.println("Last client was removed from threads");
+        }
+        System.out.println("Kicked the last Player");
       }
-    } else {
-      client.sendMessage("KICK " + message);
-      tilesBackToStack(players.get(turn).getPlayer());
-      players.remove(players.get(turn));
-      threads.remove(client);
-      try {
-        client.kick();
-      } catch (IOException e) {
-        System.out.println("Last client was removed from threads");
-      }
-      System.out.println("Kicked the last Player");
-    }
+  }
   }
 
   public void updateTurn() {
-    if (players.size() != 0) {
+    if (players.size() > 0) {
       numberOfPlayers = players.size();
       turn = (turn + 1) % numberOfPlayers;
       broadcast("NEXT " + players.get(turn).getPlayerNumber());
+      if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
+        broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
+        endGame();
+      }
     } else {
-      System.out.println("No more players in the game");
+        System.out.println("No more players in the game");
+      }
+      
     }
-  }
 
   public void readInput(String msg, ClientHandler client) {
     String input = msg;
@@ -86,11 +92,11 @@ public class Game {
         if (players.size() == 4) {
           startGame();
         }
+        
         break;
 
       case "MOVE":
         if (client.getClientNumber() == turn) {
-          System.out.println(turn);
           lengteMove = split.length;
           int maalMoves = (lengteMove / 3);
           if ((lengteMove - 1) % 3 != 0) {
@@ -98,14 +104,12 @@ public class Game {
                 "KICK " + players.get(turn).getPlayerNumber() + " " 
                 + players.get(turn).getPlayer().numberOfTilesInHand()
                   + " You were kicked, maybe you forgot a tile or a coord?");
-            break;
+            return;
           } else {
-            System.out.println(turn);
-            System.out.println(players.get(turn).getPlayerNumber());
             for (int i = 0; i < maalMoves; i++) {
               if (!(players.get(turn).getPlayer().getHand().contains(split[(1 + i * 3)]))) {
                 kickHandler(client, "Tile " + split[(1 + i * 3)] + " not in possession");
-                break;
+                return;
               }
             }
             for (int i = 0; i < maalMoves; i++) {
@@ -116,7 +120,7 @@ public class Game {
                   String col = split[3];
                   if (!split[(3 + a * 3)].equals(col)) {
                     kickHandler(client, "You were kicked, tiles are not in a straight line");
-                    break;
+                    return;
 
                   }
 
@@ -151,7 +155,7 @@ public class Game {
 
                 } else {
                   kickHandler(client, "Not a valid move");
-                  break;
+                  return;
                 }
               }
               players.get(turn).setScore(calcScoreAddedTiles(split) + players.get(turn).getScore());
@@ -172,35 +176,38 @@ public class Game {
                     + players.get(turn).getScore());
               } else {
                 kickHandler(client, "Not a valid move");
-                break;
+                return;
               }
 
             }
 
             board = deepboard;
+            if (newTiles.contains("empty")) {
+              client.sendMessage("NEW empty");
+            } else {
             client.sendMessage(newTiles);
+            }
             broadcast("TURN " + players.get(turn).getPlayerNumber() + " " + input.substring(5));
+            System.out.println(players.get(turn).getScore());
             updateTurn();
           }
-          System.out.println(players.get(turn).getScore());
-          System.out.println(players.get(turn).getPlayer().getHand());
           break;
         } else {
           kickHandler(client, "It was not your turn!");
-          break;
+          return;
         }
       case "SWAP":
         if (client.getClientNumber() == turn) {
           int swapnr = 1;
           String tiles = "";
           while (swapnr < split.length) {
-            if (tilesInJar() != 0) {
+            if (tilesInJar() >= (split.length - 1)) {
               String line1 = split[swapnr];
               if (players.get(turn).getPlayer().getHand().contains(line1)) {
                 players.get(turn).getPlayer().removeTileFromHand(line1);
               } else {
                 kickHandler(client, "Tile " + line1 + " was not in your hand");
-                break;
+                return;
               }
               String randomTile = giveRandomTile();
               players.get(turn).getPlayer().addTilesToHand(randomTile);
@@ -208,7 +215,7 @@ public class Game {
               swapnr++;
             } else {
               kickHandler(client, "Tried to swap while jar was empty");
-              break;
+              return;
             }
           }
           client.sendMessage("NEW" + tiles);
@@ -216,10 +223,10 @@ public class Game {
           updateTurn();
         } else {
           kickHandler(client, "It was not your turn!");
-          break;
+          return;
         }
       default:
-        System.out.println("Not valid input");
+        kickHandler(client, "That was not a valid command");
         break;
     }
   }
@@ -338,8 +345,9 @@ public class Game {
 
   private void tilesBackToStack(Player player) {
     for (int q = 0; q < player.getHand().size(); q++) {
-      player.removeTileFromHand(player.getHand().get(q));
       addTileToJar(player.getHand().get(q));
+      player.removeTileFromHand(player.getHand().get(q));
+      
     }
   }
 
@@ -353,6 +361,7 @@ public class Game {
     players.get(client.getClientNumber()).setPlayer(player);
     players.get(client.getClientNumber()).setScore(0);
     players.get(client.getClientNumber()).setPlayerNumber(client.getClientNumber());
+    players.get(client.getClientNumber()).setInGameTrue();
   }
 
   /*
@@ -393,7 +402,7 @@ public class Game {
       jar.remove(newTile);
       return newTile;
     } else {
-      return null;
+      return "empty";
     }
   }
 
@@ -427,7 +436,18 @@ public class Game {
         players.get(t).getPlayer().addTilesToHand(split[w]);
       }
     }
-    turn = 0;
+   // System.out.println(players.get(0).getPlayer().getName() + ": " + getLongestStreak(players.get(0).getPlayer(), board));
+    int amoves = 0;
+    for (int w = 0; w < players.size(); w++) {
+      amoves = Math.max(amoves, getLongestStreak(players.get(w).getPlayer(), board));
+    }
+    for (int a = 0; a < players.size(); a++) {
+      if (amoves == getLongestStreak(players.get(a).getPlayer(), board)) {
+        turn = players.get(a).getPlayerNumber();
+      }
+    }
+    
+    
     broadcast("NEXT " + players.get(turn).getPlayerNumber());
   }
 
@@ -438,12 +458,122 @@ public class Game {
     players.add(playerWrapper);
   }
 
-  public void removeHandler(ClientHandler handler) {
+  public void removeHandler(ClientHandler client) {
     for (int i = 0; i < threads.size(); i++) {
-      if (threads.get(i) == handler) {
+      if (threads.get(i) == client) {
+        broadcast("Client " + client.getClientNumber() + " " + players.get(client.getClientNumber()).getPlayer().getName() + " has disconnected");
         threads.remove(i);
+        
       }
     }
   }
+  
+  public int getLongestStreak(Player player, Board board) {
+    int moves = 0;
+    int maxMoves = 0;
+    int miny = board.getMiny();
+    int maxy = board.getMaxy();
+    int minx = board.getMinx();
+    int maxx = board.getMaxx();
+    Color color = null;
+    Shape shape = null;
+    boolean gotMove;
+    Player deepplayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    
+    
+    for (int firstMove = 0; firstMove < 6; firstMove++) {
+      moves = 0;
+      Board b = board.deepCopy();
+      deepplayer.getHand().addAll(player.getHand());
+    
+      color = Color.getColorFromCharacter(deepplayer.getHand().get(firstMove).charAt(0));
+      shape = Shape.getShapeFromCharacter(deepplayer.getHand().get(firstMove).charAt(1));
+      b.setTile(91, 91, new Tile(color, shape));
+      deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+      moves += 1;
 
-}
+      for (int i = 0; i < deepplayer.getHand().size(); i++) {
+        gotMove = true;
+        String currentTile = deepplayer.getHand().get(i);
+        for (int row = maxy; row <= miny; row++) {
+          if (gotMove == true) {
+          for (int col = minx; col <= maxx; col++) {
+            color = Color.getColorFromCharacter(currentTile.charAt(0));
+            shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
+            if (b.isValidMove(row, col, new Tile(color, shape))) {
+              deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              moves += 1;
+              gotMove = false;
+              break;
+            }
+            }
+          }
+        }
+      }
+      deepplayer.getHand().removeAll(deepplayer.getHand());
+      maxMoves = Math.max(moves, maxMoves);
+    }
+    return maxMoves;
+  }
+  
+  public String checkForMoves(Player player, Board board) {
+    String move = "";
+    int miny = board.getMiny();
+    int maxy = board.getMaxy();
+    int minx = board.getMinx();
+    int maxx = board.getMaxx();
+    
+    Board b = board.deepCopy();
+    Player newPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    newPlayer.getHand().addAll(player.getHand());
+
+    Color color1 = Color.getColorFromCharacter(newPlayer.getHand().get(0).charAt(0));
+    Shape shape1 = Shape.getShapeFromCharacter(newPlayer.getHand().get(0).charAt(1));
+
+    if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
+      move = move.concat(color1.getChar() + shape1.getChar() + " " + 91 + " " + 91 + "Just place a tile on 91 91");
+      newPlayer.removeTileFromHand(newPlayer.getHand().get(0));
+      return move;
+
+    } else {
+      for (int i = 0; i < newPlayer.getHand().size(); i++) {
+        String currentTile = newPlayer.getHand().get(i);
+        for (int row = maxy; row <= miny; row++) {
+          for (int col = minx; col <= maxx; col++) {
+            Color color = Color.getColorFromCharacter(currentTile.charAt(0));
+            Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
+            if (b.isValidMove(row, col, new Tile(color, shape))) {
+              move = move.concat(color.getChar() + shape.getChar() 
+              + " " + row + " " + col + " You could place that tile");
+              newPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              return move;
+            }
+          }
+        }
+      }
+      if (jar.size() != 0) {
+      move = move.concat("Try swapping a tile"); 
+      } else {
+        move = move.concat("No options left");
+      }
+      return move;
+    }
+  }
+  
+  public void endGame() {
+    int score = 0;
+    for (int w = 0; w < players.size(); w++) {
+      score = Math.max(score, players.get(w).getScore());
+      players.get(w).setInGameFalse();
+      players.get(w).getPlayer().getHand().removeAll(players.get(w).getPlayer().getHand());
+      players.get(w).setScore(0);
+    }
+    for (int a = 0; a < players.size(); a++) {
+      if (score == players.get(a).getScore()) {
+        broadcast("WINNER " + players.get(a).getPlayerNumber());
+      }
+    }
+    jar.removeAll(jar);
+    startGame();
+    }
+  }

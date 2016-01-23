@@ -1,5 +1,7 @@
 package game.player;
 
+import java.util.ArrayList;
+
 import game.Board;
 import game.tiles.Tile;
 
@@ -15,6 +17,11 @@ public class HumanPlayer extends Player {
 
   public String determineMove() {
     return "";
+  }
+  
+  public Player deepCopy(Player player) {
+    Player deepplayer = player;
+    return deepplayer;
   }
 
 }

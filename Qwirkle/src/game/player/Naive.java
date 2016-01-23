@@ -21,7 +21,7 @@ public class Naive extends Player implements Ai {
     int maxy = board.getMaxy();
     int minx = board.getMinx();
     int maxx = board.getMaxx();
-
+    if (!getHand().isEmpty()) {
     Color color1 = Color.getColorFromCharacter(getHand().get(0).charAt(0));
     Shape shape1 = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
 
@@ -49,9 +49,11 @@ public class Naive extends Player implements Ai {
       }
       move = move.concat("SWAP " + getHand().get(0));
       removeTileFromHand(getHand().get(0));
-      System.out.println(move);
       return move;
     }
+  } else {
+    return "";
+  }
   }
 
 }
