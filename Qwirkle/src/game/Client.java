@@ -178,7 +178,7 @@ public class Client extends Thread {
         }
 
       } catch (IOException e) {
-        System.out.println("You were kicked son!");
+        System.out.println("Server has been closed");
         readIt = false;
       }
     }
@@ -264,6 +264,7 @@ public class Client extends Thread {
   
             }
           }
+          player.getHand().removeAll(player.getHand());
           player.getHand().addAll(deepplayer.getHand());
           out.write(message);
           out.newLine();
@@ -349,7 +350,7 @@ public class Client extends Thread {
             Color color = Color.getColorFromCharacter(currentTile.charAt(0));
             Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
             if (b.isValidMove(row, col, new Tile(color, shape))) {
-              move = move.concat(color.getChar() + shape.getChar() 
+              move = move.concat("" + color.getChar() + shape.getChar() 
               + " " + row + " " + col + " You could place that tile");
               newPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
               return move;

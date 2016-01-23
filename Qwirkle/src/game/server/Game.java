@@ -66,18 +66,34 @@ public class Game {
   }
 
   public void updateTurn() {
-    if (players.size() > 0) {
+    if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
       numberOfPlayers = players.size();
       turn = (turn + 1) % numberOfPlayers;
       broadcast("NEXT " + players.get(turn).getPlayerNumber());
-      if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
-        broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
-        endGame();
-      }
-    } else {
-      System.out.println("No more players in the game");
-    }
       
+      } else {
+          if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
+            broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
+            if (!checkAllPlayers()) {
+              endGame();
+            } else {
+              updateTurn();
+            }
+          } else {
+              System.out.println("No more players in the game");
+          }
+      }
+      
+    }
+  
+  public boolean checkAllPlayers() {
+    for (int i = 0; i < players.size(); i++) {
+      if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
+        turn = (turn + 1) % numberOfPlayers;
+        return true;
+      }
+    }
+    return false;
   }
 
   public void readInput(String msg, ClientHandler client) {
@@ -146,9 +162,8 @@ public class Game {
                   players.get(turn).getPlayer().addTilesToHand(randomTile);
 
                   // TODO catch parseint excep
-                  players.get(turn).setScore(calcScoreCrossedTiles(split, i) 
+                  players.get(turn).setScore(calcScoreCrossedTiles(split, i, deepboard) 
                       + players.get(turn).getScore());
-                  System.out.println(players.get(turn).getScore());
 
                 } else {
                   kickHandler(client, "Not a valid move");
@@ -169,7 +184,7 @@ public class Game {
                 String randomTile = giveRandomTile();
                 newTiles = newTiles.concat(" " + randomTile);
                 players.get(turn).getPlayer().addTilesToHand(randomTile);
-                players.get(turn).setScore(calcScoreHorAndVer(split) 
+                players.get(turn).setScore(calcScoreHorAndVer(split, deepboard) 
                     + players.get(turn).getScore());
               } else {
                 kickHandler(client, "Not a valid move");
@@ -185,7 +200,6 @@ public class Game {
               client.sendMessage(newTiles);
             }
             broadcast("TURN " + players.get(turn).getPlayerNumber() + " " + input.substring(5));
-            System.out.println(players.get(turn).getScore());
             updateTurn();
           }
           break;
@@ -228,9 +242,8 @@ public class Game {
     }
   }
 
-  public int calcScoreCrossedTiles(String[] split, int index) {
-    int addToScore = 0;
-    int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
+  public int calcScoreCrossedTiles(String[] split, int index, Board deepboard) {
+    int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
     int dy = dx == 1 ? 0 : 1;
@@ -241,7 +254,7 @@ public class Game {
     int dupCol = col;
 
     int lengteLijn = 0;
-    while (!board.isEmpty(row + dx, col + dy)) {
+    while (!deepboard.isEmpty(row + dx, col + dy)) {
       lengteLijn++;
       row += dx;
       col += dy;
@@ -249,19 +262,19 @@ public class Game {
     } 
     row = dupRow;
     col = dupCol;
-    while (!board.isEmpty(row - dx, col - dy)) {
+    while (!deepboard.isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
       col -= dy;
       this.heeftTilesErnaast = true;
     }
-    addToScore = heeftTilesErnaast ? addToScore + lengteLijn + 1 : addToScore + lengteLijn;
+    int addToScore = 0;
+    addToScore = heeftTilesErnaast ? lengteLijn + 1 : 0;
     return addToScore;
   }
 
   public int calcScoreAddedTiles(String[] split, Board deepboard) {
-    int addToScore = 0;
-    int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
+    int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
     int dy = dx == 1 ? 0 : 1;
@@ -283,11 +296,11 @@ public class Game {
       row -= dx;
       col -= dy;
     }
-    addToScore = lengteLijn == 5 ? lengteLijn + 7 : lengteLijn + 1;
+    int addToScore = lengteLijn == 5 ? lengteLijn + 7 : lengteLijn + 1;
     return addToScore;
   }
 
-  public int calcScoreHorAndVer(String[] split) {
+  public int calcScoreHorAndVer(String[] split, Board deepboard) {
     if (board.getIsFirstMove() == true) {
       return 1;
     } else {
@@ -297,19 +310,21 @@ public class Game {
       int col = Integer.parseInt(split[3]);
       int dupRow = row;
       int dupCol = col;
-  
+      boolean horRij = false;
       int lengteLijn = 0;
-      while (!board.isEmpty(row + dx, col + dy)) {
+      while (!deepboard.isEmpty(row + dx, col + dy)) {
         lengteLijn++;
         row += dx;
         col += dy;
+        horRij = true;
       }
       row = dupRow;
       col = dupCol;
-      while (!board.isEmpty(row - dx, col - dy)) {
+      while (!deepboard.isEmpty(row - dx, col - dy)) {
         lengteLijn++;
         row -= dx;
         col -= dy;
+        horRij = true;
       }
       lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn;
       dx = 0;
@@ -318,20 +333,24 @@ public class Game {
       col = dupCol;
       int addToScore = lengteLijn;
       lengteLijn = 0;
-      while (!board.isEmpty(row + dx, col + dy)) {
+      boolean verRij = false;
+      while (!deepboard.isEmpty(row + dx, col + dy)) {
         lengteLijn++;
         row += dx;
         col += dy;
+        verRij = true;
       }
       row = dupRow;
       col = dupCol;
-      while (!board.isEmpty(row - dx, col - dy)) {
+      while (!deepboard.isEmpty(row - dx, col - dy)) {
         lengteLijn++;
         row -= dx;
         col -= dy;
+        verRij = true;
       }
-      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn;
+      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn + 1;
       addToScore += lengteLijn;
+      addToScore = horRij && verRij ? addToScore + 1 : addToScore;
       return addToScore;
     }
    
@@ -440,7 +459,6 @@ public class Game {
         players.get(t).getPlayer().addTilesToHand(split[w]);
       }
     }
-   // System.out.println(players.get(0).getPlayer().getName() + ": " + getLongestStreak(players.get(0).getPlayer(), board));
     int amoves = 0;
     for (int w = 0; w < players.size(); w++) {
       amoves = Math.max(amoves, getLongestStreak(players.get(w).getPlayer(), board));
@@ -578,6 +596,5 @@ public class Game {
       }
     }
     jar.removeAll(jar);
-    startGame();
     }
   }
