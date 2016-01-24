@@ -13,7 +13,7 @@ public class HumanPlayer extends Player {
    * This method is abstract in the Player class, so it needs to be defined here.
    * HumanPlayer doesn't use this method so it doesn't do anything.
    */
-  public String determineMove() {
+  public String determineMove(long thinkinTime) {
     return "";
   }
 

@@ -47,14 +47,12 @@ public class Game {
    * @param message
    */
   private void kickHandler(ClientHandler client, String message) {
-    if (players.get(turn).getPlayer().getHand().isEmpty()) {
+    if (!(players.get(turn).getPlayer().getHand().isEmpty())) {
       if (threads.size() > 1) {
-        
         broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
             + players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
         tilesBackToStack(players.get(turn).getPlayer());
-        players.remove(players.get(turn));
-        threads.remove(client);
+        removeHandler(client);
         updateTurn();
         try {
           client.kick();
@@ -64,8 +62,7 @@ public class Game {
       } else {
         client.sendMessage("KICK " + message);
         tilesBackToStack(players.get(turn).getPlayer());
-        players.remove(players.get(turn));
-        threads.remove(client);
+        removeHandler(client);
         try {
           client.kick();
         } catch (IOException e) {
@@ -80,6 +77,7 @@ public class Game {
    * This method updates the turn whenever it is called.
    */
     public void updateTurn() {
+      //TODO exception met turn
       if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
       numberOfPlayers = players.size();
       turn = nextPlayer ? turn : (turn + 1) % numberOfPlayers;
@@ -115,6 +113,19 @@ public class Game {
     }
     return false;
   }
+  
+  /**
+   * Checks if the string is consists of A-Z and a-z and if the string is longer than 1 character and shorter than 17 chars.
+   * @param name
+   * @return
+   */
+  public boolean checkName(String name) {
+    if ( !(name.matches(".*[^a-zA-Z].*")) && name.length() > 0 && name.length() <= 16) { 
+      return true;
+  } else {
+    return false;
+  }
+  }
 
   /**
    * This method reads the input of the client, provided by the clientHandler. In the case "HELLO" it will return
@@ -138,14 +149,20 @@ public class Game {
   public void readInput(String message, ClientHandler client) {
     String input = message;
     String[] splittedInput = message.split(" ");
-    switch (splittedInput[0]) { //TODO default case
+    switch (splittedInput[0]) {
       case "HELLO":
+        if ( checkName(splittedInput[1]) ) { 
         client.sendMessage("WELCOME " + splittedInput[1] + " " + client.getClientNumber());
         Player player = new HumanPlayer(board, splittedInput[1], client.getClientNumber());
         fillWrapper(client, player);
         if (players.size() == 4) {
           startGame();
         }
+        } else {
+          client.sendMessage("Name doesn't consist of [a-z][A-Z] or is longer than 16 chars");
+          return;
+        }
+        
         
         break;
 
@@ -550,7 +567,7 @@ public class Game {
       names = names.concat(" " + players.get(r).getPlayer().getName() 
           + " " + players.get(r).getPlayerNumber());
     }
-    broadcast("NAMES" + names + " " + 100); //TODO magic number
+    broadcast("NAMES" + names + " " + 1); //TODO AI time
     for (int t = 0; t < players.size(); t++) {
       String tiles = "";
       for (int q = 0; q < 6; q++) {
@@ -595,9 +612,10 @@ public class Game {
   public void removeHandler(ClientHandler client) {
     if (players.get(client.getClientNumber()).getPlayer() != null) {
     for (int i = 0; i < threads.size(); i++) {
+      broadcast("Client " + client.getClientNumber() + " " + players.get(client.getClientNumber()).getPlayer().getName() + " has disconnected");
       if (threads.get(i) == client) {
-        broadcast("Client " + client.getClientNumber() + " " + players.get(client.getClientNumber()).getPlayer().getName() + " has disconnected");
         threads.remove(i);
+        players.remove(i);
       }
     }
     } else {

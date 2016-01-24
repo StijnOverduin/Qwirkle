@@ -27,16 +27,16 @@ public class NaivePlayerTest {
   @Test
   public void testDeterMineMove() {
     naivePlayer.addTileToHand("Ro");
-    assertTrue(naivePlayer.determineMove().equals("MOVE Ro 91 91"));
+    assertTrue(naivePlayer.determineMove(100).equals("MOVE Ro 91 91"));
     board.setTile(91, 91, new Tile(Color.ROOD, Shape.CIRKEL));
     assertTrue(naivePlayer.getHand().isEmpty());
     naivePlayer.addTileToHand("G*");
-    assertEquals(naivePlayer.determineMove(), "SWAP G*");
+    assertEquals(naivePlayer.determineMove(100), "SWAP G*");
     assertTrue(naivePlayer.getHand().isEmpty());
     naivePlayer.addTileToHand("Y*");
     naivePlayer.addTileToHand("Bs");
     naivePlayer.addTileToHand("Bo");
-    assertTrue(naivePlayer.determineMove().equals("MOVE Bo 90 91"));
+    assertTrue(naivePlayer.determineMove(100).equals("MOVE Bo 90 91"));
     assertEquals(naivePlayer.numberOfTilesInHand(), 2);
     
   }

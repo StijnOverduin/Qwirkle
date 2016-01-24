@@ -75,6 +75,7 @@ public class Client extends Thread {
   private static boolean sendIt;
   private int moveLength;
   private int virtualJar;
+  private long thinkingTime;
   
 
   /**
@@ -138,6 +139,7 @@ public class Client extends Thread {
             break;
           case "NAMES":
             System.out.println(input);
+            thinkingTime = Long.parseLong(splittedInput[splittedInput.length - 1]);
             for (int i = 0; i < (splittedInput.length - 2) / 3; i++) {
               virtualJar = virtualJar - 6;
             }
@@ -147,7 +149,7 @@ public class Client extends Thread {
             if (Integer.parseInt(number) == player.getPlayerNumber()) {
               System.out.println("It's your turn!");
               if (player instanceof Naive) {
-                out.write(player.determineMove());
+                out.write(player.determineMove(thinkingTime));
                 out.newLine();
                 out.flush();
               }
@@ -357,10 +359,12 @@ public class Client extends Thread {
             return;
           }
         case "HELLO":
-          if (splittedInput[1] != null) {
+          if (splittedInput.length > 1 && checkName(splittedInput[1])) {
             out.write(input);
             out.newLine();
             out.flush();
+          } else {
+            System.out.println("Not a valid name");
           }
           break;
         case "JAR":
@@ -376,6 +380,19 @@ public class Client extends Thread {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+  
+  /**
+   * Checks if the string is consists of A-Z and a-z and if the string is longer than 1 character and shorter than 17 chars.
+   * @param name
+   * @return
+   */
+  public boolean checkName(String name) {
+    if ( !(name.matches(".*[^a-zA-Z].*")) && name.length() > 0 && name.length() <= 16) { 
+      return true;
+  } else {
+    return false;
+  }
   }
 
   

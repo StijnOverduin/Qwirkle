@@ -43,7 +43,7 @@ public abstract class Player {
    * Returnes a string with the move the AI player wants to make.
    * @return
    */
-  public abstract String determineMove();
+  public abstract String determineMove(long thinkingTime);
 
   /**
    * Returns the name of the player.
