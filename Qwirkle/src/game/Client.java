@@ -19,7 +19,13 @@ import java.net.UnknownHostException;
 
 
 public class Client extends Thread {
-
+  
+/**
+ * Creates a client with the arguments given to it. If the arguments are incorrect it throws an error
+ * and exits the program. Otherwise it will read the command line and gives the input to the sendMessage
+ * method. 
+ * @param args
+ */
   public static void main(String[] args) {
     if (args.length != 2) {
       System.out.println("Not the right number of arguments");
@@ -54,7 +60,6 @@ public class Client extends Thread {
       } while (sendIt);
 
     } catch (IOException e) {
-      e.printStackTrace();
       System.out.println("ERROR: couldn't construct a client object!");
       System.exit(0);
     }
