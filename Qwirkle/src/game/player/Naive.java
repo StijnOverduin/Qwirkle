@@ -11,9 +11,6 @@ public class Naive extends Player implements Ai {
     super(board, name, playerNumber);
   }
 
-  public void makeMove(int row, int col, Tile tile) {
-    board.setTile(row, col, tile);
-  }
 
   public String determineMove() {
     String move = "";

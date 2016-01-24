@@ -28,6 +28,9 @@ public class Board {
   private boolean isFirstMove;
 
 
+  /**
+   * Fills the double array list "board" with the empty tiles.
+   */
   public Board() {
     isFirstMove = true;
     board = new Tile[DIM][DIM];
@@ -43,30 +46,63 @@ public class Board {
     maxx = MAXX;
   }
 
+  /**
+   * Returns a the tile on the board specified by the row and column.
+   * @param row
+   * @param col
+   * @return
+   */
   public Tile getTile(int row, int col) {
     return board[row][col];
   }
 
+  /**
+   * Checks if the place on the board specified by the row and the column is empty or not,
+   * and gives a boolean back.
+   * @param row
+   * @param col
+   * @return
+   */
   public boolean isEmpty(int row, int col) {
     return (getTile(row, col)).toString().equals("ee");
   }
 
+  /**
+   * Returns the boundary maxx.
+   * @return
+   */
   public int getMaxx() {
     return maxx;
   }
 
+  /**
+   * Returns the boundary minx.
+   * @return
+   */
   public int getMinx() {
     return minx;
   }
 
+  /**
+   * Returns the boundary maxy.
+   * @return
+   */
   public int getMaxy() {
     return maxy;
   }
 
+  /**
+   * Returns the boundary miny.
+   * @return
+   */
   public int getMiny() {
     return miny;
   }
   
+  /**
+   * Copies the boundaries from the given board. This method is mainly used by the deepCopy() method.
+   * @param board
+   */
   public void setBoundries(Board board) {
     miny = board.getMiny();
     maxy = board.getMaxy();
@@ -79,6 +115,12 @@ public class Board {
   // Een colom naar links betekent dus 91,90
   // Een rij naar boven betekend 90, 91
   // Een rij naar beneden betekend 92,91
+  /**
+   * Sets a tile on the board. It also changes the boundaries if the tile is to close to the edge of the board.
+   * @param row
+   * @param col
+   * @param tile
+   */
   public void setTile(int row, int col, Tile tile) {
     board[row][col] = tile;
     maxx = Math.max(col + 1, maxx);
@@ -88,12 +130,14 @@ public class Board {
 
   }
 
-  public static void main(String[] args) {
-
-    Board board = new Board();
-    System.out.println(board);
-  }
-
+  /**
+   * Checks if the tile can be placed on the board according to the rules of the game.
+   * This method returns true if the tile can be placed and false if the tile can't be placed.
+   * @param row
+   * @param col
+   * @param tile
+   * @return
+   */
   public boolean isValidMove(int row, int col, Tile tile) {
     if (row > EINDVELD || col > EINDVELD || row < BEGINVELD || col < BEGINVELD) {
       return false;
@@ -117,8 +161,19 @@ public class Board {
     }
   }
 
+  /**
+   * Checks if the tile can be placed in the row. Receives a boolean to check if it has to check horizontally.
+   * Returns a boolean whether the tile can be placed or not. This method is used by isValidMove() to make it
+   * less complex.
+   * 
+   * @param tile
+   * @param row
+   * @param col
+   * @param horizontalCheck
+   * @return
+   */
   private boolean checkRow(Tile tile, int row, int col, boolean horizontalCheck) {
-    dx = horizontalCheck ? 0 : 1; // als horizontal check, dan dx 1 dy
+    dx = horizontalCheck ? 0 : 1; // als horizontal check false, dan dx 1 dy
     // 0, anders dx 0 dy 1.
     dy = dx == 1 ? 0 : 1;
     dupRow = row;
@@ -171,6 +226,12 @@ public class Board {
     return ans;
   }
 
+  /**
+   * This is a method that returns a String of how the board looks like with the current tiles.
+   * When placed in a System.out.println() statement it will print the board to see for the user.
+   * It overrides the java.toString() method.
+   * @return
+   */
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -199,10 +260,20 @@ public class Board {
     return builder.toString();
   }
 
+  /**
+   * The first move of the board has to be on the row 91 and column 91. This method is called 
+   * if the first tile has been placed on the board. It then switches the boolean isFirstMove 
+   * to false instead of true.
+   */
   public void isFirstMoveBecomesFalse() {
     isFirstMove = false;
   }
 
+  /**
+   * This method returns an object of type Board. It copies the board on which this method is 
+   * called. This method is used to check whether some moves are valid or not.
+   * @return
+   */
   public Board deepCopy() {
     Board deepBoard = new Board();
     for (int row = 0; row < board.length; row++) {
@@ -217,6 +288,10 @@ public class Board {
     return deepBoard;
   }
 
+  /**
+   * returns the boolean isFirstMove to check if the first move has been done.
+   * @return
+   */
   public boolean getIsFirstMove() {
     return isFirstMove;
   }

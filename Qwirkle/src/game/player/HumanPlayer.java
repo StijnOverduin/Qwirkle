@@ -9,11 +9,10 @@ public class HumanPlayer extends Player {
     super(board, name, playerNumber);
   }
 
-  public void makeMove(int row, int col, Tile tile) {
-    board.setTile(row, col, tile);
-  }
-
-  //this method is needed for the AI, HumanPlayer doesn't use this method.
+  /**
+   * This method is abstract in the Player class, so it needs to be defined here.
+   * HumanPlayer doesn't use this method so it doesn't do anything.
+   */
   public String determineMove() {
     return "";
   }

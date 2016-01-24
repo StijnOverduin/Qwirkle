@@ -28,6 +28,9 @@ public class Game {
   private boolean gotTileNextToIt;
   private boolean nextPlayer;
 
+  /**
+   * Creates a game instantiating the variables: threads, players, board, jar and activeGame;
+   */
   public Game() {
     threads = new ArrayList<ClientHandler>();
     players = new ArrayList<PlayerWrapper>();
@@ -37,6 +40,12 @@ public class Game {
 
   }
 
+  /**
+   * If a client send a wrong message to the server this method ensures that the client is kicked; every other player
+   * will get a message with who was kicked and the number of tiles that went back into the jar.
+   * @param client
+   * @param message
+   */
   private void kickHandler(ClientHandler client, String message) {
     if (players.get(turn).getPlayer().getHand().isEmpty()) {
       if (threads.size() > 1) {
@@ -67,6 +76,9 @@ public class Game {
     }
   }
 
+  /**
+   * This method updates the turn whenever it is called.
+   */
     public void updateTurn() {
       if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
       numberOfPlayers = players.size();
@@ -89,6 +101,10 @@ public class Game {
         
       }
   
+    /**
+     * Checks if one of the players can still make a move. If no one can, it returns false, otherwise it returns true.
+     * @return
+     */
   public boolean checkAllPlayers() {
     for (int i = 0; i < players.size(); i++) {
       if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
@@ -100,6 +116,25 @@ public class Game {
     return false;
   }
 
+  /**
+   * This method reads the input of the client, provided by the clientHandler. In the case "HELLO" it will return
+   * a message to the client stating his name and player number. It creates an object of player with the specified name
+   * and fills the player wrapper. If 4 players have connected with this game, the game will start.
+   * 
+   * In the case of "MOVE" it reads the input send by the client, will first check if the move is valid, if it is it will modify 
+   * the board and the hand of the player according to the move, and send the player a message with his new tiles. After the 
+   * changes it will broadcast to all players what the move was and update the turn. If it is not a valid move, it will kick 
+   * the client with the kickHandler method. 
+   * 
+   * In the case of "SWAP" it will check if the player wants to swap more tiles than the jar has left. If the player does this,
+   * he will be kicked with the kickHandler method. Otherwise it will modify the hand of the player according to the move, and
+   * send the player a message with the new tiles. After that it will broadcast the turn to the other players and update the turn.
+   * 
+   * In the case of default it will instantly kick the client with the kickHandler method because the input is not something 
+   * the server can recognize.
+   * @param message
+   * @param client
+   */
   public void readInput(String message, ClientHandler client) {
     String input = message;
     String[] splittedInput = message.split(" ");
@@ -246,6 +281,13 @@ public class Game {
     }
   }
 
+  /**
+   * TODO Jotte doe jij de score?
+   * @param split
+   * @param index
+   * @param deepBoard
+   * @return
+   */
   public int calcScoreCrossedTiles(String[] split, int index, Board deepBoard) {
     int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
@@ -277,6 +319,12 @@ public class Game {
     return addToScore;
   }
 
+  /**
+   * This method does something TODO Jotte doe jij de score?
+   * @param split
+   * @param deepBoard
+   * @return
+   */
   public int calcScoreAddedTiles(String[] split, Board deepBoard) {
     int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
@@ -304,6 +352,12 @@ public class Game {
     return addToScore;
   }
 
+  /**
+   * TODO Jotte doe jij de score?
+   * @param split
+   * @param deepBoard
+   * @return
+   */
   public int calcScoreHorAndVer(String[] split, Board deepBoard) {
     if (board.getIsFirstMove() == true) {
       return 1;
@@ -360,6 +414,10 @@ public class Game {
    
   }
 
+  /**
+   * Sends a message to all clientHandlers in the threads list.
+   * @param msg
+   */
   public void broadcast(String msg) {
     if (threads.size() != 0) {
       for (int i = 0; i < threads.size(); i++) {
@@ -370,6 +428,11 @@ public class Game {
     }
   }
 
+  /**
+   * This method will put all the tiles from the given player back in the jar and remove it
+   * from the players hand.
+   * @param player
+   */
   private void tilesBackToStack(Player player) {
     for (int q = 0; q < player.getHand().size(); q++) {
       addTileToJar(player.getHand().get(q));
@@ -378,12 +441,21 @@ public class Game {
     }
   }
 
+  /**
+   * This method removes a player from the players list.
+   * @param player
+   */
   public void removePlayerWrapperFromList(PlayerWrapper player) {
     if (players.contains(player)) {
       players.remove(player);
     }
   }
 
+  /**
+   * This method fills the object playerWrapper.
+   * @param client
+   * @param player
+   */
   public void fillWrapper(ClientHandler client, Player player) {
     players.get(client.getClientNumber()).setPlayer(player);
     players.get(client.getClientNumber()).setScore(0);
@@ -391,8 +463,9 @@ public class Game {
     players.get(client.getClientNumber()).setInGameTrue();
   }
 
-  /*
-   * Dit is een beschrijving voor de pot met tegeltjes.
+  
+  /**
+   * Fills the jar with three times every color and shape combination.
    */
   public void fillJar() {
     Shape shape = null;
@@ -410,18 +483,34 @@ public class Game {
     }
   }
 
+  /**
+   * Removes the specified tile from the jar list.
+   * @param tile
+   */
   public void removeTileFromJar(String tile) {
     jar.remove(tile);
   }
 
+  /**
+   * Adds the specified tile to the jar list.
+   * @param tile
+   */
   public void addTileToJar(String tile) {
     jar.add(tile);
   }
 
+  /**
+   * Returns how many tiles are left in the jar.
+   * @return
+   */
   public int tilesInJar() {
     return jar.size();
   }
 
+  /**
+   * Returns a random object from the jar list.
+   * @return
+   */
   public String giveRandomTile() {
     if (jar.size() != 0) {
       int random = (int) Math.round(Math.random() * (jar.size() - 1));
@@ -433,14 +522,26 @@ public class Game {
     }
   }
 
+  /**
+   * Returns the boolean activeGame.
+   * @return
+   */
   public boolean isActive() {
     return activeGame;
   }
 
+  /**
+   * Sets the activeGame boolean true.
+   */
   public void becomeActive() {
     activeGame = true;
   }
 
+  /**
+   * Switches the game to active by calling the becomeActive method, fills the jar by calling the fillJar method
+   * and gives each player in the players list 6 random tiles from the jar. After that it will determine who gets
+   * the first move, updates the turn accordingly and broadcasts it to all players.
+   */
   public void startGame() {
     becomeActive();
     fillJar();
@@ -475,6 +576,11 @@ public class Game {
     broadcast("NEXT " + players.get(turn).getPlayerNumber());
   }
 
+  /**
+   * Adds a clientHandler to the threads list. It also creates a playerWrapper object and puts this 
+   * in the players list.
+   * @param client
+   */
   public void addHandler(ClientHandler client) {
     client.setClientNumber(threads.size());
     threads.add(client);
@@ -482,6 +588,10 @@ public class Game {
     players.add(playerWrapper);
   }
 
+  /**
+   * Removes the clientHandler from the threads list and broadcasts which client disconnected.
+   * @param client
+   */
   public void removeHandler(ClientHandler client) {
     if (players.get(client.getClientNumber()).getPlayer() != null) {
     for (int i = 0; i < threads.size(); i++) {
@@ -495,6 +605,14 @@ public class Game {
     }
   }
   
+  /**
+   * Determines the longest move the given player can make on the given board, and returns
+   * an integer representing the number of tiles the player can place. Only works on the 
+   * first move placed on the board. Used to determine which player can begin.
+   * @param player
+   * @param board
+   * @return
+   */
   public int getLongestStreak(Player player, Board board) {
     int nrMoves = 0; 
     int maxMoves = 0;
@@ -543,6 +661,13 @@ public class Game {
     return maxMoves;
   }
   
+  /**
+   * Checks if the given player can make a move on the given board, if the jar isn't empty it will suggest to swap a tile,
+   * otherwise it will return that there are no options left.
+   * @param player
+   * @param board
+   * @return
+   */
   public String checkForMoves(Player player, Board board) {
     String move = "";
     int miny = board.getMiny();
@@ -587,19 +712,20 @@ public class Game {
     }
   }
   
+  /**
+   * This method is called when the game has come to an end. It will calculate
+   * which player has the highest score and broadcasts the winner to every 
+   * other player. 
+   */
   public void endGame() {
     int score = 0;
     for (int w = 0; w < players.size(); w++) {
       score = Math.max(score, players.get(w).getScore());
-      players.get(w).setInGameFalse();
-      players.get(w).getPlayer().getHand().removeAll(players.get(w).getPlayer().getHand());
-      players.get(w).setScore(0);
     }
     for (int a = 0; a < players.size(); a++) {
       if (score == players.get(a).getScore()) {
         broadcast("WINNER " + players.get(a).getPlayerNumber());
       }
     }
-    jar.removeAll(jar);
     }
   }

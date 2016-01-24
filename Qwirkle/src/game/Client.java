@@ -66,12 +66,19 @@ public class Client extends Thread {
   private BufferedWriter out;
   private Player player;
   private Board board;
-  private Boolean readIt;
+  private boolean readIt;
   private static boolean sendIt;
   private int moveLength;
   private int virtualJar;
   
 
+  /**
+   * Constructs a new client object.
+   * 
+   * @param host
+   * @param port
+   * @throws IOException
+   */
   public Client(InetAddress host, int port) throws IOException {
     sock = new Socket(host, port);
     in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -80,6 +87,28 @@ public class Client extends Thread {
     readIt = true;
   }
 
+  /**
+   * Reads the output of the server.
+   * 
+   * In the case "WELCOME" it will create a board and a player on the client side. If the playerName is "Naive"
+   * it will create a Naive AI which will make the moves instead of the localplayer.
+   * 
+   * In the case "NAMES" it will print out who takes part in the game and adjusts the jar according to the number of players.
+   * 
+   * In the case "NEXT" it will print out "It's your turn!" if the player number given equals the your player number. If the
+   * player currently playing is an instance of Naive it will determine his move and send it back to the server.
+   * 
+   * In the case "NEW" it will add the given tiles to your hand and will print "There are no more tiles in the jar left" if 
+   * the jar is empty. It will also adjust the virtualJar accordingly.
+   * 
+   * In the case "TURN" it will modify the board according to the move that comes after TURN. It will also print the board 
+   * and the hand of the player for the UI.
+   * 
+   * In the case "KICK" it will print out the message if the localplayer is the one that got kicked, or adjust the virtualJar
+   * if another player was kicked.
+   * 
+   * In the case "WINNER" it will simply print out the output of the server stating who won the game.
+   */
   public void run() {
     while (readIt) {
       String input = "";
@@ -170,8 +199,6 @@ public class Client extends Thread {
             }
           case "WINNER":
             System.out.println(input);
-            board = new Board();
-            virtualJar = 108;
             break;
           default:
             System.out.println("");
@@ -197,11 +224,34 @@ public class Client extends Thread {
 
   }
 
+  /**
+   * Returns how many tiles are left in the virtual jar.
+   * @return
+   */
   public int getVirtualJar() {
     return virtualJar;
   }
 
-  /** send a message to the ClientHandler. */
+  /**
+   * Reads the message of the message given to the method.
+   * 
+   * In the case of "MOVE" it will first check if the move is valid, if it is it will modify 
+   * the board and the hand of the player according to the move, and send the message to the server. If it is not a valid move, it will not send
+   * the move to the server, but instead print out that the move is invalid and therefore the player should make a different move.
+   * 
+   * In the case of "SWAP" it checks if the virtualJar is empty, if that is the case it will print out that the jar doesn't have the amount of tiles
+   * the player wants to swap. Otherwise it will send the server the message.
+   * 
+   * In the case of "HELLO" it will send the message to the server.
+   * 
+   * In the case of "JAR" it will print how many tiles are left in the virtualJar.
+   * 
+   * In the case of "HINT" it will give you a valid move based on the players hand and the board, and "No options left" if you can't make a move.
+   * 
+   * Default this method will print "Not a valid command" because the user didn't enter a valid command in the command line.
+   * 
+   * @param msg
+   */
   public void sendMessage(String msg) {
     try {
       String input = msg;
@@ -323,6 +373,12 @@ public class Client extends Thread {
     }
   }
 
+  
+  /**
+   * Reads what the user enters in the command line.
+   * @param tekst
+   * @return
+   */
   public static String readString(String tekst) {
     System.out.print(tekst);
     String antw = null;
@@ -335,6 +391,12 @@ public class Client extends Thread {
     return (antw == null) ? "" : antw;
   }
   
+  /**
+   * This method gives a valid move or no options left if the player can't make any more moves.
+   * @param player
+   * @param board
+   * @return
+   */
   public String checkForMoves(Player player, Board board) {
     String move = "";
     int miny = board.getMiny();
@@ -379,6 +441,9 @@ public class Client extends Thread {
     }
   }
   
+  /**
+   * Shuts down the client.
+   */
   public void shutDown() {
     readIt = false;
     System.exit(0);

@@ -15,7 +15,13 @@ public abstract class Player {
   protected String name;
   protected int playerNumber;
   protected final static int EMPTYHAND = 0;
-
+  
+  /**
+   * Creates an instance of the class Player and instantiates the board, name, playerNumber and hand of the player.
+   * @param board
+   * @param name
+   * @param playerNumber
+   */
   public Player(Board board, String name, int playerNumber) {
     this.board = board;
     this.name = name;
@@ -23,22 +29,52 @@ public abstract class Player {
     this.playerNumber = playerNumber;
   }
 
-  public abstract void makeMove(int row, int col, Tile tile);
+  /**
+   * Places a tile on the board the player has been given. 
+   * @param row
+   * @param col
+   * @param tile
+   */
+  public void makeMove(int row, int col, Tile tile) {
+    board.setTile(row, col, tile);
+  }
 
+  /**
+   * Returnes a string with the move the AI player wants to make.
+   * @return
+   */
   public abstract String determineMove();
 
+  /**
+   * Returns the name of the player.
+   * @return
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Adds the specified tile to the hand of the player.
+   * @param tile
+   */
   public void addTileToHand(String tile) {
     hand.add(tile);
   }
 
+  /**
+   * Removes the specified tile from the hand of the player.
+   * @param tile
+   */
   public void removeTileFromHand(String tile) {
     hand.remove(tile);
   }
 
+  /**
+   * Returns the number of tiles in the hand of the player. If the player
+   * doesn't have any tiles left, it returns the static variable EMPTYHAND,
+   * which is 0.
+   * @return
+   */
   public int numberOfTilesInHand() {
     if (hand.size() == EMPTYHAND) {
       return EMPTYHAND;
@@ -47,10 +83,18 @@ public abstract class Player {
     }
   }
 
+  /**
+   * Returns the player number of the player.
+   * @return
+   */
   public int getPlayerNumber() {
     return playerNumber;
   }
 
+  /**
+   * Returns an arrayList which represents the hand of the player.
+   * @return
+   */
   public ArrayList<String> getHand() {
     return hand;
   }
