@@ -22,11 +22,11 @@ public class Naive extends Player implements Ai {
     int minx = board.getMinx();
     int maxx = board.getMaxx();
     if (!getHand().isEmpty()) {
-      Color color1 = Color.getColorFromCharacter(getHand().get(0).charAt(0));
-      Shape shape1 = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
+      Color colorFirstMove = Color.getColorFromCharacter(getHand().get(0).charAt(0));
+      Shape shapeFirstMove = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
   
-      if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
-        move = move.concat("MOVE " + color1.getChar() + shape1.getChar() + " " + 91 + " " + 91);
+      if (board.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
+        move = move.concat("MOVE " + colorFirstMove.getChar() + shapeFirstMove.getChar() + " " + 91 + " " + 91);
         removeTileFromHand(getHand().get(0));
         return move;
   
@@ -41,7 +41,6 @@ public class Naive extends Player implements Ai {
                 move = move.concat("MOVE " + color.getChar() + shape.getChar() 
                 + " " + row + " " + col);
                 removeTileFromHand("" + color.getChar() + shape.getChar());
-                System.out.println(move);
                 return move;
               }
             }

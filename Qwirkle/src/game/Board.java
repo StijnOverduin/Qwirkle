@@ -8,20 +8,25 @@ import java.util.ArrayList;
 
 public class Board {
 
-  private int miny;
-  private int maxy;
-  private int minx;
-  private int maxx;
   public static final int DIM = 183;
   public static final int BEGINVELD = 0;
   public static final int EINDVELD = DIM - 1;
   public static final int MIDDENVELD = EINDVELD / 2;
-  private Tile[][] board;
-  private boolean isFirstMove;
+  public static final int MINY = 95;
+  public static final int MINX = 87;
+  public static final int MAXY = 87;
+  public static final int MAXX = 95;
+  private int miny;
+  private int maxy;
+  private int minx;
+  private int maxx;
   private int dupRow;
   private int dupCol;
   private int dy;
   private int dx;
+  private Tile[][] board;
+  private boolean isFirstMove;
+
 
   public Board() {
     isFirstMove = true;
@@ -32,10 +37,10 @@ public class Board {
 
       }
     }
-    miny = 95; // TODO magic number
-    maxy = 87;
-    minx = 87;
-    maxx = 95;
+    miny = MINY;
+    maxy = MAXY;
+    minx = MINX;
+    maxx = MAXX;
   }
 
   public Tile getTile(int row, int col) {
@@ -70,8 +75,8 @@ public class Board {
   }
 
   // Geredeneerd vanuit het middelpunt 91, 91
-  // Een colom naar boven betekent dus 91, 92
-  // Een colom naar beneden betekent dus 91,90
+  // Een colom naar rechts betekent dus 91, 92
+  // Een colom naar links betekent dus 91,90
   // Een rij naar boven betekend 90, 91
   // Een rij naar beneden betekend 92,91
   public void setTile(int row, int col, Tile tile) {
@@ -199,17 +204,17 @@ public class Board {
   }
 
   public Board deepCopy() {
-    Board bb = new Board();
+    Board deepBoard = new Board();
     for (int row = 0; row < board.length; row++) {
       for (int col = 0; col < board.length; col++) {
-        bb.setTile(row, col, getTile(row, col));
+        deepBoard.setTile(row, col, getTile(row, col));
       }
     }
-    bb.setBoundries(this);
+    deepBoard.setBoundries(this);
     if (!isEmpty(91, 91)) {
-      bb.isFirstMoveBecomesFalse();
+      deepBoard.isFirstMoveBecomesFalse();
     }
-    return bb;
+    return deepBoard;
   }
 
   public boolean getIsFirstMove() {

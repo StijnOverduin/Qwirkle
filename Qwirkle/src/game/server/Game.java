@@ -14,25 +14,26 @@ import java.util.List;
 
 public class Game {
 
-  private ArrayList<String> jar;
-  private Color[] color = Color.values();
-  private Shape[] shape = Shape.values();
+  private List<String> jar;
+  private List<ClientHandler> threads;
   private List<PlayerWrapper> players;
+  private Color[] allColors = Color.values();
+  private Shape[] allShapes = Shape.values();
   private Board board;
-  private boolean active = false;
   private int lengteMove;
   private int turn;
   private int numberOfPlayers;
-  private List<ClientHandler> threads;
+  private boolean activeGame;
   private boolean horizontalTrue;
-  private boolean heeftTilesErnaast;
-  private boolean volgendePlayer;
+  private boolean gotTileNextToIt;
+  private boolean nextPlayer;
 
   public Game() {
     threads = new ArrayList<ClientHandler>();
     players = new ArrayList<PlayerWrapper>();
     board = new Board();
     jar = new ArrayList<String>();
+    activeGame = false;
 
   }
 
@@ -69,8 +70,8 @@ public class Game {
     public void updateTurn() {
       if (players.size() > 0 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
       numberOfPlayers = players.size();
-      turn = volgendePlayer ? turn : (turn + 1) % numberOfPlayers;
-      volgendePlayer = false;
+      turn = nextPlayer ? turn : (turn + 1) % numberOfPlayers;
+      nextPlayer = false;
       broadcast("NEXT " + players.get(turn).getPlayerNumber());
       
         } else {
@@ -92,20 +93,20 @@ public class Game {
     for (int i = 0; i < players.size(); i++) {
       if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
         turn = (turn + 1) % numberOfPlayers;
-        volgendePlayer = true;
+        nextPlayer = true;
         return true;
       }
     }
     return false;
   }
 
-  public void readInput(String msg, ClientHandler client) {
-    String input = msg;
-    String[] split = msg.split(" ");
-    switch (split[0]) { //TODO default case
+  public void readInput(String message, ClientHandler client) {
+    String input = message;
+    String[] splittedInput = message.split(" ");
+    switch (splittedInput[0]) { //TODO default case
       case "HELLO":
-        client.sendMessage("WELCOME " + split[1] + " " + client.getClientNumber());
-        Player player = new HumanPlayer(board, split[1], client.getClientNumber());
+        client.sendMessage("WELCOME " + splittedInput[1] + " " + client.getClientNumber());
+        Player player = new HumanPlayer(board, splittedInput[1], client.getClientNumber());
         fillWrapper(client, player);
         if (players.size() == 4) {
           startGame();
@@ -115,8 +116,8 @@ public class Game {
 
       case "MOVE":
         if (client.getClientNumber() == turn) {
-          lengteMove = split.length;
-          int maalMoves = (lengteMove / 3);
+          lengteMove = splittedInput.length;
+          int nrMoves = (lengteMove / 3);
           if ((lengteMove - 1) % 3 != 0) {
             kickHandler(client,
                 "KICK " + players.get(turn).getPlayerNumber() + " " 
@@ -124,19 +125,19 @@ public class Game {
                   + " You were kicked, maybe you forgot a tile or a coord?");
             return;
           } else {
-            for (int i = 0; i < maalMoves; i++) {
-              if (!(players.get(turn).getPlayer().getHand().contains(split[(1 + i * 3)]))) {
-                kickHandler(client, "Tile " + split[(1 + i * 3)] + " not in possession");
+            for (int i = 0; i < nrMoves; i++) {
+              if (!(players.get(turn).getPlayer().getHand().contains(splittedInput[(1 + i * 3)]))) {
+                kickHandler(client, "Tile " + splittedInput[(1 + i * 3)] + " not in possession");
                 return;
               }
             }
-            for (int i = 0; i < maalMoves; i++) {
+            for (int i = 0; i < nrMoves; i++) {
 
-              String row = split[2];
-              if (!split[(2 + i * 3)].equals(row)) {
-                for (int a = 0; a < maalMoves; a++) {
-                  String col = split[3];
-                  if (!split[(3 + a * 3)].equals(col)) {
+              String row = splittedInput[2];
+              if (!splittedInput[(2 + i * 3)].equals(row)) {
+                for (int a = 0; a < nrMoves; a++) {
+                  String col = splittedInput[3];
+                  if (!splittedInput[(3 + a * 3)].equals(col)) {
                     kickHandler(client, "You were kicked, tiles are not in a straight line");
                     return;
 
@@ -147,25 +148,25 @@ public class Game {
               }
 
             }
-            Board deepboard = board.deepCopy();
+            Board deepBoard = board.deepCopy();
 
             String newTiles = "NEW";
-            if (maalMoves > 1) {
-              this.horizontalTrue = (split[2] == split[5]);                        
-              for (int i = 0; i < maalMoves; i++) {
-                Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
-                Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
-                if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]), 
-                    Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape))) {
-                  deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]), 
-                      Integer.parseInt(split[(3 + i * 3)]), new Tile(color, shape));
-                  players.get(turn).getPlayer().removeTileFromHand(split[(1 + i * 3)]);
+            if (nrMoves > 1) {
+              this.horizontalTrue = (splittedInput[2] == splittedInput[5]);                        
+              for (int i = 0; i < nrMoves; i++) {
+                Color color = Color.getColorFromCharacter(splittedInput[(1 + i * 3)].charAt(0));
+                Shape shape = Shape.getShapeFromCharacter(splittedInput[(1 + i * 3)].charAt(1));
+                if (deepBoard.isValidMove(Integer.parseInt(splittedInput[(2 + i * 3)]), 
+                    Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape))) {
+                  deepBoard.setTile(Integer.parseInt(splittedInput[(2 + i * 3)]), 
+                      Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape));
+                  players.get(turn).getPlayer().removeTileFromHand(splittedInput[(1 + i * 3)]);
                   String randomTile = giveRandomTile();
                   newTiles = newTiles.concat(" " + randomTile);
-                  players.get(turn).getPlayer().addTilesToHand(randomTile);
+                  players.get(turn).getPlayer().addTileToHand(randomTile);
 
                   // TODO catch parseint excep
-                  players.get(turn).setScore(calcScoreCrossedTiles(split, i, deepboard) 
+                  players.get(turn).setScore(calcScoreCrossedTiles(splittedInput, i, deepBoard) 
                       + players.get(turn).getScore());
 
                 } else {
@@ -173,21 +174,21 @@ public class Game {
                   return;
                 }
               }
-              players.get(turn).setScore(calcScoreAddedTiles(split, deepboard) + players.get(turn).getScore());
+              players.get(turn).setScore(calcScoreAddedTiles(splittedInput, deepBoard) + players.get(turn).getScore());
 
-            } else if (maalMoves == 1) {
-              Color color = Color.getColorFromCharacter(split[1].charAt(0));
-              Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
-              if (deepboard.isValidMove(Integer.parseInt(split[2]), 
-                  Integer.parseInt(split[3]), new Tile(color, shape))) {
-                deepboard.setTile(Integer.parseInt(split[2]), 
-                    Integer.parseInt(split[3]), new Tile(color, shape));
+            } else if (nrMoves == 1) {
+              Color color = Color.getColorFromCharacter(splittedInput[1].charAt(0));
+              Shape shape = Shape.getShapeFromCharacter(splittedInput[1].charAt(1));
+              if (deepBoard.isValidMove(Integer.parseInt(splittedInput[2]), 
+                  Integer.parseInt(splittedInput[3]), new Tile(color, shape))) {
+                deepBoard.setTile(Integer.parseInt(splittedInput[2]), 
+                    Integer.parseInt(splittedInput[3]), new Tile(color, shape));
 
-                players.get(turn).getPlayer().removeTileFromHand(split[1]);
+                players.get(turn).getPlayer().removeTileFromHand(splittedInput[1]);
                 String randomTile = giveRandomTile();
                 newTiles = newTiles.concat(" " + randomTile);
-                players.get(turn).getPlayer().addTilesToHand(randomTile);
-                players.get(turn).setScore(calcScoreHorAndVer(split, deepboard) 
+                players.get(turn).getPlayer().addTileToHand(randomTile);
+                players.get(turn).setScore(calcScoreHorAndVer(splittedInput, deepBoard) 
                     + players.get(turn).getScore());
               } else {
                 kickHandler(client, "Not a valid move");
@@ -196,7 +197,7 @@ public class Game {
 
             }
 
-            board = deepboard;
+            board = deepBoard;
             if (newTiles.contains("empty")) {
               client.sendMessage("NEW empty");
             } else {
@@ -212,27 +213,27 @@ public class Game {
         }
       case "SWAP":
         if (client.getClientNumber() == turn) {
-          int swapnr = 1;
-          String tiles = "";
-          while (swapnr < split.length) {
-            if (tilesInJar() >= (split.length - 1)) {
-              String line1 = split[swapnr];
-              if (players.get(turn).getPlayer().getHand().contains(line1)) {
-                players.get(turn).getPlayer().removeTileFromHand(line1);
+          int tilenr = 1;
+          String newTiles = "";
+          while (tilenr < splittedInput.length) {
+            if (tilesInJar() >= (splittedInput.length - 1)) {
+              String tile = splittedInput[tilenr];
+              if (players.get(turn).getPlayer().getHand().contains(tile)) {
+                players.get(turn).getPlayer().removeTileFromHand(tile);
               } else {
-                kickHandler(client, "Tile " + line1 + " was not in your hand");
+                kickHandler(client, "Tile " + tile + " was not in your hand");
                 return;
               }
               String randomTile = giveRandomTile();
-              players.get(turn).getPlayer().addTilesToHand(randomTile);
-              tiles = tiles.concat(" " + randomTile);
-              swapnr++;
+              players.get(turn).getPlayer().addTileToHand(randomTile);
+              newTiles = newTiles.concat(" " + randomTile);
+              tilenr++;
             } else {
               kickHandler(client, "Tried to swap while jar was empty");
               return;
             }
           }
-          client.sendMessage("NEW" + tiles);
+          client.sendMessage("NEW" + newTiles);
           broadcast("TURN empty");
           updateTurn();
         } else {
@@ -245,38 +246,38 @@ public class Game {
     }
   }
 
-  public int calcScoreCrossedTiles(String[] split, int index, Board deepboard) {
+  public int calcScoreCrossedTiles(String[] split, int index, Board deepBoard) {
     int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
     int dy = dx == 1 ? 0 : 1;
     int row = Integer.parseInt(split[2 + 3 * index]);
     int col = Integer.parseInt(split[3 + 3 * index]);
-    this.heeftTilesErnaast = false;
+    this.gotTileNextToIt = false;
     int dupRow = row;
     int dupCol = col;
 
-    int lengteLijn = 0;
-    while (!deepboard.isEmpty(row + dx, col + dy)) {
-      lengteLijn++;
+    int lineLength = 0;
+    while (!deepBoard.isEmpty(row + dx, col + dy)) {
+      lineLength++;
       row += dx;
       col += dy;
-      this.heeftTilesErnaast = true;
+      this.gotTileNextToIt = true;
     } 
     row = dupRow;
     col = dupCol;
-    while (!deepboard.isEmpty(row - dx, col - dy)) {
-      lengteLijn++;
+    while (!deepBoard.isEmpty(row - dx, col - dy)) {
+      lineLength++;
       row -= dx;
       col -= dy;
-      this.heeftTilesErnaast = true;
+      this.gotTileNextToIt = true;
     }
     int addToScore = 0;
-    addToScore = heeftTilesErnaast ? lengteLijn + 1 : 0;
+    addToScore = gotTileNextToIt ? lineLength + 1 : 0;
     return addToScore;
   }
 
-  public int calcScoreAddedTiles(String[] split, Board deepboard) {
+  public int calcScoreAddedTiles(String[] split, Board deepBoard) {
     int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
     // gaat hij verticaal checken elke
     // keer
@@ -287,14 +288,14 @@ public class Game {
     int dupCol = col;
 
     int lengteLijn = 0;
-    while (!deepboard.isEmpty(row + dx, col + dy)) {
+    while (!deepBoard.isEmpty(row + dx, col + dy)) {
       lengteLijn++;
       row += dx;
       col += dy;
     }
     row = dupRow;
     col = dupCol;
-    while (!deepboard.isEmpty(row - dx, col - dy)) {
+    while (!deepBoard.isEmpty(row - dx, col - dy)) {
       lengteLijn++;
       row -= dx;
       col -= dy;
@@ -303,7 +304,7 @@ public class Game {
     return addToScore;
   }
 
-  public int calcScoreHorAndVer(String[] split, Board deepboard) {
+  public int calcScoreHorAndVer(String[] split, Board deepBoard) {
     if (board.getIsFirstMove() == true) {
       return 1;
     } else {
@@ -313,47 +314,47 @@ public class Game {
       int col = Integer.parseInt(split[3]);
       int dupRow = row;
       int dupCol = col;
-      boolean horRij = false;
-      int lengteLijn = 0;
-      while (!deepboard.isEmpty(row + dx, col + dy)) {
-        lengteLijn++;
+      boolean horRow = false;
+      int lineLength = 0;
+      while (!deepBoard.isEmpty(row + dx, col + dy)) {
+        lineLength++;
         row += dx;
         col += dy;
-        horRij = true;
+        horRow = true;
       }
       row = dupRow;
       col = dupCol;
-      while (!deepboard.isEmpty(row - dx, col - dy)) {
-        lengteLijn++;
+      while (!deepBoard.isEmpty(row - dx, col - dy)) {
+        lineLength++;
         row -= dx;
         col -= dy;
-        horRij = true;
+        horRow = true;
       }
-      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn;
+      lineLength = (lineLength == 5) ? lineLength + 6 : lineLength;
       dx = 0;
       dy = 1;
       row = dupRow;
       col = dupCol;
-      int addToScore = lengteLijn;
-      lengteLijn = 0;
-      boolean verRij = false;
-      while (!deepboard.isEmpty(row + dx, col + dy)) {
-        lengteLijn++;
+      int addToScore = lineLength;
+      lineLength = 0;
+      boolean verRow = false;
+      while (!deepBoard.isEmpty(row + dx, col + dy)) {
+        lineLength++;
         row += dx;
         col += dy;
-        verRij = true;
+        verRow = true;
       }
       row = dupRow;
       col = dupCol;
-      while (!deepboard.isEmpty(row - dx, col - dy)) {
-        lengteLijn++;
+      while (!deepBoard.isEmpty(row - dx, col - dy)) {
+        lineLength++;
         row -= dx;
         col -= dy;
-        verRij = true;
+        verRow = true;
       }
-      lengteLijn = (lengteLijn == 5) ? lengteLijn + 6 : lengteLijn + 1;
-      addToScore += lengteLijn;
-      addToScore = horRij && verRij ? addToScore + 1 : addToScore;
+      lineLength = (lineLength == 5) ? lineLength + 6 : lineLength + 1;
+      addToScore += lineLength;
+      addToScore = horRow && verRow ? addToScore + 1 : addToScore;
       return addToScore;
     }
    
@@ -394,14 +395,14 @@ public class Game {
    * Dit is een beschrijving voor de pot met tegeltjes.
    */
   public void fillJar() {
-    Shape ffShape = null;
-    Color ffColor = null;
+    Shape shape = null;
+    Color color = null;
     for (int i = 0; i < 3; i++) {
-      for (int q = 0; q < color.length - 1; q++) {
-        ffColor = color[q];
-        for (int w = 0; w < shape.length - 1; w++) {
-          ffShape = shape[w];
-          String tile = "" + ffColor.getChar() + ffShape.getChar();
+      for (int q = 0; q < allColors.length - 1; q++) {
+        color = allColors[q];
+        for (int w = 0; w < allShapes.length - 1; w++) {
+          shape = allShapes[w];
+          String tile = "" + color.getChar() + shape.getChar();
           addTileToJar(tile);
         }
       }
@@ -433,11 +434,11 @@ public class Game {
   }
 
   public boolean isActive() {
-    return active;
+    return activeGame;
   }
 
   public void becomeActive() {
-    active = true;
+    activeGame = true;
   }
 
   public void startGame() {
@@ -448,7 +449,7 @@ public class Game {
       names = names.concat(" " + players.get(r).getPlayer().getName() 
           + " " + players.get(r).getPlayerNumber());
     }
-    broadcast("NAMES" + names + " " + 100);
+    broadcast("NAMES" + names + " " + 100); //TODO magic number
     for (int t = 0; t < players.size(); t++) {
       String tiles = "";
       for (int q = 0; q < 6; q++) {
@@ -457,22 +458,20 @@ public class Game {
 
       }
       threads.get(t).sendMessage("NEW" + tiles);
-      String[] split = tiles.split(" ");
+      String[] splittedTiles = tiles.split(" ");
       for (int w = 1; w < 7; w++) {
-        players.get(t).getPlayer().addTilesToHand(split[w]);
+        players.get(t).getPlayer().addTileToHand(splittedTiles[w]);
       }
     }
-    int amoves = 0;
+    int nrMoves = 0;
     for (int w = 0; w < players.size(); w++) {
-      amoves = Math.max(amoves, getLongestStreak(players.get(w).getPlayer(), board));
+      nrMoves = Math.max(nrMoves, getLongestStreak(players.get(w).getPlayer(), board));
     }
     for (int a = 0; a < players.size(); a++) {
-      if (amoves == getLongestStreak(players.get(a).getPlayer(), board)) {
+      if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
         turn = players.get(a).getPlayerNumber();
       }
     }
-    
-    
     broadcast("NEXT " + players.get(turn).getPlayerNumber());
   }
 
@@ -484,17 +483,20 @@ public class Game {
   }
 
   public void removeHandler(ClientHandler client) {
+    if (players.get(client.getClientNumber()).getPlayer() != null) {
     for (int i = 0; i < threads.size(); i++) {
       if (threads.get(i) == client) {
         broadcast("Client " + client.getClientNumber() + " " + players.get(client.getClientNumber()).getPlayer().getName() + " has disconnected");
         threads.remove(i);
-        
       }
+    }
+    } else {
+      threads.remove(client);
     }
   }
   
   public int getLongestStreak(Player player, Board board) {
-    int moves = 0;
+    int nrMoves = 0; 
     int maxMoves = 0;
     int miny = board.getMiny();
     int maxy = board.getMaxy();
@@ -503,31 +505,31 @@ public class Game {
     Color color = null;
     Shape shape = null;
     boolean gotMove;
-    Player deepplayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    Player deepPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
     
     
     for (int firstMove = 0; firstMove < 6; firstMove++) {
-      moves = 0;
-      Board b = board.deepCopy();
-      deepplayer.getHand().addAll(player.getHand());
+      nrMoves = 0;
+      Board deepBoard = board.deepCopy();
+      deepPlayer.getHand().addAll(player.getHand());
     
-      color = Color.getColorFromCharacter(deepplayer.getHand().get(firstMove).charAt(0));
-      shape = Shape.getShapeFromCharacter(deepplayer.getHand().get(firstMove).charAt(1));
-      b.setTile(91, 91, new Tile(color, shape));
-      deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
-      moves += 1;
+      color = Color.getColorFromCharacter(deepPlayer.getHand().get(firstMove).charAt(0));
+      shape = Shape.getShapeFromCharacter(deepPlayer.getHand().get(firstMove).charAt(1));
+      deepBoard.setTile(91, 91, new Tile(color, shape));
+      deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+      nrMoves += 1;
 
-      for (int i = 0; i < deepplayer.getHand().size(); i++) {
+      for (int i = 0; i < deepPlayer.getHand().size(); i++) {
         gotMove = true;
-        String currentTile = deepplayer.getHand().get(i);
+        String currentTile = deepPlayer.getHand().get(i);
         for (int row = maxy; row <= miny; row++) {
           if (gotMove == true) {
           for (int col = minx; col <= maxx; col++) {
             color = Color.getColorFromCharacter(currentTile.charAt(0));
             shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
-            if (b.isValidMove(row, col, new Tile(color, shape))) {
-              deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
-              moves += 1;
+            if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
+              deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              nrMoves += 1;
               gotMove = false;
               break;
             }
@@ -535,8 +537,8 @@ public class Game {
           }
         }
       }
-      deepplayer.getHand().removeAll(deepplayer.getHand());
-      maxMoves = Math.max(moves, maxMoves);
+      deepPlayer.getHand().removeAll(deepPlayer.getHand());
+      maxMoves = Math.max(nrMoves, maxMoves);
     }
     return maxMoves;
   }
@@ -548,29 +550,29 @@ public class Game {
     int minx = board.getMinx();
     int maxx = board.getMaxx();
     
-    Board b = board.deepCopy();
-    Player newPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
-    newPlayer.getHand().addAll(player.getHand());
+    Board deepBoard = board.deepCopy();
+    Player deepPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    deepPlayer.getHand().addAll(player.getHand());
 
-    Color color1 = Color.getColorFromCharacter(newPlayer.getHand().get(0).charAt(0));
-    Shape shape1 = Shape.getShapeFromCharacter(newPlayer.getHand().get(0).charAt(1));
+    Color colorFirstMove = Color.getColorFromCharacter(deepPlayer.getHand().get(0).charAt(0));
+    Shape shapeFirstMove = Shape.getShapeFromCharacter(deepPlayer.getHand().get(0).charAt(1));
 
-    if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
-      move = move.concat(color1.getChar() + shape1.getChar() + " " + 91 + " " + 91 + "Just place a tile on 91 91");
-      newPlayer.removeTileFromHand(newPlayer.getHand().get(0));
+    if (board.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
+      move = move.concat(colorFirstMove.getChar() + shapeFirstMove.getChar() + " " + 91 + " " + 91 + "Just place a tile on 91 91");
+      deepPlayer.removeTileFromHand(deepPlayer.getHand().get(0));
       return move;
 
     } else {
-      for (int i = 0; i < newPlayer.getHand().size(); i++) {
-        String currentTile = newPlayer.getHand().get(i);
+      for (int i = 0; i < deepPlayer.getHand().size(); i++) {
+        String currentTile = deepPlayer.getHand().get(i);
         for (int row = maxy; row <= miny; row++) {
           for (int col = minx; col <= maxx; col++) {
             Color color = Color.getColorFromCharacter(currentTile.charAt(0));
             Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
-            if (b.isValidMove(row, col, new Tile(color, shape))) {
+            if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
               move = move.concat(color.getChar() + shape.getChar() 
               + " " + row + " " + col + " You could place that tile");
-              newPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
               return move;
             }
           }

@@ -11,19 +11,24 @@ public class Server {
 
   private int port;
   private List<Game> games;
+  private ServerSocket serverSock;
+  private boolean waitingForClients;
+  private boolean reading;
 
   /** Constructs a new Server object. */
   public Server(int portArg) {
     games = new ArrayList<Game>();
     games.add(new Game());
     port = portArg;
+    waitingForClients = true;
+    reading = true;
   }
 
   public void run() {
     try {
       Game game = null;
-      ServerSocket serverSock = new ServerSocket(port);
-      while (true) {
+      serverSock = new ServerSocket(port);
+      while (waitingForClients) {
         Socket sock = serverSock.accept();
         if (games.get(games.size() - 1).isActive()) {
           game = new Game();
@@ -39,7 +44,8 @@ public class Server {
       }
 
     } catch (IOException e) {
-      System.out.println("No more players on the server");
+      System.out.println("This port is already in use, try a different one");
+      shutDown();
 
     }
 
@@ -59,9 +65,10 @@ public class Server {
   }
 
   private void readTerminalInput() {
-    while (true) {
+    Scanner input = null;
+    while (reading) {
 
-      Scanner input = new Scanner(System.in);
+      input = new Scanner(System.in);
       if (input.hasNextLine()) {
         String start = input.next();
         if (start.equals("START")) {
@@ -69,5 +76,13 @@ public class Server {
         }
       }
     }
+    input.close();
   }
+  
+  public void shutDown() {
+    reading = false;
+    System.exit(0);
+  }
+  
+ 
 }

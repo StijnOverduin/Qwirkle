@@ -46,11 +46,12 @@ public class Client extends Thread {
     try {
       Client client = new Client(host, port);
       client.start();
+      sendIt = true;
 
       do {
         String input = readString("");
         client.sendMessage(input);
-      } while (true);
+      } while (sendIt);
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -65,47 +66,50 @@ public class Client extends Thread {
   private BufferedWriter out;
   private Player player;
   private Board board;
-  private Boolean readIt = true;
-  private int lengteMove;
+  private Boolean readIt;
+  private static boolean sendIt;
+  private int moveLength;
   private int virtualJar;
+  
 
   public Client(InetAddress host, int port) throws IOException {
     sock = new Socket(host, port);
     in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
     virtualJar = 108;
+    readIt = true;
   }
 
   public void run() {
     while (readIt) {
-      String line = "";
+      String input = "";
       try {
 
-        line = in.readLine();
-        System.out.println("Server -> Client " + line);
-        if (line != null) {
-        String[] split = line.split(" ");
-        switch (split[0]) {
+        input = in.readLine();
+        System.out.println("Server -> Client " + input);
+        if (input != null) {
+        String[] splittedInput = input.split(" ");
+        switch (splittedInput[0]) {
           case "WELCOME":
             board = new Board();
-            String playerName = split[1];
-            int playerNumber = Integer.parseInt(split[2]);
+            String playerName = splittedInput[1];
+            int playerNumber = Integer.parseInt(splittedInput[2]);
             if (playerName.equals("Naive")) {
               player = new Naive(board, playerName, playerNumber);
             } else {
               player = new HumanPlayer(board, playerName, playerNumber);
             }
-            System.out.println(line);
+            System.out.println(input);
             System.out.println(board.toString());
             break;
           case "NAMES":
-            System.out.println(line);
-            for (int i = 0; i < (split.length - 2) / 3; i++) {
+            System.out.println(input);
+            for (int i = 0; i < (splittedInput.length - 2) / 3; i++) {
               virtualJar = virtualJar - 6;
             }
             break;
           case "NEXT":
-            String number = split[1];
+            String number = splittedInput[1];
             if (Integer.parseInt(number) == player.getPlayerNumber()) {
               System.out.println("It's your turn!");
               if (player instanceof Naive) {
@@ -116,38 +120,38 @@ public class Client extends Thread {
             }
             break;
           case "NEW":
-            if (!(split[1].equals("empty"))) {
-              for (int i = 1; i < split.length; i++) {
-                player.addTilesToHand(split[i]);
+            if (!(splittedInput[1].equals("empty"))) {
+              for (int i = 1; i < splittedInput.length; i++) {
+                player.addTileToHand(splittedInput[i]);
                 virtualJar = virtualJar - 1;
               }
               System.out.println(player.getHand());
             } else {
-              System.out.println(line + " No more tiles in the jar");
+              System.out.println(input + " No more tiles in the jar");
             }
             break;
           case "TURN":
-            int qq = 2;
-            int rij = 0;
-            int colom = 0;
+            int splitNr = 2;
+            int row = 0;
+            int col = 0;
             Color color;
             Shape shape;
             Tile tile;
-            while (qq < split.length - 2) {
+            while (splitNr < splittedInput.length - 2) {
   
-              String line1 = split[qq];
-              color = Color.getColorFromCharacter(line1.charAt(0));
-              shape = Shape.getShapeFromCharacter(line1.charAt(1));
+              String tiles = splittedInput[splitNr];
+              color = Color.getColorFromCharacter(tiles.charAt(0));
+              shape = Shape.getShapeFromCharacter(tiles.charAt(1));
               tile = new Tile(color, shape);
-              qq++;
+              splitNr++;
   
-              rij = Integer.parseInt(split[qq]);
-              qq++;
+              row = Integer.parseInt(splittedInput[splitNr]);
+              splitNr++;
   
-              colom = Integer.parseInt(split[qq]);
-              qq++;
+              col = Integer.parseInt(splittedInput[splitNr]);
+              splitNr++;
   
-              player.makeMove(rij, colom, tile);
+              player.makeMove(row, col, tile);
   
             }
             System.out.println(board.toString());
@@ -155,17 +159,17 @@ public class Client extends Thread {
   
             break;
           case "KICK":
-            if (Integer.parseInt(split[1]) == player.getPlayerNumber()) {
-              System.out.println(line);
+            if (Integer.parseInt(splittedInput[1]) == player.getPlayerNumber()) {
+              System.out.println(input);
               return;
             } else {
-              System.out.println(line);
-              virtualJar = virtualJar + Integer.parseInt(split[2]);
+              System.out.println(input);
+              virtualJar = virtualJar + Integer.parseInt(splittedInput[2]);
               System.out.println("Tiles in jar left: " + virtualJar);
               break;
             }
           case "WINNER":
-            System.out.println(line);
+            System.out.println(input);
             board = new Board();
             virtualJar = 108;
             break;
@@ -180,6 +184,14 @@ public class Client extends Thread {
       } catch (IOException e) {
         System.out.println("Server has been closed");
         readIt = false;
+        try {
+        in.close();
+        out.close();
+        sock.close();
+        sendIt = false;
+        } catch (IOException ex) {
+          System.out.println("Stream couldn't be closed");
+        }
       }
     }
 
@@ -192,31 +204,31 @@ public class Client extends Thread {
   /** send a message to the ClientHandler. */
   public void sendMessage(String msg) {
     try {
-      String message = msg;
-      String[] split = message.split(" ");
-      switch (split[0]) {
+      String input = msg;
+      String[] splittedInput = input.split(" ");
+      switch (splittedInput[0]) {
         case "MOVE":
-          Player deepplayer = new HumanPlayer(board, "LocalPlayer", 0);
-          deepplayer.getHand().addAll(player.getHand());
-          lengteMove = split.length;
-          int maalMoves = (lengteMove / 3);
-          if ((lengteMove - 1) % 3 != 0) {
+          Player deepPlayer = new HumanPlayer(board, "LocalPlayer", 0);
+          deepPlayer.getHand().addAll(player.getHand());
+          moveLength = splittedInput.length;
+          int nrMoves = (moveLength / 3);
+          if ((moveLength - 1) % 3 != 0) {
             System.out.println("Not a valid move, try again 1");
             break;
           } else {
-            for (int i = 0; i < maalMoves; i++) {
-              if (!(player.getHand().contains(split[(1 + i * 3)]))) {
+            for (int i = 0; i < nrMoves; i++) {
+              if (!(player.getHand().contains(splittedInput[(1 + i * 3)]))) {
                 System.out.println("You don't have that tile 2");
                 return;
               }
             }
-            for (int i = 0; i < maalMoves; i++) {
+            for (int i = 0; i < nrMoves; i++) {
   
-              String row = split[2];
-              if (!split[(2 + i * 3)].equals(row)) {
-                for (int a = 0; a < maalMoves; a++) {
-                  String col = split[3];
-                  if (!split[(3 + a * 3)].equals(col)) {
+              String row = splittedInput[2];
+              if (!splittedInput[(2 + i * 3)].equals(row)) {
+                for (int a = 0; a < nrMoves; a++) {
+                  String col = splittedInput[3];
+                  if (!splittedInput[(3 + a * 3)].equals(col)) {
                     System.out.println("That was not a valid move, try again 3");
                     return;
   
@@ -227,19 +239,19 @@ public class Client extends Thread {
               }
   
             }
-            Board deepboard = board.deepCopy();
+            Board deepBoard = board.deepCopy();
             
-            if (maalMoves > 1) {
-              for (int i = 0; i < maalMoves; i++) {
-                Color color = Color.getColorFromCharacter(split[(1 + i * 3)].charAt(0));
-                Shape shape = Shape.getShapeFromCharacter(split[(1 + i * 3)].charAt(1));
-                if (deepboard.isValidMove(Integer.parseInt(split[(2 + i * 3)]), 
-                    Integer.parseInt(split[(3 + i * 3)]),
+            if (nrMoves > 1) {
+              for (int i = 0; i < nrMoves; i++) {
+                Color color = Color.getColorFromCharacter(splittedInput[(1 + i * 3)].charAt(0));
+                Shape shape = Shape.getShapeFromCharacter(splittedInput[(1 + i * 3)].charAt(1));
+                if (deepBoard.isValidMove(Integer.parseInt(splittedInput[(2 + i * 3)]), 
+                    Integer.parseInt(splittedInput[(3 + i * 3)]),
                     new Tile(color, shape))) {
-                  deepboard.setTile(Integer.parseInt(split[(2 + i * 3)]), 
-                      Integer.parseInt(split[(3 + i * 3)]),
+                  deepBoard.setTile(Integer.parseInt(splittedInput[(2 + i * 3)]), 
+                      Integer.parseInt(splittedInput[(3 + i * 3)]),
                       new Tile(color, shape));
-                  deepplayer.removeTileFromHand(split[(1 + i * 3)]);
+                  deepPlayer.removeTileFromHand(splittedInput[(1 + i * 3)]);
                   // TODO catch parseint excep
   
                 } else {
@@ -248,14 +260,14 @@ public class Client extends Thread {
                 }
               }
   
-            } else if (maalMoves == 1) {
-              Color color = Color.getColorFromCharacter(split[1].charAt(0));
-              Shape shape = Shape.getShapeFromCharacter(split[1].charAt(1));
-              if (deepboard.isValidMove(Integer.parseInt(split[2]), Integer.parseInt(split[3]), 
+            } else if (nrMoves == 1) {
+              Color color = Color.getColorFromCharacter(splittedInput[1].charAt(0));
+              Shape shape = Shape.getShapeFromCharacter(splittedInput[1].charAt(1));
+              if (deepBoard.isValidMove(Integer.parseInt(splittedInput[2]), Integer.parseInt(splittedInput[3]), 
                   new Tile(color, shape))) {
-                deepboard.setTile(Integer.parseInt(split[2]), 
-                    Integer.parseInt(split[3]), new Tile(color, shape));
-                deepplayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+                deepBoard.setTile(Integer.parseInt(splittedInput[2]), 
+                    Integer.parseInt(splittedInput[3]), new Tile(color, shape));
+                deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
   
               } else {
                 System.out.println("Not a valid Move 5");
@@ -265,23 +277,23 @@ public class Client extends Thread {
             }
           }
           player.getHand().removeAll(player.getHand());
-          player.getHand().addAll(deepplayer.getHand());
-          out.write(message);
+          player.getHand().addAll(deepPlayer.getHand());
+          out.write(input);
           out.newLine();
           out.flush();
           break;
         case "SWAP":
-          if (getVirtualJar() >= (split.length - 1)) {
-            int swaptile = 1;
-            for (int i = 0; i < split.length - 1; i++) {
-              if (split[swaptile] != null) {
-                String tile = split[swaptile];
-                swaptile++;
+          if (getVirtualJar() >= (splittedInput.length - 1)) {
+            int swapTile = 1;
+            for (int i = 0; i < splittedInput.length - 1; i++) {
+              if (splittedInput[swapTile] != null) {
+                String tile = splittedInput[swapTile];
+                swapTile++;
                 player.removeTileFromHand(tile);
   
               }
             }
-            out.write(message);
+            out.write(input);
             out.newLine();
             out.flush();
             return;
@@ -290,8 +302,8 @@ public class Client extends Thread {
             return;
           }
         case "HELLO":
-          if (split[1] != null) {
-            out.write(message);
+          if (splittedInput[1] != null) {
+            out.write(input);
             out.newLine();
             out.flush();
           }
@@ -330,29 +342,29 @@ public class Client extends Thread {
     int minx = board.getMinx();
     int maxx = board.getMaxx();
     
-    Board b = board.deepCopy();
-    Player newPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
-    newPlayer.getHand().addAll(player.getHand());
+    Board deepBoard = board.deepCopy();
+    Player deepPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+    deepPlayer.getHand().addAll(player.getHand());
 
-    Color color1 = Color.getColorFromCharacter(newPlayer.getHand().get(0).charAt(0));
-    Shape shape1 = Shape.getShapeFromCharacter(newPlayer.getHand().get(0).charAt(1));
+    Color colorFirstMove = Color.getColorFromCharacter(deepPlayer.getHand().get(0).charAt(0));
+    Shape shapeFirstMove = Shape.getShapeFromCharacter(deepPlayer.getHand().get(0).charAt(1));
 
-    if (board.isValidMove(91, 91, new Tile(color1, shape1))) {
+    if (board.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
       move = move.concat("Just place a tile on 91 91");
-      newPlayer.removeTileFromHand(newPlayer.getHand().get(0));
+      deepPlayer.removeTileFromHand(deepPlayer.getHand().get(0));
       return move;
 
     } else {
-      for (int i = 0; i < newPlayer.getHand().size(); i++) {
-        String currentTile = newPlayer.getHand().get(i);
+      for (int i = 0; i < deepPlayer.getHand().size(); i++) {
+        String currentTile = deepPlayer.getHand().get(i);
         for (int row = maxy; row <= miny; row++) {
           for (int col = minx; col <= maxx; col++) {
             Color color = Color.getColorFromCharacter(currentTile.charAt(0));
             Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
-            if (b.isValidMove(row, col, new Tile(color, shape))) {
+            if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
               move = move.concat("" + color.getChar() + shape.getChar() 
               + " " + row + " " + col + " You could place that tile");
-              newPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+              deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
               return move;
             }
           }
@@ -365,6 +377,11 @@ public class Client extends Thread {
       }
       return move;
     }
+  }
+  
+  public void shutDown() {
+    readIt = false;
+    System.exit(0);
   }
 
 }

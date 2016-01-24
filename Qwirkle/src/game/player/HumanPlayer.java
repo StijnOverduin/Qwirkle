@@ -13,13 +13,9 @@ public class HumanPlayer extends Player {
     board.setTile(row, col, tile);
   }
 
+  //this method is needed for the AI, HumanPlayer doesn't use this method.
   public String determineMove() {
     return "";
-  }
-  
-  public Player deepCopy(Player player) {
-    Player deepplayer = player;
-    return deepplayer;
   }
 
 }

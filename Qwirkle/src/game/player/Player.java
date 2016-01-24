@@ -14,6 +14,7 @@ public abstract class Player {
   protected Board board;
   protected String name;
   protected int playerNumber;
+  protected final static int EMPTYHAND = 0;
 
   public Player(Board board, String name, int playerNumber) {
     this.board = board;
@@ -30,7 +31,7 @@ public abstract class Player {
     return name;
   }
 
-  public void addTilesToHand(String tile) {
+  public void addTileToHand(String tile) {
     hand.add(tile);
   }
 
@@ -39,8 +40,8 @@ public abstract class Player {
   }
 
   public int numberOfTilesInHand() {
-    if (hand.size() == 0) {
-      return 0;
+    if (hand.size() == EMPTYHAND) {
+      return EMPTYHAND;
     } else {
       return hand.size();
     }
