@@ -71,8 +71,10 @@ public class Server {
       input = new Scanner(System.in);
       if (input.hasNextLine()) {
         String start = input.next();
-        if (start.equals("START")) {
+        if (start.equals("START") && (games.get(games.size() - 1)).getPlayers().size() > 1) {
           games.get(games.size() - 1).startGame();
+        } else {
+          System.out.println("Wrong command or not enough players in the game");
         }
       }
     }

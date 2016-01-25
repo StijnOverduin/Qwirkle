@@ -48,6 +48,7 @@ public class Naive extends Player implements Ai {
           }
           move = move.concat("SWAP " + getHand().get(0));
           removeTileFromHand(getHand().get(0));
+          System.out.println(move);
           return move;
         }
       } else {

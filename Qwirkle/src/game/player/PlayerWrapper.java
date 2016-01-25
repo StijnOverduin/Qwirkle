@@ -32,7 +32,6 @@ public class PlayerWrapper {
   }
 
   public PlayerWrapper() {
-
   }
   
   public void setInGameTrue() {
@@ -43,7 +42,6 @@ public class PlayerWrapper {
     inGame = false;
   }
   
-  //Misschien nodig als clients niet moeten disconnecten voor een nieuwe game.
   public boolean getInGame() {
     return inGame;
   }

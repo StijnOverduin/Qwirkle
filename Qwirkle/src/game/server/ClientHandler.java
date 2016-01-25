@@ -12,15 +12,20 @@ public class ClientHandler extends Thread {
   private BufferedWriter out;
   private Game game;
   private int clientNumber;
+  private Socket sockArg;
+  private boolean running;
 
   /**
-   * Constructs a ClientHandler object Initialises both Data streams.
+   * Constructs a ClientHandler object Initializes both Data streams.
    */
   // @ requires serverArg != null && sockArg != null;
   public ClientHandler(Socket sockArg, Game game) throws IOException {
+    running = true;
     in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
     out = new BufferedWriter(new OutputStreamWriter(sockArg.getOutputStream()));
     this.game = game;
+    this.sockArg = sockArg;
+    
   }
 
   public void setClientNumber(int clientnr) {
@@ -32,21 +37,19 @@ public class ClientHandler extends Thread {
   }
 
   /**
-   * This method takes care of sending messages from the Client. Every message
-   * that is received, is preprended with the name of the Client, and the new
-   * message is offered to the Server for broadcasting. If an IOException is
+   * This method takes care of sending messages from the Client. If an IOException is
    * thrown while reading the message, the method concludes that the socket
    * connection is broken and shutdown() will be called.
    */
   public void run() {
     try {
-      while (true) {
+      while (running) {
         String input = in.readLine();
         game.readInput(input, this);
       }
 
     } catch (IOException e) {
-      game.removeHandler(this);
+      shutDown();
       System.out.println("Client " + getClientNumber() + " disconnected");
       
     }
@@ -54,8 +57,7 @@ public class ClientHandler extends Thread {
 
   /**
    * This method can be used to send a message over the socket connection to the
-   * Client. If the writing of a message fails, the method concludes that the
-   * socket connection has been lost and shutdown() is called.
+   * Client.
    */
   public void sendMessage(String msg) {
     try {
@@ -68,9 +70,14 @@ public class ClientHandler extends Thread {
     }
   }
 
-  public void kick() throws IOException {
-    in.close();
-    out.close();
+  public void shutDown() {
+    try {
+    running = false;
+    sockArg.close();
+    game.removeHandler(this);
+    } catch (IOException e) {
+      System.out.println("Can't shutdown this client");
+    }
   }
 
 }

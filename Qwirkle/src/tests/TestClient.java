@@ -33,7 +33,7 @@ public class TestClient {
 
   @Test
   public void testSendMessage() {
-    client.sendMessage("HELLO Stijn");
+    
     
     
   }

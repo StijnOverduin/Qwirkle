@@ -29,6 +29,7 @@ public class Client extends Thread {
   public static void main(String[] args) {
     if (args.length != 2) {
       System.out.println("Not the right number of arguments");
+      System.out.println("Try this: <InetArdress> <port>");
       System.exit(0);
     }
 
@@ -52,6 +53,8 @@ public class Client extends Thread {
     try {
       Client client = new Client(host, port);
       client.start();
+      System.out.println("Welcome to the lovely game of Qwirkle");
+      System.out.println("Type in: HELLO <name> to queue for a game");
       sendIt = true;
 
       do {
@@ -60,7 +63,7 @@ public class Client extends Thread {
       } while (sendIt);
 
     } catch (IOException e) {
-      System.out.println("ERROR: couldn't construct a client object!");
+      System.out.println("ERROR: couldn't reacht the server!");
       System.exit(0);
     }
 
@@ -73,9 +76,11 @@ public class Client extends Thread {
   private Board board;
   private boolean readIt;
   private static boolean sendIt;
+  private boolean inGame;
   private int moveLength;
   private int virtualJar;
   private long thinkingTime;
+  private TUI tui;
   
 
   /**
@@ -91,6 +96,9 @@ public class Client extends Thread {
     out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
     virtualJar = 108;
     readIt = true;
+    sendIt = true;
+    tui = new TUI();
+    inGame = false;
   }
 
   /**
@@ -119,9 +127,9 @@ public class Client extends Thread {
     while (readIt) {
       String input = "";
       try {
-
+        
         input = in.readLine();
-        System.out.println("Server -> Client " + input);
+        System.out.println("Server --> Client " + input);
         if (input != null) {
         String[] splittedInput = input.split(" ");
         switch (splittedInput[0]) {
@@ -134,25 +142,29 @@ public class Client extends Thread {
             } else {
               player = new HumanPlayer(board, playerName, playerNumber);
             }
-            System.out.println(input);
-            System.out.println(board.toString());
+            tui.displayInput(input);
+            tui.waitingForStart();
             break;
           case "NAMES":
-            System.out.println(input);
+            tui.displayInput(input);
             thinkingTime = Long.parseLong(splittedInput[splittedInput.length - 1]);
             for (int i = 0; i < (splittedInput.length - 2) / 3; i++) {
               virtualJar = virtualJar - 6;
             }
+            tui.showBoard(board);
             break;
           case "NEXT":
             String number = splittedInput[1];
             if (Integer.parseInt(number) == player.getPlayerNumber()) {
-              System.out.println("It's your turn!");
+              tui.yourTurn();
+              tui.askingForInput();
               if (player instanceof Naive) {
                 out.write(player.determineMove(thinkingTime));
                 out.newLine();
                 out.flush();
               }
+            } else {
+              tui.showTurn(splittedInput[1]);
             }
             break;
           case "NEW":
@@ -161,9 +173,10 @@ public class Client extends Thread {
                 player.addTileToHand(splittedInput[i]);
                 virtualJar = virtualJar - 1;
               }
-              System.out.println(player.getHand());
+              tui.displayInput(input);
+              tui.showHand(player.getHand());
             } else {
-              System.out.println(input + " No more tiles in the jar");
+              tui.jarIsEmpty(input);
             }
             break;
           case "TURN":
@@ -190,42 +203,40 @@ public class Client extends Thread {
               player.makeMove(row, col, tile);
   
             }
-            System.out.println(board.toString());
-            System.out.println(player.getHand());
+            tui.showBoard(board);
+            tui.showHand(player.getHand());
   
             break;
           case "KICK":
+            try {
             if (Integer.parseInt(splittedInput[1]) == player.getPlayerNumber()) {
-              System.out.println(input);
+              tui.showKick(Integer.parseInt(splittedInput[1]), input.substring(9));
               return;
             } else {
-              System.out.println(input);
+              tui.showKick(Integer.parseInt(splittedInput[1]), input.substring(9));
               virtualJar = virtualJar + Integer.parseInt(splittedInput[2]);
-              System.out.println("Tiles in jar left: " + virtualJar);
               break;
             }
+            } catch (NumberFormatException e) {
+              tui.parseIntError();
+            }
           case "WINNER":
-            System.out.println(input);
-            break;
+            tui.showWinner(splittedInput[1]);
+            break;     
           default:
-            System.out.println("");
+            tui.serverMessageError();
         }
         } else {
-          System.out.println("You have been disconnected");
+          tui.disconnected();
           readIt = false;
+          sock.close();
         }
 
       } catch (IOException e) {
-        System.out.println("Server has been closed");
-        readIt = false;
-        try {
-        in.close();
-        out.close();
-        sock.close();
-        sendIt = false;
-        } catch (IOException ex) {
-          System.out.println("Stream couldn't be closed");
-        }
+        tui.closedServer();
+        shutDown();
+      } catch (NumberFormatException ex) {
+        tui.parseIntError();
       }
     }
 
@@ -259,23 +270,26 @@ public class Client extends Thread {
    * 
    * @param msg
    */
+  //@ requires msg != null;
   public void sendMessage(String msg) {
     try {
       String input = msg;
       String[] splittedInput = input.split(" ");
+      if (splittedInput.length > 1) {
       switch (splittedInput[0]) {
         case "MOVE":
+          if (inGame) {
           Player deepPlayer = new HumanPlayer(board, "LocalPlayer", 0);
           deepPlayer.getHand().addAll(player.getHand());
           moveLength = splittedInput.length;
           int nrMoves = (moveLength / 3);
           if ((moveLength - 1) % 3 != 0) {
-            System.out.println("Not a valid move, try again 1");
+            tui.showInvalidMove();
             break;
           } else {
             for (int i = 0; i < nrMoves; i++) {
               if (!(player.getHand().contains(splittedInput[(1 + i * 3)]))) {
-                System.out.println("You don't have that tile 2");
+                tui.showInvalidMove();
                 return;
               }
             }
@@ -286,7 +300,7 @@ public class Client extends Thread {
                 for (int a = 0; a < nrMoves; a++) {
                   String col = splittedInput[3];
                   if (!splittedInput[(3 + a * 3)].equals(col)) {
-                    System.out.println("That was not a valid move, try again 3");
+                    tui.showInvalidMove();
                     return;
   
                   }
@@ -312,7 +326,7 @@ public class Client extends Thread {
                   // TODO catch parseint excep
   
                 } else {
-                  System.out.println("Not a valid move 4");
+                  tui.showInvalidMove();
                   return;
                 }
               }
@@ -327,7 +341,7 @@ public class Client extends Thread {
                 deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
   
               } else {
-                System.out.println("Not a valid Move 5");
+                tui.showInvalidMove();
                 return;
               }
   
@@ -339,8 +353,13 @@ public class Client extends Thread {
           out.newLine();
           out.flush();
           break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
         case "SWAP":
-          if (getVirtualJar() >= (splittedInput.length - 1)) {
+          if (inGame) {
+          if (virtualJar >= (splittedInput.length - 1)) {
             int swapTile = 1;
             for (int i = 0; i < splittedInput.length - 1; i++) {
               if (splittedInput[swapTile] != null) {
@@ -355,30 +374,84 @@ public class Client extends Thread {
             out.flush();
             return;
           } else {
-
-            return;
+            tui.showInvalidMove();
+            break;
+          }
+          } else {
+            tui.connectFirst();
+            break;
           }
         case "HELLO":
+          if (!inGame) {
           if (splittedInput.length > 1 && checkName(splittedInput[1])) {
             out.write(input);
             out.newLine();
             out.flush();
+            inGame = true;
           } else {
-            System.out.println("Not a valid name");
+            tui.notValidName();
+            break;
+          }
+          } else {
+            tui.alreadyInGame();
           }
           break;
         case "JAR":
-          System.out.println("Jar has " + getVirtualJar() + " tiles left");
+          if (inGame) {
+          tui.tilesLeftInJar(virtualJar);
           break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
         case "HINT":
-          System.out.println(checkForMoves(player, board));
+          if (inGame) {
+          tui.showHint(checkForMoves(player, board));
           break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
+        case "AITIME":
+          if (inGame) {
+          thinkingTime = Integer.parseInt(splittedInput[1]);
+          tui.showAITime(splittedInput[1]);
+          break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
+        case "HELP":
+          tui.showHelp();
+          break;
+        case "BOARD":
+          if (inGame) {
+          tui.showBoard(board);
+          break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
+        case "HAND":
+          if (inGame) {
+          tui.showHand(player.getHand());
+          break;
+          } else {
+            tui.connectFirst();
+            break;
+          }
         default:
-          System.out.println("That's not a valid command");
+          tui.notValidCommand();
+          break;
+      }
+      } else {
+        tui.notValidCommand();
       }
 
     } catch (IOException e) {
-      e.printStackTrace();
+      tui.closedServer();
+    } catch (NumberFormatException ex) {
+      tui.parseIntError();
     }
   }
   
@@ -387,7 +460,8 @@ public class Client extends Thread {
    * @param name
    * @return
    */
-  public boolean checkName(String name) {
+  //@ requires name != null;
+  /*@ pure*/ public boolean checkName(String name) {
     if ( !(name.matches(".*[^a-zA-Z].*")) && name.length() > 0 && name.length() <= 16) { 
       return true;
   } else {
@@ -401,6 +475,7 @@ public class Client extends Thread {
    * @param tekst
    * @return
    */
+  //@ requires tekst != null;
   public static String readString(String tekst) {
     System.out.print(tekst);
     String antw = null;
@@ -419,6 +494,8 @@ public class Client extends Thread {
    * @param board
    * @return
    */
+  //@ requires player != null;
+  //@ requires board != null;
   public String checkForMoves(Player player, Board board) {
     String move = "";
     int miny = board.getMiny();
@@ -467,8 +544,14 @@ public class Client extends Thread {
    * Shuts down the client.
    */
   public void shutDown() {
+    try {
+    sock.close();
     readIt = false;
+    sendIt = false;
     System.exit(0);
+    } catch (IOException e) {
+      System.out.println("Couldn't close the socket");
+    }
   }
 
 }

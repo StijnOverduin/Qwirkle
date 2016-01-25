@@ -52,7 +52,9 @@ public class Board {
    * @param col
    * @return
    */
-  public Tile getTile(int row, int col) {
+  //@ requires row >= 0 && row <= 182;
+  //@ requires col >= 0 && col <= 182;
+  /*@ pure*/ public Tile getTile(int row, int col) {
     return board[row][col];
   }
 
@@ -63,7 +65,9 @@ public class Board {
    * @param col
    * @return
    */
-  public boolean isEmpty(int row, int col) {
+  //@ requires row >= 0 && row <= 182;
+  //@ requires col >= 0 && col <= 182;
+  /*@ pure*/ public boolean isEmpty(int row, int col) {
     return (getTile(row, col)).toString().equals("ee");
   }
 
@@ -71,7 +75,7 @@ public class Board {
    * Returns the boundary maxx.
    * @return
    */
-  public int getMaxx() {
+  /*@ pure*/ public int getMaxx() {
     return maxx;
   }
 
@@ -79,7 +83,7 @@ public class Board {
    * Returns the boundary minx.
    * @return
    */
-  public int getMinx() {
+  /*@ pure*/ public int getMinx() {
     return minx;
   }
 
@@ -87,7 +91,7 @@ public class Board {
    * Returns the boundary maxy.
    * @return
    */
-  public int getMaxy() {
+  /*@ pure*/ public int getMaxy() {
     return maxy;
   }
 
@@ -95,7 +99,7 @@ public class Board {
    * Returns the boundary miny.
    * @return
    */
-  public int getMiny() {
+  /*@ pure*/ public int getMiny() {
     return miny;
   }
   
@@ -103,6 +107,7 @@ public class Board {
    * Copies the boundaries from the given board. This method is mainly used by the deepCopy() method.
    * @param board
    */
+  //@ requires board != null;
   public void setBoundries(Board board) {
     miny = board.getMiny();
     maxy = board.getMaxy();
@@ -121,6 +126,9 @@ public class Board {
    * @param col
    * @param tile
    */
+  //@ requires row >= 0 && row <= 182;
+  //@ requires col >= 0 && col <= 182;
+  //@ requires tile != null;
   public void setTile(int row, int col, Tile tile) {
     board[row][col] = tile;
     maxx = Math.max(col + 1, maxx);
@@ -138,6 +146,10 @@ public class Board {
    * @param tile
    * @return
    */
+  
+  //@ requires row >= 0 && row <= 182;
+  //@ requires col >= 0 && col <= 182;
+  //@ requires tile != null;
   public boolean isValidMove(int row, int col, Tile tile) {
     if (row > EINDVELD || col > EINDVELD || row < BEGINVELD || col < BEGINVELD) {
       return false;
@@ -265,7 +277,7 @@ public class Board {
    * if the first tile has been placed on the board. It then switches the boolean isFirstMove 
    * to false instead of true.
    */
-  public void isFirstMoveBecomesFalse() {
+  /* pure*/ public void isFirstMoveBecomesFalse() {
     isFirstMove = false;
   }
 
@@ -274,6 +286,7 @@ public class Board {
    * called. This method is used to check whether some moves are valid or not.
    * @return
    */
+  
   public Board deepCopy() {
     Board deepBoard = new Board();
     for (int row = 0; row < board.length; row++) {
@@ -292,7 +305,7 @@ public class Board {
    * returns the boolean isFirstMove to check if the first move has been done.
    * @return
    */
-  public boolean getIsFirstMove() {
+  /*@ pure*/ public boolean getIsFirstMove() {
     return isFirstMove;
   }
 }
