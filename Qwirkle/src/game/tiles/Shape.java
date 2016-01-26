@@ -8,7 +8,11 @@ public enum Shape {
   Shape(char ch) {
     id = ch;
   }
-
+  /**
+ * Converts a specific shape into a character.
+ * @param charac char
+ * @return the case that is used in our protocol
+ */
   public static Shape getShapeFromCharacter(char charac) {
     switch (charac) {
       case 'o':

@@ -20,11 +20,12 @@ import java.net.UnknownHostException;
 
 public class Client extends Thread {
   
-/**
- * Creates a client with the arguments given to it. If the arguments are incorrect it throws an error
- * and exits the program. Otherwise it will read the command line and gives the input to the sendMessage
+  /**
+ * Creates a client with the arguments given to it.
+ * If the arguments are incorrect it throws an error and exits the program.
+ * Otherwise it will read the command line and gives the input to the sendMessage
  * method. 
- * @param args
+ * @param args String[] 
  */
   public static void main(String[] args) {
     if (args.length != 2) {

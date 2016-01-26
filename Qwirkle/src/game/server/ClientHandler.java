@@ -56,8 +56,7 @@ public class ClientHandler extends Thread {
   }
 
   /**
-   * This method can be used to send a message over the socket connection to the
-   * Client.
+   * This method can be used to send a message over the socket connection to the Client.
    */
   public void sendMessage(String msg) {
     try {
@@ -69,12 +68,14 @@ public class ClientHandler extends Thread {
       System.out.println("Client stream is closed");
     }
   }
-
+  /**
+   * Shuts down the ClientHandler if player is kicked.
+   */
   public void shutDown() {
     try {
-    running = false;
-    sockArg.close();
-    game.removeHandler(this);
+      running = false;
+      sockArg.close();
+      game.removeHandler(this);
     } catch (IOException e) {
       System.out.println("Can't shutdown this client");
     }

@@ -1,11 +1,13 @@
 package game.player;
 
-import java.util.concurrent.TimeUnit;
-
 import game.Board;
 import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
+
+import java.util.concurrent.TimeUnit;
+
+
 
 public class Naive extends Player implements Ai {
 
@@ -14,19 +16,26 @@ public class Naive extends Player implements Ai {
   }
 
 
+  /** 
+   * Returns the first possible move it encounters as long as the thinkingTime.
+   * If the thinkingTime is over it SWAPs
+   * @param thinkingTime long
+   */
   public String determineMove(long thinkingTime) {
     String move = "";
     int miny = board.getMiny();
     int maxy = board.getMaxy();
     int minx = board.getMinx();
     int maxx = board.getMaxx();
-    for (long stop = System.nanoTime() + TimeUnit.SECONDS.toNanos(thinkingTime); stop > System.nanoTime();) {
+    for (long stop = System.nanoTime() 
+        + TimeUnit.SECONDS.toNanos(thinkingTime); stop > System.nanoTime();) {
       if (!getHand().isEmpty()) {
         Color colorFirstMove = Color.getColorFromCharacter(getHand().get(0).charAt(0));
         Shape shapeFirstMove = Shape.getShapeFromCharacter(getHand().get(0).charAt(1));
     
         if (board.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
-          move = move.concat("MOVE " + colorFirstMove.getChar() + shapeFirstMove.getChar() + " " + 91 + " " + 91);
+          move = move.concat("MOVE " + colorFirstMove.getChar() + shapeFirstMove.getChar() 
+          + " " + 91 + " " + 91);
           removeTileFromHand(getHand().get(0));
           return move;
     

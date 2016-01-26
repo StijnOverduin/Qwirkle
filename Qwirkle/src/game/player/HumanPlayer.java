@@ -1,7 +1,6 @@
 package game.player;
 
 import game.Board;
-import game.tiles.Tile;
 
 public class HumanPlayer extends Player {
 

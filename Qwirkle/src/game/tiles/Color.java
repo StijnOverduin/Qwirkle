@@ -8,7 +8,11 @@ public enum Color {
   Color(char ch) {
     id = ch;
   }
-
+  /**
+ * Converts a specific color into a character.
+ * @param charac char
+ * @return the case that is used in our protocol
+ */
   public static Color getColorFromCharacter(char charac) {
     switch (charac) {
       case 'R':
