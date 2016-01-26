@@ -64,6 +64,7 @@ public class Server {
 
     Server server = new Server(Integer.parseInt(args[0]));
     new Thread(() -> server.readTerminalInput()).start();
+    System.out.println("Type in 'START' to start a game if there are enough players connected");
     server.run();
 
   }

@@ -2,5 +2,5 @@ package game.player;
 
 public interface Ai {
 
-  public String determineMove(long thinkingTime);
+    public String determineMove(long thinkingTime);
 }
