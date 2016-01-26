@@ -24,6 +24,10 @@ public class Server {
     reading = true;
   }
 
+  /**
+   * Makes a new serverSocket when a client connects.
+   * If a client connects he will make a ClientHandler which will be added to a game
+   */
   public void run() {
     try {
       Game game = null;
