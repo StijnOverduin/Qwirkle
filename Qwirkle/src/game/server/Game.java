@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
+	//TODO game stoppen als er nog maar 1 speler inzit...
 
 	private List<String> jar;
 	private List<ClientHandler> threads;
@@ -87,12 +88,14 @@ public class Game {
 	 */
 
 	public void updateTurn() {
+		if (activeGame) {
 		numberOfPlayers = players.size();
 		turn = nextPlayer ? turn : (turn + 1) % numberOfPlayers;
 		while (players.get(turn) == null) {
 			turn = (turn + 1) % numberOfPlayers;
 		}
-		if (!(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
+		
+		if (players.size() > 1 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
 			nextPlayer = false;
 			broadcast("NEXT " + players.get(turn).getPlayerNumber());
 
@@ -102,6 +105,7 @@ public class Game {
 			} else {
 				updateTurn();
 			}
+		}
 		}
 
 	}
@@ -114,13 +118,19 @@ public class Game {
 	 */
 	public boolean checkAllPlayers() {
 		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i) != null) {
 			if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
 				turn = (turn + 1) % numberOfPlayers;
 				nextPlayer = true;
 				return true;
 			}
 		}
+		}
 		return false;
+	}
+	
+	public void setNextPlayerTrue() {
+		nextPlayer = true;
 	}
 
 	/**
@@ -794,6 +804,7 @@ public class Game {
 	// @ requires player != null;
 	// @ requires board != null;
 	public String checkForMoves(Player player, Board board) {
+		if (player.getHand().size() > 0) {
 		String move = "";
 		int miny = board.getMiny();
 		int maxy = board.getMaxy();
@@ -836,6 +847,9 @@ public class Game {
 			}
 			return move;
 		}
+		} else {
+			return "No options left";
+		}
 	}
 
 	public List<PlayerWrapper> getPlayers() {
@@ -850,12 +864,17 @@ public class Game {
 	public void endGame() {
 		int score = 0;
 		for (int w = 0; w < players.size(); w++) {
+			if (players.get(w) != null) {
 			score = Math.max(score, players.get(w).getScore());
+			}
 		}
 		for (int a = 0; a < players.size(); a++) {
+			if (players.get(a) != null) {
 			if (score == players.get(a).getScore()) {
 				broadcast("WINNER " + players.get(a).getPlayerNumber());
+				System.out.println("WINNER Player" + players.get(a).getPlayer().getName() + " " + players.get(a).getPlayerNumber());
 			}
+		}
 		}
 	}
 }

@@ -223,7 +223,6 @@ public class Client extends Thread {
               break;
             case "WINNER":
               tui.showWinner(splittedInput[1]);
-              System.exit(0);
               break;     
             default:
               tui.serverMessageError();
