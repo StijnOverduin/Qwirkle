@@ -50,6 +50,7 @@ public class Game {
   //@ requires message != null;
   //TODO als een speler niet aan de beurt is en een move doet wordt hij wel gekickt, maar het spel gaat niet verder
   private void kickHandler(ClientHandler client, String message) {
+    if (players.get(turn).getPlayer() != null){
     if (!(players.get(turn).getPlayer().getHand().isEmpty())) {
       if (threads.size() > 1) {
         broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
@@ -68,7 +69,14 @@ public class Game {
             + players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
         client.shutDown();
         updateTurn();
+      } else {
+        client.sendMessage("KICK " + message);
+        client.shutDown();
+        System.out.println("Kicked the last Player");
       }
+    }
+    } else {
+      client.shutDown();
     }
   }
 
@@ -266,15 +274,10 @@ public class Game {
           }
           break;
         } else {
-          if (threads.size() > 1) {
-            broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
-                + players.get(turn).getPlayer().numberOfTilesInHand() + " It was not your turn");
-            tilesBackToStack(players.get(turn).getPlayer());
-            client.shutDown();
-            updateTurn();
+            nextPlayer = true;
+            kickHandler(client, "It was not your turn");
           }
-          return;
-        }
+          break;
       case "SWAP":
         if (client.getClientNumber() == turn) {
           int tilenr = 1;
@@ -602,7 +605,8 @@ public class Game {
           + " " + players.get(r).getPlayerNumber());
     }
     }
-    broadcast("NAMES" + names + " " + 100); //TODO AI time
+    broadcast("NAMES" + names + " " + 100);
+    ArrayList<String[]> hands = new ArrayList<String[]>();
     for (int t = 0; t < threads.size(); t++) {
       String tiles = "";
       for (int q = 0; q < 6; q++) {
@@ -612,12 +616,19 @@ public class Game {
       }
       threads.get(t).sendMessage("NEW" + tiles);
       String[] splittedTiles = tiles.split(" ");
-      for (int w = 1; w < 7; w++) {
-        if (players.get(t) == null) {
-          
-        } else {
-        players.get(t).getPlayer().addTileToHand(splittedTiles[w]);
-        }
+      hands.add(splittedTiles);
+    }
+    int counter = 0;
+    for (PlayerWrapper playerWrapper : players) {
+    for (int w = 1; w < 7; w++) {
+      if (playerWrapper == null) {
+        
+      } else {
+      playerWrapper.getPlayer().addTileToHand(hands.get(counter)[w]);
+      }
+    }
+    if (playerWrapper != null) {
+      counter++;
       }
     }
     int nrMoves = 0;
@@ -632,9 +643,9 @@ public class Game {
       if (players.get(a) == null) {
         
       } else {
-      if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
+        if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
         turn = players.get(a).getPlayerNumber();
-      }
+        }
       }
     }
     broadcast("NEXT " + players.get(turn).getPlayerNumber());
