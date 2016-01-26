@@ -275,10 +275,10 @@ public class Client extends Thread {
     try {
       String input = msg;
       String[] splittedInput = input.split(" ");
-      if (splittedInput.length > 1) {
       switch (splittedInput[0]) {
         case "MOVE":
           if (inGame) {
+            if (splittedInput.length > 1) {
           Player deepPlayer = new HumanPlayer(board, "LocalPlayer", 0);
           deepPlayer.getHand().addAll(player.getHand());
           moveLength = splittedInput.length;
@@ -354,11 +354,15 @@ public class Client extends Thread {
           out.flush();
           break;
           } else {
+            tui.notValidCommand();
+          }
+          } else {
             tui.connectFirst();
             break;
           }
         case "SWAP":
           if (inGame) {
+            if (splittedInput.length > 1) {
           if (virtualJar >= (splittedInput.length - 1)) {
             int swapTile = 1;
             for (int i = 0; i < splittedInput.length - 1; i++) {
@@ -376,6 +380,9 @@ public class Client extends Thread {
           } else {
             tui.showInvalidMove();
             break;
+          }
+          } else {
+            tui.notValidCommand();
           }
           } else {
             tui.connectFirst();
@@ -444,9 +451,7 @@ public class Client extends Thread {
           tui.notValidCommand();
           break;
       }
-      } else {
-        tui.notValidCommand();
-      }
+      
 
     } catch (IOException e) {
       tui.closedServer();

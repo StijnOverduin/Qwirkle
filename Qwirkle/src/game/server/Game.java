@@ -87,16 +87,11 @@ public class Game {
       broadcast("NEXT " + players.get(turn).getPlayerNumber());
       
         } else {
-            if (checkForMoves(players.get(turn).getPlayer(), board).equals("No options left")) {
-              broadcast("Player " + players.get(turn).getPlayerNumber() + " couldn't make a move");
               if (!checkAllPlayers()) {
                 endGame();
               } else {
                 updateTurn();
               }
-            } else {
-                System.out.println("No more players in the game");
-            }
         }
         
       }
@@ -600,11 +595,15 @@ public class Game {
     fillJar();
     String names = "";
     for (int r = 0; r < players.size(); r++) {
+      if (players.get(r) == null) {
+        
+      } else {
       names = names.concat(" " + players.get(r).getPlayer().getName() 
           + " " + players.get(r).getPlayerNumber());
     }
+    }
     broadcast("NAMES" + names + " " + 100); //TODO AI time
-    for (int t = 0; t < players.size(); t++) {
+    for (int t = 0; t < threads.size(); t++) {
       String tiles = "";
       for (int q = 0; q < 6; q++) {
         String randomTile = giveRandomTile();
@@ -614,16 +613,28 @@ public class Game {
       threads.get(t).sendMessage("NEW" + tiles);
       String[] splittedTiles = tiles.split(" ");
       for (int w = 1; w < 7; w++) {
+        if (players.get(t) == null) {
+          
+        } else {
         players.get(t).getPlayer().addTileToHand(splittedTiles[w]);
+        }
       }
     }
     int nrMoves = 0;
     for (int w = 0; w < players.size(); w++) {
+      if (players.get(w) == null) {
+        
+      } else {
       nrMoves = Math.max(nrMoves, getLongestStreak(players.get(w).getPlayer(), board));
+      }
     }
     for (int a = 0; a < players.size(); a++) {
+      if (players.get(a) == null) {
+        
+      } else {
       if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
         turn = players.get(a).getPlayerNumber();
+      }
       }
     }
     broadcast("NEXT " + players.get(turn).getPlayerNumber());
@@ -636,7 +647,7 @@ public class Game {
    */
   //@ requires client != null;
   public void addHandler(ClientHandler client) {
-    client.setClientNumber(threads.size());
+    client.setClientNumber(players.size());
     threads.add(client);
     PlayerWrapper playerWrapper = new PlayerWrapper();
     players.add(playerWrapper);
