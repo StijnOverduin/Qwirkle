@@ -298,6 +298,7 @@ public class Game {
 					}
 					break;
 				case "SWAP":
+					if(!(board.getIsFirstMove())) {
 					if (client.getClientNumber() == turn) {
 						int tilenr = 1;
 						String newTiles = "";
@@ -327,7 +328,10 @@ public class Game {
 								+ players.get(client.getClientNumber()).getPlayer().numberOfTilesInHand() + " It was not your turn");
 						tilesBackToStack(players.get(client.getClientNumber()).getPlayer());
 						client.shutDown();
-						return;
+						break;
+					}
+					} else {
+						kickHandler(client, "First move can't be a SWAP");
 					}
 					break;
 				default:

@@ -12,6 +12,10 @@ public class Tui {
     System.out.println("Connect by typing 'HELLO <playername>'");
   }
   
+  public void invalidFirstMove() {
+	  System.out.println("First move can't be a SWAP");
+  }
+  
   public void showBoard(Board board) {
     System.out.println(board.toString());
   }

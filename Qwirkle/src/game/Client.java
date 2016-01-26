@@ -204,6 +204,7 @@ public class Client extends Thread {
               }
               tui.showBoard(board);
               tui.showHand(player.getHand());
+              board.isFirstMoveBecomesFalse();
     
               break;
             case "KICK":
@@ -363,6 +364,7 @@ public class Client extends Thread {
             break;
           }
         case "SWAP":
+        	if (!(board.getIsFirstMove())) {
           if (inGame) {
             if (splittedInput.length > 1) {
               if (virtualJar >= (splittedInput.length - 1)) {
@@ -391,6 +393,10 @@ public class Client extends Thread {
             tui.connectFirst();
             break;
           }
+        	} else {
+        		tui.invalidFirstMove();
+        		break;
+        	}
         case "HELLO":
           if (!inGame) {
             if (splittedInput.length > 1 && checkName(splittedInput[1])) {
