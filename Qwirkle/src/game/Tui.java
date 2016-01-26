@@ -100,8 +100,7 @@ public class Tui {
     System.out.println("And the winner is.......");
     System.out.println("Player " + input);
     System.out.println("Game Over");
-    System.out.println("If you want to play another game you can disconnect "
-        + "and connect to the server again");
+    System.out.println("If you want to play another game you can connect to the server again");
   }
   /**
    * Shows all the different commands which you can use to play the game.

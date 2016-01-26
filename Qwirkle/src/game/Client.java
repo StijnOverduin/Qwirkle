@@ -129,7 +129,6 @@ public class Client extends Thread {
       try {
         
         input = in.readLine();
-        System.out.println("Server --> Client " + input);
         if (input != null) {
           String[] splittedInput = input.split(" ");
           switch (splittedInput[0]) {
@@ -223,6 +222,7 @@ public class Client extends Thread {
               break;
             case "WINNER":
               tui.showWinner(splittedInput[1]);
+              System.exit(0);
               break;     
             default:
               tui.serverMessageError();
