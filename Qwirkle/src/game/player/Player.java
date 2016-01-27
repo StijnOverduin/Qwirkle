@@ -5,101 +5,114 @@ import game.tiles.Tile;
 
 import java.util.ArrayList;
 
-
-
 public abstract class Player {
 
-  protected int score;
-  protected ArrayList<String> hand;
-  protected Board board;
-  protected String name;
-  protected int playerNumber;
-  protected static final int EMPTYHAND = 0;
-  
-  /**
-   * Creates an instance of the class Player and instantiates the board, 
-   * name, playerNumber and hand of the player.
-   * @param board Board
-   * @param name String
-   * @param playerNumber int
-   */
-  public Player(Board board, String name, int playerNumber) {
-    this.board = board;
-    this.name = name;
-    hand = new ArrayList<String>();
-    this.playerNumber = playerNumber;
-  }
+	protected int score;
+	protected ArrayList<String> hand;
+	protected Board board;
+	protected String name;
+	protected int playerNumber;
+	protected static final int EMPTYHAND = 0;
 
-  /**
-   * Places a tile on the board the player has been given. 
-   * @param row int
-   * @param col int
-   * @param tile Tile
-   */
-  public void makeMove(int row, int col, Tile tile) {
-    board.setTile(row, col, tile);
-  }
+	/**
+	 * Creates an instance of the class Player and instantiates the board, name,
+	 * playerNumber and hand of the player.
+	 * 
+	 * @param board
+	 *            Board
+	 * @param name
+	 *            String
+	 * @param playerNumber
+	 *            int
+	 */
+	public Player(Board board, String name, int playerNumber) {
+		this.board = board;
+		this.name = name;
+		hand = new ArrayList<String>();
+		this.playerNumber = playerNumber;
+	}
 
-  /**
-   * Returns a string with the move the AI player wants to make.
-   * @return String including AI move
-   */
-  public abstract String determineMove(long thinkingTime);
+	/**
+	 * Places a tile on the board the player has been given.
+	 * 
+	 * @param row
+	 *            int
+	 * @param col
+	 *            int
+	 * @param tile
+	 *            Tile
+	 */
+	public void makeMove(int row, int col, Tile tile) {
+		board.setTile(row, col, tile);
+	}
 
-  /**
-   * Returns the name of the player.
-   * @return name
-   */
-  public String getName() {
-    return name;
-  }
+	/**
+	 * Returns a string with the move the AI player wants to make.
+	 * 
+	 * @return String including AI move
+	 */
+	public abstract String determineMove(long thinkingTime);
 
-  /**
-   * Adds the specified tile to the hand of the player.
-   * @param tile String
-   */
-  public void addTileToHand(String tile) {
-    hand.add(tile);
-  }
+	/**
+	 * Returns the name of the player.
+	 * 
+	 * @return name
+	 */
+	public String getName() {
+		return name;
+	}
 
-  /**
-   * Removes the specified tile from the hand of the player.
-   * @param tile String
-   */
-  public void removeTileFromHand(String tile) {
-    hand.remove(tile);
-  }
+	/**
+	 * Adds the specified tile to the hand of the player.
+	 * 
+	 * @param tile
+	 *            String
+	 */
+	public void addTileToHand(String tile) {
+		hand.add(tile);
+	}
 
-  /**
-   * Returns the number of tiles in the hand of the player. If the player
-   * doesn't have any tiles left, it returns the static variable EMPTYHAND,
-   * which is 0.
-   * @return hand size
-   */
-  public int numberOfTilesInHand() {
-    if (hand.size() == EMPTYHAND) {
-      return EMPTYHAND;
-    } else {
-      return hand.size();
-    }
-  }
+	/**
+	 * Removes the specified tile from the hand of the player.
+	 * 
+	 * @param tile
+	 *            String
+	 */
+	public void removeTileFromHand(String tile) {
+		hand.remove(tile);
+	}
 
-  /**
-   * Returns the player number of the player.
-   * @return playerNumber
-   */
-  public int getPlayerNumber() {
-    return playerNumber;
-  }
+	/**
+	 * Returns the number of tiles in the hand of the player. If the player
+	 * doesn't have any tiles left, it returns the static variable EMPTYHAND,
+	 * which is 0.
+	 * 
+	 * @return hand size
+	 */
+	public int numberOfTilesInHand() {
+		if (hand.size() == EMPTYHAND) {
+			return EMPTYHAND;
+		} else {
+			return hand.size();
+		}
+	}
 
-  /**
-   * Returns an arrayList which represents the hand of the player.
-   * @return hand
-   */
-  public ArrayList<String> getHand() {
-    return hand;
-  }
-  
-  
+	/**
+	 * Returns the player number of the player.
+	 * 
+	 * @return playerNumber
+	 */
+	public int getPlayerNumber() {
+		return playerNumber;
+	}
+
+	/**
+	 * Returns an arrayList which represents the hand of the player.
+	 * 
+	 * @return hand
+	 */
+	public ArrayList<String> getHand() {
+		return hand;
+	}
 
 }

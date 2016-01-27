@@ -1,38 +1,41 @@
 package game.tiles;
 
 public enum Color {
-  ROOD('R'), ORANJE('O'), BLAUW('B'), GEEL('Y'), GROEN('G'), PAARS('P'), EMPTY('e');
+	ROOD('R'), ORANJE('O'), BLAUW('B'), GEEL('Y'), GROEN('G'), PAARS('P'), EMPTY('e');
 
-  char id;
+	char id;
 
-  Color(char ch) {
-    id = ch;
-  }
-  /**
- * Converts a specific color into a character.
- * @param charac char
- * @return the case that is used in our protocol
- */
-  public static Color getColorFromCharacter(char charac) {
-    switch (charac) {
-      case 'R':
-        return Color.ROOD;
-      case 'O':
-        return Color.ORANJE;
-      case 'B':
-        return Color.BLAUW;
-      case 'Y':
-        return Color.GEEL;
-      case 'G':
-        return Color.GROEN;
-      case 'P':
-        return Color.PAARS;
-      default:
-        return Color.EMPTY;
-    }
-  }
+	Color(char ch) {
+		id = ch;
+	}
 
-  public char getChar() {
-    return id;
-  }
+	/**
+	 * Converts a specific color into a character.
+	 * 
+	 * @param charac
+	 *            char
+	 * @return the case that is used in our protocol
+	 */
+	public static Color getColorFromCharacter(char charac) {
+		switch (charac) {
+			case 'R':
+				return Color.ROOD;
+			case 'O':
+				return Color.ORANJE;
+			case 'B':
+				return Color.BLAUW;
+			case 'Y':
+				return Color.GEEL;
+			case 'G':
+				return Color.GROEN;
+			case 'P':
+				return Color.PAARS;
+			default:
+				return Color.EMPTY;
+		}
+	}
+
+	public char getChar() {
+		return id;
+	}
 }

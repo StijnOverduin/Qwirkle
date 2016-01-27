@@ -56,8 +56,8 @@ public class ClientHandler extends Thread {
 		} catch (IOException e) {
 			if (game.getPlayers().get(getClientNumber()).getPlayer() != null) {
 				game.broadcast("KICK " + getClientNumber() + " "
-								+ game.getPlayers().get(getClientNumber())
-									.getPlayer().getHand().size() + " has lost connection");
+				  		  + game.getPlayers().get(getClientNumber()).getPlayer().getHand().size()
+						  + " has lost connection");
 				game.tilesBackToStack(game.getPlayers().get(getClientNumber()).getPlayer());
 				System.out.println("Client " + getClientNumber() + " disconnected");
 				shutDown();

@@ -109,7 +109,8 @@ public class Tui implements Observer {
 		System.out.println("And the winner is.......");
 		System.out.println("Player " + input);
 		System.out.println("Game Over");
-		System.out.println("If you want to play another game you can disconnect and connect to the server again");
+		System.out.println("If you want to play another game "
+				  + "you can disconnect and connect to the server again");
 	}
 
 	/**
@@ -122,7 +123,8 @@ public class Tui implements Observer {
 		System.out.println("3: SWAP <tile> --> to swap tiles");
 		System.out.println("4: HINT --> to ask for a hint");
 		System.out.println("5: JAR --> to view how many tiles are left in the jar");
-		System.out.println("6: AiTime <time> --> to change the thinking time of the computer player");
+		System.out.println("6: AiTime <time> --> to change "
+				  + "the thinking time of the computer player");
 		System.out.println("7: BOARD --> to show to board");
 		System.out.println("8: HAND --> to show your hand");
 	}
@@ -130,6 +132,6 @@ public class Tui implements Observer {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		showBoard((Board) arg0);
-		
+
 	}
 }

@@ -8,12 +8,11 @@ import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-	//TODO game stoppen als er nog maar 1 speler inzit...
+	// TODO game stoppen als er nog maar 1 speler inzit...
 
 	private List<String> jar;
 	private List<ClientHandler> threads;
@@ -31,7 +30,7 @@ public class Game {
 
 	/**
 	 * Creates a game instantiating the variables: threads, players, board, jar
-	 * and activeGame;
+	 * and activeGame.
 	 */
 	public Game() {
 		threads = new ArrayList<ClientHandler>();
@@ -57,7 +56,8 @@ public class Game {
 			if (!(players.get(turn).getPlayer().getHand().isEmpty())) {
 				if (threads.size() > 1) {
 					broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
-							+ players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
+							  + players.get(turn).getPlayer().numberOfTilesInHand() 
+							  + " " + message);
 					tilesBackToStack(players.get(turn).getPlayer());
 					client.shutDown();
 					updateTurn();
@@ -69,7 +69,8 @@ public class Game {
 			} else {
 				if (threads.size() > 1) {
 					broadcast("KICK " + players.get(turn).getPlayerNumber() + " "
-							+ players.get(turn).getPlayer().numberOfTilesInHand() + " " + message);
+							  + players.get(turn).getPlayer().numberOfTilesInHand() 
+							  + " " + message);
 					client.shutDown();
 					updateTurn();
 				} else {
@@ -89,23 +90,25 @@ public class Game {
 
 	public void updateTurn() {
 		if (activeGame) {
-		numberOfPlayers = players.size();
-		turn = nextPlayer ? turn : (turn + 1) % numberOfPlayers;
-		while (players.get(turn) == null) {
-			turn = (turn + 1) % numberOfPlayers;
-		}
-		
-		if (players.size() > 1 && !(checkForMoves(players.get(turn).getPlayer(), board).equals("No options left"))) {
-			nextPlayer = false;
-			broadcast("NEXT " + players.get(turn).getPlayerNumber());
-
-		} else {
-			if (!checkAllPlayers()) {
-				endGame();
-			} else {
-				updateTurn();
+			numberOfPlayers = players.size();
+			turn = nextPlayer ? turn : (turn + 1) % numberOfPlayers;
+			while (players.get(turn) == null) {
+				turn = (turn + 1) % numberOfPlayers;
 			}
-		}
+
+			if (players.size() > 1
+					  && !(checkForMoves(players.get(turn).getPlayer(), board)
+							  .equals("No options left"))) {
+				nextPlayer = false;
+				broadcast("NEXT " + players.get(turn).getPlayerNumber());
+
+			} else {
+				if (!checkAllPlayers()) {
+					endGame();
+				} else {
+					updateTurn();
+				}
+			}
 		}
 
 	}
@@ -119,16 +122,16 @@ public class Game {
 	public boolean checkAllPlayers() {
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i) != null) {
-			if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
-				turn = (turn + 1) % numberOfPlayers;
-				nextPlayer = true;
-				return true;
+				if (!(checkForMoves(players.get(i).getPlayer(), board).equals("No options left"))) {
+					turn = (turn + 1) % numberOfPlayers;
+					nextPlayer = true;
+					return true;
+				}
 			}
-		}
 		}
 		return false;
 	}
-	
+
 	public void setNextPlayerTrue() {
 		nextPlayer = true;
 	}
@@ -187,18 +190,21 @@ public class Game {
 				case "HELLO":
 					if (!(players.get(client.getClientNumber()).getInGame())) {
 						if (checkName(splittedInput[1])) {
-							client.sendMessage("WELCOME " + splittedInput[1] + " " + client.getClientNumber());
-							Player player = new HumanPlayer(board, splittedInput[1], client.getClientNumber());
+							client.sendMessage("WELCOME " + splittedInput[1] 
+									  + " " + client.getClientNumber());
+							Player player = new HumanPlayer(
+									  board, splittedInput[1], client.getClientNumber());
 							fillWrapper(client, player);
 							if (players.size() == 4) {
 								if (threads.size() > 1) {
-								startGame();
+									startGame();
 								} else {
 									endGame();
 								}
 							}
 						} else {
-							client.sendMessage("Name doesn't consist of [a-z][A-Z] or is longer than 16 chars");
+							client.sendMessage("Name doesn't consist of "
+									  + "[a-z][A-Z] or is longer than 16 chars");
 							return;
 						}
 						break;
@@ -207,25 +213,29 @@ public class Game {
 				case "MOVE":
 					if (client.getClientNumber() == turn) {
 						moveLength = splittedInput.length;
-						int nrMoves = (moveLength / 3);
-						if (((moveLength - 1) % 3 != 0)) {
-							kickHandler(client, "You were kicked, maybe you forgot a tile or a coord?");
+						int nrMoves = moveLength / 3;
+						if ((moveLength - 1) % 3 != 0) {
+							kickHandler(client, "You were kicked, "
+									  + "maybe you forgot a tile or a coord?");
 							return;
 						} else {
 							for (int i = 0; i < nrMoves; i++) {
-								if (!(players.get(turn).getPlayer().getHand().contains(splittedInput[(1 + i * 3)]))) {
-									kickHandler(client, "Tile " + splittedInput[(1 + i * 3)] + " not in possession");
+								if (!(players.get(turn).getPlayer().getHand()
+										  .contains(splittedInput[1 + i * 3]))) {
+									kickHandler(client, "Tile " 
+										    + splittedInput[1 + i * 3] + " not in possession");
 									return;
 								}
 							}
 							for (int i = 0; i < nrMoves; i++) {
 	
 								String row = splittedInput[2];
-								if (!splittedInput[(2 + i * 3)].equals(row)) {
+								if (!splittedInput[2 + i * 3].equals(row)) {
 									for (int a = 0; a < nrMoves; a++) {
 										String col = splittedInput[3];
-										if (!splittedInput[(3 + a * 3)].equals(col)) {
-											kickHandler(client, "You were kicked, tiles are not in a straight line");
+										if (!splittedInput[3 + a * 3].equals(col)) {
+											kickHandler(client, "You were kicked, "
+													  + "tiles are not in a straight line");
 											return;
 	
 										}
@@ -241,113 +251,134 @@ public class Game {
 	
 							String newTiles = "NEW";
 							if (nrMoves > 1) {
-								this.horizontalTrue = (splittedInput[2] == splittedInput[5]);
+								this.horizontalTrue = splittedInput[2] == splittedInput[5];
 								for (int i = 0; i < nrMoves; i++) {
-									Color color = Color.getColorFromCharacter(splittedInput[(1 + i * 3)].charAt(0));
-									Shape shape = Shape.getShapeFromCharacter(splittedInput[(1 + i * 3)].charAt(1));
+									Color color = Color.getColorFromCharacter(
+											  splittedInput[1 + i * 3].charAt(0));
+									Shape shape = Shape.getShapeFromCharacter(
+											  splittedInput[1 + i * 3].charAt(1));
 									try {
-										if (deepBoard.isValidMove(Integer.parseInt(splittedInput[(2 + i * 3)]),
-												Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape))) {
-											deepBoard.setTile(Integer.parseInt(splittedInput[(2 + i * 3)]),
-													Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape));
-											deepPlayer.removeTileFromHand(splittedInput[(1 + i * 3)]);
+										if (deepBoard.isValidMove(
+												  Integer.parseInt(splittedInput[2 + i * 3]),
+												  Integer.parseInt(splittedInput[3 + i * 3]), 
+												  new Tile(color, shape))) {
+											deepBoard.setTile(
+													  Integer.parseInt(splittedInput[2 + i * 3]),
+													  Integer.parseInt(splittedInput[3 + i * 3]), 
+													  new Tile(color, shape));
+											deepPlayer.removeTileFromHand(splittedInput[1 + i * 3]);
 											String randomTile = giveRandomTile();
 											newTiles = newTiles.concat(" " + randomTile);
 											deepPlayer.addTileToHand(randomTile);
 	
 											// TODO catch parseint excep
-											players.get(turn).setScore(calcScoreCrossedTiles(splittedInput, i, deepBoard)
-													+ players.get(turn).getScore());
+											players.get(turn).setScore(calcScoreCrossedTiles(
+													  splittedInput, i, deepBoard)
+													  + players.get(turn).getScore());
 	
 										} else {
 											kickHandler(client, "Not a valid move");
 											return;
 										}
 									} catch (NumberFormatException e) {
-										System.out.println("Couldn't parse the integer of the given string");
+										System.out.println("Couldn't parse "
+												  + "the integer of the given string");
 									}
 								}
 								players.get(turn).setScore(
-										calcScoreAddedTiles(splittedInput, deepBoard) + players.get(turn).getScore());
+										  calcScoreAddedTiles(splittedInput, deepBoard) 
+										  + players.get(turn).getScore());
 	
 							} else if (nrMoves == 1) {
-								Color color = Color.getColorFromCharacter(splittedInput[1].charAt(0));
-								Shape shape = Shape.getShapeFromCharacter(splittedInput[1].charAt(1));
+								Color color = Color.getColorFromCharacter(
+										  splittedInput[1].charAt(0));
+								Shape shape = Shape.getShapeFromCharacter(
+										  splittedInput[1].charAt(1));
 								try {
 									if (deepBoard.isValidMove(Integer.parseInt(splittedInput[2]),
-											Integer.parseInt(splittedInput[3]), new Tile(color, shape))) {
+											  Integer.parseInt(splittedInput[3]),
+											  new Tile(color, shape))) {
 										deepBoard.setTile(Integer.parseInt(splittedInput[2]),
-												Integer.parseInt(splittedInput[3]), new Tile(color, shape));
+												  Integer.parseInt(splittedInput[3]), 
+												  new Tile(color, shape));
 	
 										deepPlayer.removeTileFromHand(splittedInput[1]);
 										String randomTile = giveRandomTile();
 										newTiles = newTiles.concat(" " + randomTile);
 										deepPlayer.addTileToHand(randomTile);
-										players.get(turn).setScore(calcScoreHorAndVer(splittedInput, deepBoard)
-												+ players.get(turn).getScore());
+										players.get(turn).setScore(
+												  calcScoreHorAndVer(splittedInput, deepBoard)
+												  + players.get(turn).getScore());
 									} else {
 										kickHandler(client, "Not a valid move");
 										return;
 									}
 								} catch (NumberFormatException e) {
-									System.out.println("Couldn't parse the integer in the given string");
+									System.out.println("Couldn't parse "
+											  + "the integer in the given string");
 								}
 	
 							}
 	
 							board = deepBoard;
-							players.get(turn).getPlayer().getHand().removeAll(players.get(turn).getPlayer().getHand());
+							players.get(turn).getPlayer().getHand().removeAll(
+									  players.get(turn).getPlayer().getHand());
 							players.get(turn).getPlayer().getHand().addAll(deepPlayer.getHand());
 							if (newTiles.contains("empty")) {
 								client.sendMessage("NEW empty");
 							} else {
 								client.sendMessage(newTiles);
 							}
-							broadcast("TURN " + players.get(turn).getPlayerNumber() 
-											+ " " + input.substring(5));
+							broadcast("TURN " 
+							    + players.get(turn).getPlayerNumber() + " " + input.substring(5));
 							updateTurn();
 						}
 						break;
 					} else {
 						broadcast("KICK " + client.getClientNumber() + " "
-								+ players.get(client.getClientNumber()).getPlayer().numberOfTilesInHand() + " It was not your turn");
+								  + players.get(
+								  client.getClientNumber()).getPlayer().numberOfTilesInHand() 
+								  + " It was not your turn");
 						tilesBackToStack(players.get(client.getClientNumber()).getPlayer());
 						client.shutDown();
 					}
 					break;
 				case "SWAP":
-					if(!(board.getIsFirstMove())) {
-					if (client.getClientNumber() == turn) {
-						int tilenr = 1;
-						String newTiles = "";
-						while (tilenr < splittedInput.length) {
-							if (tilesInJar() >= (splittedInput.length - 1)) {
-								String tile = splittedInput[tilenr];
-								if (players.get(turn).getPlayer().getHand().contains(tile)) {
-									players.get(turn).getPlayer().removeTileFromHand(tile);
+					if (!(board.getIsFirstMove())) {
+						if (client.getClientNumber() == turn) {
+							int tilenr = 1;
+							String newTiles = "";
+							while (tilenr < splittedInput.length) {
+								if (tilesInJar() >= (splittedInput.length - 1)) {
+									String tile = splittedInput[tilenr];
+									if (players.get(turn).getPlayer().getHand().contains(tile)) {
+										players.get(turn).getPlayer().removeTileFromHand(tile);
+									} else {
+										kickHandler(client, "Tile " + tile 
+												  + " was not in your hand");
+										return;
+									}
+									String randomTile = giveRandomTile();
+									players.get(turn).getPlayer().addTileToHand(randomTile);
+									newTiles = newTiles.concat(" " + randomTile);
+									tilenr++;
 								} else {
-									kickHandler(client, "Tile " + tile + " was not in your hand");
+									kickHandler(client, "Tried to swap while jar was empty");
 									return;
 								}
-								String randomTile = giveRandomTile();
-								players.get(turn).getPlayer().addTileToHand(randomTile);
-								newTiles = newTiles.concat(" " + randomTile);
-								tilenr++;
-							} else {
-								kickHandler(client, "Tried to swap while jar was empty");
-								return;
 							}
+							client.sendMessage("NEW" + newTiles);
+							broadcast("TURN " + turn + " empty");
+							updateTurn();
+						} else {
+							broadcast("KICK " + client.getClientNumber() + " "
+									  + players.get(
+									  client.getClientNumber()).getPlayer().numberOfTilesInHand()
+									  + " It was not your turn");
+							tilesBackToStack(players.get(client.getClientNumber()).getPlayer());
+							client.shutDown();
+							break;
 						}
-						client.sendMessage("NEW" + newTiles);
-						broadcast("TURN " + turn + " empty");
-						updateTurn();
-					} else {
-						broadcast("KICK " + client.getClientNumber() + " "
-								+ players.get(client.getClientNumber()).getPlayer().numberOfTilesInHand() + " It was not your turn");
-						tilesBackToStack(players.get(client.getClientNumber()).getPlayer());
-						client.shutDown();
-						break;
-					}
 					} else {
 						kickHandler(client, "First move can't be a SWAP");
 					}
@@ -654,11 +685,10 @@ public class Game {
 		fillJar();
 		String names = "";
 		for (int r = 0; r < players.size(); r++) {
-			if (players.get(r) == null) {
-
-			} else {
+			if (players.get(r) != null) {
 				names = names
-						.concat(" " + players.get(r).getPlayer().getName() + " " + players.get(r).getPlayerNumber());
+						.concat(" " + players.get(r).getPlayer().getName() 
+								+ " " + players.get(r).getPlayerNumber());
 			}
 		}
 		broadcast("NAMES" + names + " " + 100);
@@ -677,9 +707,7 @@ public class Game {
 		int counter = 0;
 		for (PlayerWrapper playerWrapper : players) {
 			for (int w = 1; w < 7; w++) {
-				if (playerWrapper == null) {
-
-				} else {
+				if (playerWrapper != null) {
 					playerWrapper.getPlayer().addTileToHand(hands.get(counter)[w]);
 				}
 			}
@@ -689,16 +717,12 @@ public class Game {
 		}
 		int nrMoves = 0;
 		for (int w = 0; w < players.size(); w++) {
-			if (players.get(w) == null) {
-
-			} else {
+			if (players.get(w) != null) {
 				nrMoves = Math.max(nrMoves, getLongestStreak(players.get(w).getPlayer(), board));
 			}
 		}
 		for (int a = 0; a < players.size(); a++) {
 			if (players.get(a) == null) {
-
-			} else {
 				if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
 					turn = players.get(a).getPlayerNumber();
 				}
@@ -748,26 +772,26 @@ public class Game {
 	 * determine which player can begin.
 	 * 
 	 * @param player
-	 * @param board
+	 * @param givenBoard
 	 * @return
 	 */
 	// @ requires player != null;
 	// @ requires board != null;
-	public int getLongestStreak(Player player, Board board) {
+	public int getLongestStreak(Player player, Board givenBoard) {
 		int nrMoves = 0;
 		int maxMoves = 0;
-		int miny = board.getMiny();
-		int maxy = board.getMaxy();
-		int minx = board.getMinx();
-		int maxx = board.getMaxx();
+		int miny = givenBoard.getMiny();
+		int maxy = givenBoard.getMaxy();
+		int minx = givenBoard.getMinx();
+		int maxx = givenBoard.getMaxx();
 		Color color = null;
 		Shape shape = null;
 		boolean gotMove;
-		Player deepPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
+		Player deepPlayer = new HumanPlayer(givenBoard, player.getName(), player.getPlayerNumber());
 
 		for (int firstMove = 0; firstMove < 6; firstMove++) {
 			nrMoves = 0;
-			Board deepBoard = board.deepCopy();
+			Board deepBoard = givenBoard.deepCopy();
 			deepPlayer.getHand().addAll(player.getHand());
 
 			color = Color.getColorFromCharacter(deepPlayer.getHand().get(firstMove).charAt(0));
@@ -785,7 +809,8 @@ public class Game {
 							color = Color.getColorFromCharacter(currentTile.charAt(0));
 							shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
 							if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
-								deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
+								deepPlayer.removeTileFromHand("" 
+										  + color.getChar() + shape.getChar());
 								nrMoves += 1;
 								gotMove = false;
 								break;
@@ -806,55 +831,61 @@ public class Game {
 	 * there are no options left.
 	 * 
 	 * @param player
-	 * @param board
+	 * @param givenBoard
 	 * @return
 	 */
 	// @ requires player != null;
 	// @ requires board != null;
-	public String checkForMoves(Player player, Board board) {
+	public String checkForMoves(Player player, Board givenBoard) {
 		if (player.getHand().size() > 0) {
-		String move = "";
-		int miny = board.getMiny();
-		int maxy = board.getMaxy();
-		int minx = board.getMinx();
-		int maxx = board.getMaxx();
+			String move = "";
+			int miny = givenBoard.getMiny();
+			int maxy = givenBoard.getMaxy();
+			int minx = givenBoard.getMinx();
+			int maxx = givenBoard.getMaxx();
 
-		Board deepBoard = board.deepCopy();
-		Player deepPlayer = new HumanPlayer(board, player.getName(), player.getPlayerNumber());
-		deepPlayer.getHand().addAll(player.getHand());
+			Board deepBoard = givenBoard.deepCopy();
+			Player deepPlayer = new HumanPlayer(
+					  givenBoard, player.getName(), player.getPlayerNumber());
+			deepPlayer.getHand().addAll(player.getHand());
 
-		Color colorFirstMove = Color.getColorFromCharacter(deepPlayer.getHand().get(0).charAt(0));
-		Shape shapeFirstMove = Shape.getShapeFromCharacter(deepPlayer.getHand().get(0).charAt(1));
+			Color colorFirstMove = Color.getColorFromCharacter(
+					  deepPlayer.getHand().get(0).charAt(0));
+			Shape shapeFirstMove = Shape.getShapeFromCharacter(
+					  deepPlayer.getHand().get(0).charAt(1));
 
-		if (board.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
-			move = move.concat(colorFirstMove.getChar() + shapeFirstMove.getChar() + " " + 91 + " " + 91
-					+ "Just place a tile on 91 91");
-			deepPlayer.removeTileFromHand(deepPlayer.getHand().get(0));
-			return move;
+			if (givenBoard.isValidMove(91, 91, new Tile(colorFirstMove, shapeFirstMove))) {
+				move = move.concat(
+						  colorFirstMove.getChar() + shapeFirstMove.getChar() + " " + 91 + " " + 91
+						  + "Just place a tile on 91 91");
+				deepPlayer.removeTileFromHand(deepPlayer.getHand().get(0));
+				return move;
 
-		} else {
-			for (int i = 0; i < deepPlayer.getHand().size(); i++) {
-				String currentTile = deepPlayer.getHand().get(i);
-				for (int row = maxy; row <= miny; row++) {
-					for (int col = minx; col <= maxx; col++) {
-						Color color = Color.getColorFromCharacter(currentTile.charAt(0));
-						Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
-						if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
-							move = move.concat(color.getChar() + shape.getChar() + " " + row + " " + col
-									+ " You could place that tile");
-							deepPlayer.removeTileFromHand("" + color.getChar() + shape.getChar());
-							return move;
+			} else {
+				for (int i = 0; i < deepPlayer.getHand().size(); i++) {
+					String currentTile = deepPlayer.getHand().get(i);
+					for (int row = maxy; row <= miny; row++) {
+						for (int col = minx; col <= maxx; col++) {
+							Color color = Color.getColorFromCharacter(currentTile.charAt(0));
+							Shape shape = Shape.getShapeFromCharacter(currentTile.charAt(1));
+							if (deepBoard.isValidMove(row, col, new Tile(color, shape))) {
+								move = move.concat(color.getChar() 
+										+ shape.getChar() + " " + row + " " + col
+										+ " You could place that tile");
+								deepPlayer.removeTileFromHand("" 
+										  + color.getChar() + shape.getChar());
+								return move;
+							}
 						}
 					}
 				}
+				if (jar.size() != 0) {
+					move = move.concat("Try swapping a tile");
+				} else {
+					move = move.concat("No options left");
+				}
+				return move;
 			}
-			if (jar.size() != 0) {
-				move = move.concat("Try swapping a tile");
-			} else {
-				move = move.concat("No options left");
-			}
-			return move;
-		}
 		} else {
 			return "No options left";
 		}
@@ -873,16 +904,17 @@ public class Game {
 		int score = 0;
 		for (int w = 0; w < players.size(); w++) {
 			if (players.get(w) != null) {
-			score = Math.max(score, players.get(w).getScore());
+				score = Math.max(score, players.get(w).getScore());
 			}
 		}
 		for (int a = 0; a < players.size(); a++) {
 			if (players.get(a) != null) {
-			if (score == players.get(a).getScore()) {
-				broadcast("WINNER " + players.get(a).getPlayerNumber());
-				System.out.println("WINNER Player" + players.get(a).getPlayer().getName() + " " + players.get(a).getPlayerNumber());
+				if (score == players.get(a).getScore()) {
+					broadcast("WINNER " + players.get(a).getPlayerNumber());
+					System.out.println("WINNER Player" + players.get(a).getPlayer().getName() + " "
+						    	+ players.get(a).getPlayerNumber());
+				}
 			}
-		}
 		}
 	}
 }
