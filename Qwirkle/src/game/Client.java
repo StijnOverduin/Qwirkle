@@ -86,11 +86,8 @@ public class Client extends Thread {
 	 * Constructs a new client object.
 	 * 
 	 * @param host
-	 *            InetAddress
 	 * @param port
-	 *            int
 	 * @throws IOException
-	 *             exception
 	 */
 	public Client(InetAddress host, int port) throws IOException {
 		sock = new Socket(host, port);
@@ -273,9 +270,8 @@ public class Client extends Thread {
 	 * valid command in the command line.
 	 * 
 	 * @param msg
-	 *            String
 	 */
-	// @ requires msg != null;
+	//@ requires msg != null;
 	public void sendMessage(String msg) {
 		try {
 			String input = msg;
@@ -332,7 +328,6 @@ public class Client extends Thread {
 													  Integer.parseInt(splittedInput[3 + i * 3]), 
 													  new Tile(color, shape));
 											deepPlayer.removeTileFromHand(splittedInput[1 + i * 3]);
-											// TODO catch parseint excep
 	
 										} else {
 											tui.showInvalidMove();
@@ -487,11 +482,10 @@ public class Client extends Thread {
 	 * longer than 1 character and shorter than 17 chars.
 	 * 
 	 * @param name
-	 *            String
 	 * @return boolean whether the name complies
 	 */
-	// @ requires name != null;
-	/* @ pure */ public boolean checkName(String name) {
+	//@ requires name != null;
+	/*@ pure */ public boolean checkName(String name) {
 		if (!(name.matches(".*[^a-zA-Z].*")) && name.length() > 0 && name.length() <= 16) {
 			return true;
 		} else {
@@ -503,10 +497,9 @@ public class Client extends Thread {
 	 * Reads what the user enters in the command line.
 	 * 
 	 * @param tekst
-	 *            String
 	 * @return text typed in the command line
 	 */
-	// @ requires tekst != null;
+	//@ requires tekst != null;
 	public static String readString(String tekst) {
 		System.out.print(tekst);
 		String antw = null;
@@ -524,13 +517,11 @@ public class Client extends Thread {
 	 * make any more moves.
 	 * 
 	 * @param givenPlayer
-	 *            Player
 	 * @param givenBoard
-	 *            Board
 	 * @return String for a possible move for the player at that time
 	 */
-	// @ requires player != null;
-	// @ requires board != null;
+	//@ requires player != null;
+	//@ requires board != null;
 	public String checkForMoves(Player givenPlayer, Board givenBoard) {
 		String move = "";
 		int miny = givenBoard.getMiny();

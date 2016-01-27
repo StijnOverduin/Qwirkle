@@ -13,7 +13,6 @@ public enum Shape {
 	 * Converts a specific shape into a character.
 	 * 
 	 * @param charac
-	 *            char
 	 * @return the case that is used in our protocol
 	 */
 	public static Shape getShapeFromCharacter(char charac) {

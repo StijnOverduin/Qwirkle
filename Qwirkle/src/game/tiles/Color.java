@@ -13,7 +13,6 @@ public enum Color {
 	 * Converts a specific color into a character.
 	 * 
 	 * @param charac
-	 *            char
 	 * @return the case that is used in our protocol
 	 */
 	public static Color getColorFromCharacter(char charac) {
