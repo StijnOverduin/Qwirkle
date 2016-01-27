@@ -128,5 +128,14 @@ public class BoardTest {
 		board.setTile(91, 86, new Tile(Color.ROOD, Shape.KLAVER));
 		assertEquals(board.getMinx(), 85);
 	}
+	
+	@Test
+	public void testDeepCopy() {
+		assertEquals(board.toString(), board.deepCopy().toString());
+		board.setTile(91, 91, new Tile(Color.GEEL, Shape.STER));
+		board.setTile(91, 92, new Tile(Color.GEEL, Shape.CIRKEL));
+		board.setTile(90, 91, new Tile(Color.GEEL, Shape.DIAMANT));
+		assertEquals(board.toString(), board.deepCopy().toString());
+	}
 
 }
