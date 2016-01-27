@@ -236,6 +236,8 @@ public class Game {
 	
 							}
 							Board deepBoard = board.deepCopy();
+							Player deepPlayer = new HumanPlayer(deepBoard, "deepPlayer", 0);
+							deepPlayer.getHand().addAll(players.get(turn).getPlayer().getHand());
 	
 							String newTiles = "NEW";
 							if (nrMoves > 1) {
@@ -248,10 +250,10 @@ public class Game {
 												Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape))) {
 											deepBoard.setTile(Integer.parseInt(splittedInput[(2 + i * 3)]),
 													Integer.parseInt(splittedInput[(3 + i * 3)]), new Tile(color, shape));
-											players.get(turn).getPlayer().removeTileFromHand(splittedInput[(1 + i * 3)]);
+											deepPlayer.removeTileFromHand(splittedInput[(1 + i * 3)]);
 											String randomTile = giveRandomTile();
 											newTiles = newTiles.concat(" " + randomTile);
-											players.get(turn).getPlayer().addTileToHand(randomTile);
+											deepPlayer.addTileToHand(randomTile);
 	
 											// TODO catch parseint excep
 											players.get(turn).setScore(calcScoreCrossedTiles(splittedInput, i, deepBoard)
@@ -277,10 +279,10 @@ public class Game {
 										deepBoard.setTile(Integer.parseInt(splittedInput[2]),
 												Integer.parseInt(splittedInput[3]), new Tile(color, shape));
 	
-										players.get(turn).getPlayer().removeTileFromHand(splittedInput[1]);
+										deepPlayer.removeTileFromHand(splittedInput[1]);
 										String randomTile = giveRandomTile();
 										newTiles = newTiles.concat(" " + randomTile);
-										players.get(turn).getPlayer().addTileToHand(randomTile);
+										deepPlayer.addTileToHand(randomTile);
 										players.get(turn).setScore(calcScoreHorAndVer(splittedInput, deepBoard)
 												+ players.get(turn).getScore());
 									} else {
@@ -294,6 +296,8 @@ public class Game {
 							}
 	
 							board = deepBoard;
+							players.get(turn).getPlayer().getHand().removeAll(players.get(turn).getPlayer().getHand());
+							players.get(turn).getPlayer().getHand().addAll(deepPlayer.getHand());
 							if (newTiles.contains("empty")) {
 								client.sendMessage("NEW empty");
 							} else {
@@ -335,7 +339,7 @@ public class Game {
 							}
 						}
 						client.sendMessage("NEW" + newTiles);
-						broadcast("TURN empty");
+						broadcast("TURN " + turn + " empty");
 						updateTurn();
 					} else {
 						broadcast("KICK " + client.getClientNumber() + " "
