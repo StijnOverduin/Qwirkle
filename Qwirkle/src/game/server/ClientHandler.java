@@ -18,7 +18,7 @@ public class ClientHandler extends Thread {
 	/**
 	 * Constructs a ClientHandler object Initializes both Data streams.
 	 */
-	//@ requires serverArg != null && sockArg != null;
+	//@ requires sockArg != null && sockArg != null;
 	public ClientHandler(Socket sockArg, Game game) throws IOException {
 		running = true;
 		in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));

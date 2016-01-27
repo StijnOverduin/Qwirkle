@@ -782,7 +782,7 @@ public class Game {
 	 * @return
 	 */
 	//@ requires player != null;
-	//@ requires board != null;
+	//@ requires givenBoard != null;
 	public int getLongestStreak(Player player, Board givenBoard) {
 		int nrMoves = 0;
 		int maxMoves = 0;
@@ -841,7 +841,7 @@ public class Game {
 	 * @return
 	 */
 	//@ requires player != null;
-	//@ requires board != null;
+	//@ requires givenBoard != null;
 	public String checkForMoves(Player player, Board givenBoard) {
 		if (player.getHand().size() > 0) {
 			String move = "";

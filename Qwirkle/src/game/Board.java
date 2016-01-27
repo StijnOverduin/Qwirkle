@@ -115,7 +115,7 @@ public class Board extends Observable {
 	 * 
 	 * @param board
 	 */
-	//@ requires board != null;
+	//@ requires givenBoard != null;
 	public void setBoundries(Board givenBoard) {
 		miny = givenBoard.getMiny();
 		maxy = givenBoard.getMaxy();
