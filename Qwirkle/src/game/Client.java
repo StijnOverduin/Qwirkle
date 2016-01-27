@@ -134,6 +134,7 @@ public class Client extends Thread {
           switch (splittedInput[0]) {
             case "WELCOME":
               board = new Board();
+              board.addObserver(tui);
               String playerName = splittedInput[1];
               int playerNumber = Integer.parseInt(splittedInput[2]);
               if (playerName.equals("Naive")) {
@@ -202,7 +203,6 @@ public class Client extends Thread {
                 player.makeMove(row, col, tile);
     
               }
-              tui.showBoard(board);
               tui.showHand(player.getHand());
               board.isFirstMoveBecomesFalse();
     

@@ -1,12 +1,13 @@
 package game;
 
+import java.util.ArrayList;
+import java.util.Observable;
+
 import game.tiles.Color;
 import game.tiles.Shape;
 import game.tiles.Tile;
 
-import java.util.ArrayList;
-
-public class Board {
+public class Board extends Observable {
 
   public static final int DIM = 183;
   public static final int BEGINVELD = 0;
@@ -137,6 +138,8 @@ public class Board {
     minx = Math.min(col - 1, minx);
     miny = Math.max(row + 1, miny);
     maxy = Math.min(row - 1, maxy);
+    setChanged();
+    notifyObservers();
 
   }
 
