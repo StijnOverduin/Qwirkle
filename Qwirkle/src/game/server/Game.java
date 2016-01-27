@@ -191,7 +191,11 @@ public class Game {
 							Player player = new HumanPlayer(board, splittedInput[1], client.getClientNumber());
 							fillWrapper(client, player);
 							if (players.size() == 4) {
+								if (threads.size() > 1) {
 								startGame();
+								} else {
+									endGame();
+								}
 							}
 						} else {
 							client.sendMessage("Name doesn't consist of [a-z][A-Z] or is longer than 16 chars");
