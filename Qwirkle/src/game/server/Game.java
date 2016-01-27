@@ -270,8 +270,6 @@ public class Game {
 											String randomTile = giveRandomTile();
 											newTiles = newTiles.concat(" " + randomTile);
 											deepPlayer.addTileToHand(randomTile);
-	
-											// TODO catch parseint excep
 											players.get(turn).setScore(calcScoreCrossedTiles(
 													  splittedInput, i, deepBoard)
 													  + players.get(turn).getScore());
@@ -393,12 +391,16 @@ public class Game {
 	}
 
 	/**
-	 * TODO Jotte doe jij de score?
+	 * This calculates the crossed line for every placed tile.
+	 * It uses isEmpty to check whether the crossed tile next to it is filled.
+	 * If that is the case the lineLength is incremented by 1.
+	 * The lineLength score is only awarded (plus 1) if there are actually tiles next to it.
+	 * This method is looped for every tile placed in the MOVE
 	 * 
 	 * @param split
 	 * @param index
 	 * @param deepBoard
-	 * @return
+	 * @return addToScore integer
 	 */
 	// @ requires split != null;
 	// @ requires index > 0;
@@ -435,12 +437,13 @@ public class Game {
 	}
 
 	/**
-	 * This method does something TODO Jotte doe jij de score?
+	 * This method calculates the length of the row after all tiles have been placed.
+	 * It uses while-loops to check whether the tile next to it is not empty
 	 * 
 	 * @param split
 	 * @param deepBoard
-	 * @return
-	 */
+	 * @return addToScore integer
+	*/
 	// @ requires split != null;
 	// @ requires deepBoard != null;
 	public int calcScoreAddedTiles(String[] split, Board deepBoard) {
@@ -471,11 +474,15 @@ public class Game {
 	}
 
 	/**
-	 * TODO Jotte doe jij de score?
+	 * This method calculates the length of the horizontal and vertical rows.
+	 * If checks the length of the rows via while-loops and returns that length via lineLength.
+	 * it returns the score of all lineLength 
+	 * and increments the score by 1 for any horizontal and vertical rows
+	 * 
 	 * 
 	 * @param split
 	 * @param deepBoard
-	 * @return
+	 * @return addToScore
 	 */
 	// @ requires split != null;
 	// @ requires deepBoard != null;
@@ -722,7 +729,7 @@ public class Game {
 			}
 		}
 		for (int a = 0; a < players.size(); a++) {
-			if (players.get(a) == null) {
+			if (players.get(a) != null) {
 				if (nrMoves == getLongestStreak(players.get(a).getPlayer(), board)) {
 					turn = players.get(a).getPlayerNumber();
 				}

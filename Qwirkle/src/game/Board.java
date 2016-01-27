@@ -50,14 +50,12 @@ public class Board extends Observable {
 	 * Returns a the tile on the board specified by the row and column.
 	 * 
 	 * @param int
-	 *            row
 	 * @param int
-	 *            col
 	 * @return tile in that location
 	 */
-	// @ requires row >= 0 && row <= 182;
-	// @ requires col >= 0 && col <= 182;
-	/* @ pure */ public Tile getTile(int row, int col) {
+	//@ requires row >= 0 && row <= 182;
+	//@ requires col >= 0 && col <= 182;
+	/*@ pure */ public Tile getTile(int row, int col) {
 		return board[row][col];
 	}
 
@@ -66,14 +64,12 @@ public class Board extends Observable {
 	 * empty or not, and gives a boolean back.
 	 * 
 	 * @param int
-	 *            row
 	 * @param int
-	 *            col
 	 * @return whether the tile location is empty
 	 */
-	// @ requires row >= 0 && row <= 182;
-	// @ requires col >= 0 && col <= 182;
-	/* @ pure */ public boolean isEmpty(int row, int col) {
+	//@ requires row >= 0 && row <= 182;
+	//@ requires col >= 0 && col <= 182;
+	/*@ pure */ public boolean isEmpty(int row, int col) {
 		return (getTile(row, col)).toString().equals("ee");
 	}
 
@@ -82,7 +78,7 @@ public class Board extends Observable {
 	 * 
 	 * @return boundary of the maximum column
 	 */
-	/* @ pure */ public int getMaxx() {
+	/*@ pure */ public int getMaxx() {
 		return maxx;
 	}
 
@@ -91,7 +87,7 @@ public class Board extends Observable {
 	 * 
 	 * @return boundary of the minimal column
 	 */
-	/* @ pure */ public int getMinx() {
+	/*@ pure */ public int getMinx() {
 		return minx;
 	}
 
@@ -100,7 +96,7 @@ public class Board extends Observable {
 	 * 
 	 * @return boundary of the maximum row
 	 */
-	/* @ pure */ public int getMaxy() {
+	/*@ pure */ public int getMaxy() {
 		return maxy;
 	}
 
@@ -109,18 +105,17 @@ public class Board extends Observable {
 	 * 
 	 * @return boundary of the minimal row
 	 */
-	/* @ pure */ public int getMiny() {
+	/*@ pure */ public int getMiny() {
 		return miny;
 	}
 
 	/**
 	 * Copies the boundaries from the given board. This method is mainly used by
-	 * the deepCopy() method.
+	 * the deepCopy() method which inherits those boundaries
 	 * 
 	 * @param board
-	 *            whose boundaries it inherits
 	 */
-	// @ requires board != null;
+	//@ requires board != null;
 	public void setBoundries(Board givenBoard) {
 		miny = givenBoard.getMiny();
 		maxy = givenBoard.getMaxy();
@@ -128,25 +123,22 @@ public class Board extends Observable {
 		maxx = givenBoard.getMaxx();
 	}
 
-	// Geredeneerd vanuit het middelpunt 91, 91
-	// Een colom naar rechts betekent dus 91, 92
-	// Een colom naar links betekent dus 91,90
-	// Een rij naar boven betekend 90, 91
-	// Een rij naar beneden betekend 92,91
+
 	/**
 	 * Sets a tile on the board. It also changes the boundaries if the tile is
 	 * to close to the edge of the board.
+	 * maxx is the maximum column in which a tile can be placed
+	 * minx is the minimum column in which a tile can be placed
+	 * miny is the minimum row in which a tile can be placed
+	 * maxy is the maximum row in which a tile can be placed
 	 * 
 	 * @param row
-	 *            int
 	 * @param col
-	 *            int
 	 * @param tile
-	 *            Tile
 	 */
-	// @ requires row >= 0 && row <= 182;
-	// @ requires col >= 0 && col <= 182;
-	// @ requires tile != null;
+	//@ requires row >= 0 && row <= 182;
+	//@ requires col >= 0 && col <= 182;
+	//@ requires tile != null;
 	public void setTile(int row, int col, Tile tile) {
 		board[row][col] = tile;
 		maxx = Math.max(col + 1, maxx);
@@ -164,17 +156,14 @@ public class Board extends Observable {
 	 * the tile can't be placed.
 	 * 
 	 * @param row
-	 *            int
 	 * @param col
-	 *            int
 	 * @param tile
-	 *            Tile
 	 * @return whether the move complies to the game rules
 	 */
 
-	// @ requires row >= 0 && row <= 182;
-	// @ requires col >= 0 && col <= 182;
-	// @ requires tile != null;
+	//@ requires row >= 0 && row <= 182;
+	//@ requires col >= 0 && col <= 182;
+	//@ requires tile != null;
 	public boolean isValidMove(int row, int col, Tile tile) {
 		if (row > EINDVELD || col > EINDVELD || row < BEGINVELD || col < BEGINVELD) {
 			return false;
@@ -199,27 +188,21 @@ public class Board extends Observable {
 	}
 
 	/**
-	 * Checks if the tile can be placed in the row. Receives a boolean to check
+	 * Checks if the tile can be placed in the row. Receives a boolean to see
 	 * if it has to check horizontally. Returns a boolean whether the tile can
 	 * be placed or not. This method is used by isValidMove() to make it less
 	 * complex.
 	 * 
 	 * @param tile
-	 *            Tile
 	 * @param givenRow
-	 *            int
 	 * @param givenCol
-	 *            int
 	 * @param horizontalCheck
-	 *            boolean, whether the row should be checked horizontally or
-	 *            vertically.
 	 * @return boolean whether it complies to the game rules
 	 */
 	private boolean checkRow(Tile tile, int row, int col, boolean horizontalCheck) {
 		int givenRow = row;
 		int givenCol = col;
-		dx = horizontalCheck ? 0 : 1; // als horizontal check false, dan dx 1 dy
-		// 0, anders dx 0 dy 1.
+		dx = horizontalCheck ? 0 : 1;
 		dy = dx == 1 ? 0 : 1;
 		dupRow = givenRow;
 		dupCol = givenCol;
@@ -343,7 +326,7 @@ public class Board extends Observable {
 	 * 
 	 * @return isFirstMove boolean
 	 */
-	/* @ pure */ public boolean getIsFirstMove() {
+	/*@ pure */ public boolean getIsFirstMove() {
 		return isFirstMove;
 	}
 }
