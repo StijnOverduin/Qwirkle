@@ -19,11 +19,8 @@ public abstract class Player {
 	 * playerNumber and hand of the player.
 	 * 
 	 * @param board
-	 *            Board
 	 * @param name
-	 *            String
 	 * @param playerNumber
-	 *            int
 	 */
 	public Player(Board board, String name, int playerNumber) {
 		this.board = board;
@@ -36,11 +33,8 @@ public abstract class Player {
 	 * Places a tile on the board the player has been given.
 	 * 
 	 * @param row
-	 *            int
 	 * @param col
-	 *            int
 	 * @param tile
-	 *            Tile
 	 */
 	public void makeMove(int row, int col, Tile tile) {
 		board.setTile(row, col, tile);
@@ -66,7 +60,6 @@ public abstract class Player {
 	 * Adds the specified tile to the hand of the player.
 	 * 
 	 * @param tile
-	 *            String
 	 */
 	public void addTileToHand(String tile) {
 		hand.add(tile);
@@ -76,7 +69,6 @@ public abstract class Player {
 	 * Removes the specified tile from the hand of the player.
 	 * 
 	 * @param tile
-	 *            String
 	 */
 	public void removeTileFromHand(String tile) {
 		hand.remove(tile);

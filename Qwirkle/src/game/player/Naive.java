@@ -18,7 +18,6 @@ public class Naive extends Player implements Ai {
 	 * thinkingTime. If the thinkingTime is over it SWAPs
 	 * 
 	 * @param thinkingTime
-	 *            long
 	 */
 	public String determineMove(long thinkingTime) {
 		String move = "";

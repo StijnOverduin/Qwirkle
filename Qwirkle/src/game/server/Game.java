@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-	// TODO game stoppen als er nog maar 1 speler inzit...
 
 	private List<String> jar;
 	private List<ClientHandler> threads;
@@ -49,8 +48,8 @@ public class Game {
 	 * @param client
 	 * @param message
 	 */
-	// @ requires client != null;
-	// @ requires message != null;
+	//@ requires client != null;
+	//@ requires message != null;
 	private void kickHandler(ClientHandler client, String message) {
 		if (players.get(turn).getPlayer() != null) {
 			if (!(players.get(turn).getPlayer().getHand().isEmpty())) {
@@ -86,6 +85,10 @@ public class Game {
 
 	/**
 	 * This method updates the turn whenever it is called.
+	 * It checks first if the next player can actually do a move
+	 * If not then it checks for all players if anyone can do a move
+	 * and gives the turn to the next possible player in row
+	 * If no turn is possible then it calls to end the game.
 	 */
 
 	public void updateTurn() {
@@ -117,7 +120,7 @@ public class Game {
 	 * Checks if one of the players can still make a move. If no one can, it
 	 * returns false, otherwise it returns true.
 	 * 
-	 * @return
+	 * @return boolean
 	 */
 	public boolean checkAllPlayers() {
 		for (int i = 0; i < players.size(); i++) {
@@ -143,8 +146,8 @@ public class Game {
 	 * @param name
 	 * @return
 	 */
-	// @ requires name != null;
-	/* @ pure */ public boolean checkName(String name) {
+	//@ requires name != null;
+	/*@ pure */ public boolean checkName(String name) {
 		if (!(name.matches(".*[^a-zA-Z].*")) && name.length() > 0 && name.length() <= 16) {
 			return true;
 		} else {
@@ -180,8 +183,8 @@ public class Game {
 	 * @param message
 	 * @param client
 	 */
-	// @ requires message != null;
-	// @ requires client != null;
+	//@ requires message != null;
+	//@ requires client != null;
 	public synchronized void readInput(String message, ClientHandler client) {
 		String input = message;
 		String[] splittedInput = message.split(" ");
@@ -402,13 +405,11 @@ public class Game {
 	 * @param deepBoard
 	 * @return addToScore integer
 	 */
-	// @ requires split != null;
-	// @ requires index > 0;
-	// @ requires deepBoard != null;
+	//@ requires split != null;
+	//@ requires index > 0;
+	//@ requires deepBoard != null;
 	public int calcScoreCrossedTiles(String[] split, int index, Board deepBoard) {
-		int dx = horizontalTrue ? 0 : 1; // als het een horizontale rij is dan
-		// gaat hij verticaal checken elke
-		// keer
+		int dx = horizontalTrue ? 0 : 1;
 		int dy = dx == 1 ? 0 : 1;
 		int row = Integer.parseInt(split[2 + 3 * index]);
 		int col = Integer.parseInt(split[3 + 3 * index]);
@@ -444,12 +445,10 @@ public class Game {
 	 * @param deepBoard
 	 * @return addToScore integer
 	*/
-	// @ requires split != null;
-	// @ requires deepBoard != null;
+	//@ requires split != null;
+	//@ requires deepBoard != null;
 	public int calcScoreAddedTiles(String[] split, Board deepBoard) {
-		int dx = horizontalTrue ? 1 : 0; // als het een horizontale rij is dan
-		// gaat hij verticaal checken elke
-		// keer
+		int dx = horizontalTrue ? 1 : 0;
 		int dy = dx == 1 ? 0 : 1;
 		int row = Integer.parseInt(split[2]);
 		int col = Integer.parseInt(split[3]);
@@ -484,8 +483,8 @@ public class Game {
 	 * @param deepBoard
 	 * @return addToScore
 	 */
-	// @ requires split != null;
-	// @ requires deepBoard != null;
+	//@ requires split != null;
+	//@ requires deepBoard != null;
 	public int calcScoreHorAndVer(String[] split, Board deepBoard) {
 		if (board.getIsFirstMove() == true) {
 			return 1;
@@ -547,7 +546,7 @@ public class Game {
 	 * 
 	 * @param msg
 	 */
-	// @ requires msg != null;
+	//@ requires msg != null;
 	public void broadcast(String msg) {
 		if (threads.size() != 0) {
 			for (int i = 0; i < threads.size(); i++) {
@@ -564,7 +563,7 @@ public class Game {
 	 * 
 	 * @param player
 	 */
-	// @ requires player != null;
+	//@ requires player != null;
 	public void tilesBackToStack(Player player) {
 		for (int q = 0; q < player.getHand().size(); q++) {
 			addTileToJar(player.getHand().get(q));
@@ -578,7 +577,7 @@ public class Game {
 	 * 
 	 * @param player
 	 */
-	// @ requires player != null;
+	//@ requires player != null;
 	public void removePlayerWrapperFromList(PlayerWrapper player) {
 		if (players.contains(player)) {
 			players.remove(player);
@@ -591,8 +590,8 @@ public class Game {
 	 * @param client
 	 * @param player
 	 */
-	// @ requires client != null;
-	// @ requires player != null;
+	//@ requires client != null;
+	//@ requires player != null;
 	public void fillWrapper(ClientHandler client, Player player) {
 		players.get(client.getClientNumber()).setPlayer(player);
 		players.get(client.getClientNumber()).setScore(0);
@@ -624,7 +623,7 @@ public class Game {
 	 * 
 	 * @param tile
 	 */
-	// @ requires tile != null;
+	//@ requires tile != null;
 	public void removeTileFromJar(String tile) {
 		jar.remove(tile);
 	}
@@ -634,7 +633,7 @@ public class Game {
 	 * 
 	 * @param tile
 	 */
-	// @ requires tile != null;
+	//@ requires tile != null;
 	public void addTileToJar(String tile) {
 		jar.add(tile);
 	}
@@ -644,7 +643,7 @@ public class Game {
 	 * 
 	 * @return
 	 */
-	/* @ pure */ public int tilesInJar() {
+	/*@ pure */ public int tilesInJar() {
 		return jar.size();
 	}
 
@@ -667,9 +666,9 @@ public class Game {
 	/**
 	 * Returns the boolean activeGame.
 	 * 
-	 * @return
+	 * @return activeGame
 	 */
-	/* @ pure */ public boolean isActive() {
+	/*@ pure */ public boolean isActive() {
 		return activeGame;
 	}
 
@@ -744,7 +743,7 @@ public class Game {
 	 * 
 	 * @param client
 	 */
-	// @ requires client != null;
+	//@ requires client != null;
 	public void addHandler(ClientHandler client) {
 		client.setClientNumber(players.size());
 		threads.add(client);
@@ -758,7 +757,7 @@ public class Game {
 	 * 
 	 * @param client
 	 */
-	// @ requires client != null;
+	//@ requires client != null;
 	public void removeHandler(ClientHandler client) {
 		if (players.get(client.getClientNumber()).getPlayer() != null) {
 			for (int i = 0; i < threads.size(); i++) {
@@ -782,8 +781,8 @@ public class Game {
 	 * @param givenBoard
 	 * @return
 	 */
-	// @ requires player != null;
-	// @ requires board != null;
+	//@ requires player != null;
+	//@ requires board != null;
 	public int getLongestStreak(Player player, Board givenBoard) {
 		int nrMoves = 0;
 		int maxMoves = 0;
@@ -841,8 +840,8 @@ public class Game {
 	 * @param givenBoard
 	 * @return
 	 */
-	// @ requires player != null;
-	// @ requires board != null;
+	//@ requires player != null;
+	//@ requires board != null;
 	public String checkForMoves(Player player, Board givenBoard) {
 		if (player.getHand().size() > 0) {
 			String move = "";
